@@ -1,13 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace exdrive.Models
+namespace JWTAuthentication.Authentication
 {
-    public class Login
+    public class LoginModel
     {
-        [Required]
+        [Required(ErrorMessage = "Email is required")]
         public string Email { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Password is required")]
         public string Password { get; set; }
     }
 }

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\REBORN2.0\\exdrive_web\\exdrive_web\\exdrive_web.csproj": {}
+    "D:\\REBORN2.0\\WEB-ExDrive\\exdrive_web\\exdrive_web.csproj": {}
   },
   "projects": {
-    "D:\\REBORN2.0\\exdrive_web\\exdrive_web\\exdrive_web.csproj": {
+    "D:\\REBORN2.0\\WEB-ExDrive\\exdrive_web\\exdrive_web.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\REBORN2.0\\exdrive_web\\exdrive_web\\exdrive_web.csproj",
+        "projectUniqueName": "D:\\REBORN2.0\\WEB-ExDrive\\exdrive_web\\exdrive_web.csproj",
         "projectName": "exdrive_web",
-        "projectPath": "D:\\REBORN2.0\\exdrive_web\\exdrive_web\\exdrive_web.csproj",
+        "projectPath": "D:\\REBORN2.0\\WEB-ExDrive\\exdrive_web\\exdrive_web.csproj",
         "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "D:\\REBORN2.0\\exdrive_web\\exdrive_web\\obj\\",
+        "outputPath": "D:\\REBORN2.0\\WEB-ExDrive\\exdrive_web\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -40,23 +40,35 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[6.0.4, )"
+            },
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[6.0.3, )"
+            },
+            "Microsoft.AspNetCore.Identity.UI": {
+              "target": "Package",
+              "version": "[6.0.3, )"
+            },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
               "version": "[6.0.4, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[6.0.3, )"
             },
             "Microsoft.EntityFrameworkCore.Tools": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[6.0.4, )"
+              "version": "[6.0.3, )"
             },
             "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
               "target": "Package",
               "version": "[6.0.2, )"
-            },
-            "Pomelo.EntityFrameworkCore.MySql": {
-              "target": "Package",
-              "version": "[6.0.1, )"
             }
           },
           "imports": [
