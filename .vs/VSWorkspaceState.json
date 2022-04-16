@@ -8,6 +8,6 @@
     "\\exdrive_web\\Migrations",
     "\\exdrive_web\\Models"
   ],
-  "SelectedNode": "\\exdrive_web\\Migrations\\ApplicationDbContextModelSnapshot.cs",
+  "SelectedNode": "\\exdrive_web\\Models\\UploadFile.cs",
   "PreviewInSolutionExplorer": false
 }

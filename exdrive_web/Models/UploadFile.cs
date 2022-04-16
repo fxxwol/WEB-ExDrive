@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using JWTAuthentication.Authentication;
+using Microsoft.EntityFrameworkCore;
 
 namespace exdrive_web.Models
 {
@@ -33,7 +34,9 @@ namespace exdrive_web.Models
                         containerClient.UploadBlobAsync(filePathOverCloud, stream).Wait();
                     }
 
-                    using (var _context = new ApplicationDbContext())
+                    var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
+                    optionsBuilder.UseSqlServer("Server=tcp:exdrive.database.windows.net,1433;Initial Catalog=Exdrive;Persist Security Info=False;User ID=fxxwol;Password=AbCD.123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+                    using (var _context = new ApplicationDbContext(optionsBuilder.Options))
                     {
                         Files newUpload = new Files();
                         newUpload.FilesId = fileId.ToString();
