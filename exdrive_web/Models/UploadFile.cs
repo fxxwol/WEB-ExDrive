@@ -1,4 +1,5 @@
 ﻿using Azure.Storage.Blobs;
+using JWTAuthentication.Authentication;
 
 namespace exdrive_web.Models
 {
@@ -21,21 +22,28 @@ namespace exdrive_web.Models
 
                 if (format.Length > 0)
                 {
-                    Files newUpload = new Files();
                     fileId = Guid.NewGuid();
                     newFile = folderPath + fileId + format;
                     File.Move(file, newFile);
 
-                    newUpload.FilesId = fileId.ToString();
-                    newUpload.Name = fileName;
-                    newUpload.IsTemporary = true;
-                    newUpload.HasAccess = "*";
                     var filePathOverCloud = newFile.Replace(folderPath, string.Empty);
                     using (MemoryStream stream = new MemoryStream(File.ReadAllBytes(newFile)))
                     {
                         //containerClient.UploadBlob(filePathOverCloud, stream);
                         containerClient.UploadBlobAsync(filePathOverCloud, stream).Wait();
-                        Console.WriteLine(filePathOverCloud + " uploaded");
+                    }
+
+                    using (var _context = new ApplicationDbContext())
+                    {
+                        Files newUpload = new Files();
+                        newUpload.FilesId = fileId.ToString();
+                        newUpload.Name = fileName;
+                        newUpload.IsTemporary = true;
+                        newUpload.HasAccess = "*";
+
+                        _context.Files.Add(newUpload);
+
+                        _context.SaveChanges();
                     }
                     File.Delete(newFile);
                 }
