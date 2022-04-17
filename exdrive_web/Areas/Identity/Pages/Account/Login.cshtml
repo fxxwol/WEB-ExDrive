@@ -2,7 +2,7 @@
 @model LoginModel
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+<partial name="_ValidationScriptsPartial" />
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -20,13 +20,13 @@
                 <hr />
                 <div asp-validation-summary="ModelOnly" class="clearfix"></div>
                 <div class="clearfix">
-                    <input asp-for="Input.Email" class="clearfix" autocomplete="username" aria-required="true" />
                     <label asp-for="Input.Email" class="clearfix"></label>
+                    <input asp-for="Input.Email" class="clearfix" autocomplete="username" aria-required="true" />
                     <span asp-validation-for="Input.Email" class="clearfix"></span>
                 </div>
                 <div class="clearfix">
-                    <input asp-for="Input.Password" class="clearfix" autocomplete="current-password" aria-required="true" />
                     <label asp-for="Input.Password" class="clearfix"></label>
+                    <input asp-for="Input.Password" class="clearfix" autocomplete="current-password" aria-required="true" />
                     <span asp-validation-for="Input.Password" class="clearfix"></span>
                 </div>
                 <div>
@@ -38,7 +38,7 @@
                     </div>
                 </div>
                 <div>
-                    <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary bg-#433c3c7e">Log in</button>
+                    <input type="submit" class="w-100 btn btn-lg btn-primary bg-#433c3c7e" value="Log in" onclick="window.location.href='<%= Url.Action(" AccessStorage","Storage") %>
                 </div>
             </form>
         </section>
@@ -49,7 +49,7 @@
             @{
                 if ((Model.ExternalLogins?.Count ?? 0) == 0)
                 {
-                    
+
                 }
                 else
                 {
