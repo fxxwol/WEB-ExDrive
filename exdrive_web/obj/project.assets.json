@@ -10126,24 +10126,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Ululo\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\hp\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Ululo\\Desktop\\Web\\WEB-ExDrive\\exdrive_web\\exdrive_web.csproj",
+      "projectUniqueName": "C:\\Users\\hp\\source\\repos\\roksaexdrive\\WEB-ExDrive\\exdrive_web\\exdrive_web.csproj",
       "projectName": "exdrive_web",
-      "projectPath": "C:\\Users\\Ululo\\Desktop\\Web\\WEB-ExDrive\\exdrive_web\\exdrive_web.csproj",
-      "packagesPath": "C:\\Users\\Ululo\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Ululo\\Desktop\\Web\\WEB-ExDrive\\exdrive_web\\obj\\",
+      "projectPath": "C:\\Users\\hp\\source\\repos\\roksaexdrive\\WEB-ExDrive\\exdrive_web\\exdrive_web.csproj",
+      "packagesPath": "C:\\Users\\hp\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\hp\\source\\repos\\roksaexdrive\\WEB-ExDrive\\exdrive_web\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\Ululo\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Users\\hp\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -10222,7 +10217,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.202\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.201\\RuntimeIdentifierGraph.json"
       }
     }
   }
