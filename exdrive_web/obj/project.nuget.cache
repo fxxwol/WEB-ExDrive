@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "NHwiTIxEg3nXX6b1am2uv9XFdQ0rqDdvYbRA3Q2gM4VIYEav4weqL7dH8XlbeFoVP4yW1iS4qAWrtPPmvuudwQ==",
+  "dgSpecHash": "omMjlVXyOkBrmIobAvsKZBcwhvm3oz0QSiBbF7oWc0NXxuW+64VU77qjl1S4VpnVTQKFR/3k9s+SAEKw4MYduA==",
   "success": true,
   "projectFilePath": "D:\\REBORN2.0 – копія\\WEB-ExDrive\\exdrive_web\\exdrive_web.csproj",
   "expectedPackageFiles": [
@@ -190,7 +190,8 @@
     "C:\\Users\\User\\.nuget\\packages\\system.threading.timer\\4.3.0\\system.threading.timer.4.3.0.nupkg.sha512",
     "C:\\Users\\User\\.nuget\\packages\\system.windows.extensions\\4.7.0\\system.windows.extensions.4.7.0.nupkg.sha512",
     "C:\\Users\\User\\.nuget\\packages\\system.xml.readerwriter\\4.3.0\\system.xml.readerwriter.4.3.0.nupkg.sha512",
-    "C:\\Users\\User\\.nuget\\packages\\system.xml.xdocument\\4.3.0\\system.xml.xdocument.4.3.0.nupkg.sha512"
+    "C:\\Users\\User\\.nuget\\packages\\system.xml.xdocument\\4.3.0\\system.xml.xdocument.4.3.0.nupkg.sha512",
+    "C:\\Users\\User\\.nuget\\packages\\windowsazure.storage\\9.3.3\\windowsazure.storage.9.3.3.nupkg.sha512"
   ],
   "logs": []
 }
