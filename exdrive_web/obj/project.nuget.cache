@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "jGMM3ladHlvOgLrtFAV2aXnUxA8jzzp0Bw6sGLpZYJKZ/I103Dq4XhjYuzlyUfwhQDcdaIaFS0nhvHCaeofOoA==",
+  "dgSpecHash": "uA1FMBmP9J0RfpyWRlziVNmKlgYqSerKOBldxZ4a5Bv+mC6n3kT1hzvWhVBnyWx7y5L56tnVVyzZYl2t63oP3g==",
   "success": true,
   "projectFilePath": "C:\\Users\\Ululo\\Desktop\\Web\\WEB-ExDrive\\exdrive_web\\exdrive_web.csproj",
   "expectedPackageFiles": [
@@ -190,7 +190,8 @@
     "C:\\Users\\Ululo\\.nuget\\packages\\system.threading.timer\\4.3.0\\system.threading.timer.4.3.0.nupkg.sha512",
     "C:\\Users\\Ululo\\.nuget\\packages\\system.windows.extensions\\4.7.0\\system.windows.extensions.4.7.0.nupkg.sha512",
     "C:\\Users\\Ululo\\.nuget\\packages\\system.xml.readerwriter\\4.3.0\\system.xml.readerwriter.4.3.0.nupkg.sha512",
-    "C:\\Users\\Ululo\\.nuget\\packages\\system.xml.xdocument\\4.3.0\\system.xml.xdocument.4.3.0.nupkg.sha512"
+    "C:\\Users\\Ululo\\.nuget\\packages\\system.xml.xdocument\\4.3.0\\system.xml.xdocument.4.3.0.nupkg.sha512",
+    "C:\\Users\\Ululo\\.nuget\\packages\\windowsazure.storage\\9.3.3\\windowsazure.storage.9.3.3.nupkg.sha512"
   ],
   "logs": []
 }

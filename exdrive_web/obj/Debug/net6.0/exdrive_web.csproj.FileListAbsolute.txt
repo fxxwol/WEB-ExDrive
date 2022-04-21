@@ -1612,3 +1612,5 @@ D:\REBORN2.0 – копія\WEB-ExDrive\exdrive_web\obj\Debug\net6.0\refint\exdr
 D:\REBORN2.0 – копія\WEB-ExDrive\exdrive_web\obj\Debug\net6.0\exdrive_web.pdb
 D:\REBORN2.0 – копія\WEB-ExDrive\exdrive_web\obj\Debug\net6.0\exdrive_web.genruntimeconfig.cache
 D:\REBORN2.0 – копія\WEB-ExDrive\exdrive_web\obj\Debug\net6.0\ref\exdrive_web.dll
+C:\Users\Ululo\Desktop\Web\WEB-ExDrive\exdrive_web\bin\Debug\net6.0\web.config
+C:\Users\Ululo\Desktop\Web\WEB-ExDrive\exdrive_web\bin\Debug\net6.0\Microsoft.WindowsAzure.Storage.dll

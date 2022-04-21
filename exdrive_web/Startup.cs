@@ -1,4 +1,5 @@
-﻿using JWTAuthentication.Authentication;
+﻿using exdrive_web.Models;
+using JWTAuthentication.Authentication;
 //using JWTAuthentication.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -18,6 +19,7 @@ namespace JWTAuthentication
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            DeleteTemporaryTimer.SetTimer();
         }
 
         public IConfiguration Configuration { get; }
@@ -35,6 +37,11 @@ namespace JWTAuthentication
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
+            services.Configure<IISServerOptions>(options =>
+            {
+                options.MaxRequestBodyBufferSize = 629_145_600;
+            });
+            
             // Adding Authentication  
             services.AddAuthentication(options =>
             {
@@ -42,7 +49,7 @@ namespace JWTAuthentication
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-
+               
             // Adding Jwt Bearer  
             .AddJwtBearer(options =>
             {
