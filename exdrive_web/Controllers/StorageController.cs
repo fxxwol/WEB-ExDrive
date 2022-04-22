@@ -47,8 +47,9 @@ namespace exdrive_web.Controllers
             files.HasAccess = "*";
 
 
-            string storageLink = "https://exdrivefiles.blob.core.windows.net/botfiles/" + files.FilesId;
+            string downloadLink = "https://exdrivefiles.blob.core.windows.net/botfiles/" + files.FilesId;
             await UploadAsync.UploadFileAsync(file, dir, files, ms);
+            TempData["AlertMessage"] = downloadLink;
 
             return RedirectToAction("Index", "Home");
         }

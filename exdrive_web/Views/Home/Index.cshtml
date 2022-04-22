@@ -28,11 +28,16 @@
         enctype="multipart/form-data" method="post">
         <input type="file" name="file" />
         <button type="submit">Submit</button>
-
     </form>
   <button class="button button1">Upload file</button>
   </div> 
-  <div>
+  @if (TempData["AlertMessage"] != null)
+  {
+                    <div class="alert alert-success">
+            @TempData["AlertMessage"]
+       </div>
+  }
+                <div>
 <button class="button button2">Telegram</button>
 </div>
                     </div> 

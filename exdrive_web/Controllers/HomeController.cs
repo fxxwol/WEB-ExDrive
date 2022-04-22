@@ -17,7 +17,6 @@ namespace exdrive_web.Controllers
 
         public IActionResult Index()
         {
-           Trashcan.TransferFilesAsync().Wait();
            return View();
         }
 
