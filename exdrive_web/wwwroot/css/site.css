@@ -14,12 +14,13 @@ body {
     box-sizing: border-box;
 }
 
-/Container/
+/*Container*/
 .container {
     background: #808080 center;
     width: 100%;
     max-width: auto;
     margin: 0 auto;
+    position: center;
 }
 
 /*Intro*/
@@ -39,23 +40,72 @@ body {
     margin-top: 30px;
 }
 
-.button {
-    border: none;
-    color: white;
-    padding: 15px 32px;
-    text-align: center;
-    text-decoration: none;
+.upload-btn-wrapper_upload {
+    position: relative;
+    overflow: hidden;
     display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    cursor: pointer;
 }
 
-/* Green */
-.button2 {
-    background-color: #008CBA;
+.btn_upload {
+    border: 2px solid #000000;
+    color: #000000;
+    background-color: #299847;
+    padding: 8px 20px;
+    border-radius: 80px;
+    font-size: 20px;
+    font-weight: 600;
+    text-align: center;
+    margin: 0 auto;
+    display: block;
 }
-/* Blue */
+
+.upload-btn-wrapper_upload input[type=file] {
+    font-size: 100px;
+    position: absolute;
+    left: 1px;
+    top: 15px;
+    opacity: 0;
+    text-align: center;
+}
+
+.upload-btn-wrapper_submit {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+}
+
+.btn_submit {
+    border: 2px solid #000000;
+    color: #000000;
+    background-color: #861b2d;
+    padding: 8px 20px;
+    border-radius: 80px;
+    font-size: 20px;
+    font-weight: 600;
+    text-align: center;
+    margin: 5px auto;
+    display: block;
+}
+
+
+.upload-btn-wrapper_telegram {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+}
+
+.btn_telegram {
+    border: 2px solid #000000;
+    color: #000000;
+    background-color: #279eda;
+    padding: 10px 20px;
+    border-radius: 80px;
+    font-size: 20px;
+    font-weight: 600;
+    text-align: center;
+    margin: 1px auto;
+    display: block;
+}
 
 /* Center the avatar image inside this container */
 .imgcontainer {
@@ -79,16 +129,4 @@ img.avatar {
     right: 0;
     left: 0;
     z-index: 1000;
-}
-
-.alert-success {
-    border: thick;
-    text-align: center;
-    display: contents;
-    color: white;
-    font-display: auto;
-    font-palette: dark;
-    font-size: 14px;
-    margin: 4px 2px;
-    cursor: pointer;
 }
