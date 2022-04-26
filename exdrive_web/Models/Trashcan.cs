@@ -11,7 +11,7 @@ namespace exdrive_web.Models
         private static string connectionString = "DefaultEndpointsProtocol=https;AccountName=exdrivefiles;AccountKey=zW8bG071a7HbJ4+D5Pxruz4rL47KEx0XwExd7m5CmYtCNdu8A71/rVvvY/ld8hwJ4nObLnAcDB27KZV/0L92TA==;EndpointSuffix=core.windows.net";
         private static string filename = "77dedb09-52d0-4e52-abf8-1e35fd33e54b.exe";
 
-        public static async Task TransferFilesAsync()
+        public static async Task DeleteFile()
         {
             BlobContainerClient containerDest = new BlobContainerClient(connectionString, "botfiles");
             BlobContainerClient containerSource = new BlobContainerClient(connectionString, "files");
@@ -34,5 +34,29 @@ namespace exdrive_web.Models
             await containerSource.DeleteBlobAsync(filename);
             await memStream.FlushAsync();
         }
+        public static async Task FileRecovery()
+        {
+            BlobContainerClient containerDest = new BlobContainerClient(connectionString, "files");
+            BlobContainerClient containerSource = new BlobContainerClient(connectionString, "botfiles");
+
+            var storageAccount = CloudStorageAccount.Parse(connectionString);
+            var blobClient = storageAccount.CreateCloudBlobClient();
+
+            // details of our source file
+            var sourceContainerName = "botfiles";
+
+            var sourceContainer = blobClient.GetContainerReference(sourceContainerName);
+
+            CloudBlockBlob sourceBlob = sourceContainer.GetBlockBlobReference(filename);
+
+            MemoryStream memStream = new MemoryStream();
+            await sourceBlob.DownloadToStreamAsync(memStream);
+            memStream.Position = 0;
+
+            await containerDest.UploadBlobAsync(filename, memStream);
+            await containerSource.DeleteBlobAsync(filename);
+            await memStream.FlushAsync();
+        }
+
     }
 }
