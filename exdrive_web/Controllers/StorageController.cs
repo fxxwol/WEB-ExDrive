@@ -1,24 +1,37 @@
 ﻿using exdrive_web.Models;
+using JWTAuthentication.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace exdrive_web.Controllers
 {
+    [Authorize]
     public class StorageController : Controller
     {
         private IWebHostEnvironment _webHostEnvironment;
-
-        public StorageController(IWebHostEnvironment environment)
+        private readonly ApplicationDbContext _db;
+        public StorageController(IWebHostEnvironment environment, ApplicationDbContext db)
         {
             _webHostEnvironment = environment;
+            _db = db;
         }
-
-        [Authorize]
         public IActionResult AccessStorage()
         {
             return View();
         }
+        [HttpGet]
+        public async Task<IActionResult> AccessStorage(string filename)
+        {
+            ViewData["GetFiles"] = filename;
+            var files = from x in _db.Files select x;
 
+            if (!String.IsNullOrEmpty(filename))
+            {
+                files = files.Where(x => x.Name.Contains(filename));
+            }
+            return View(await files.AsNoTracking().ToListAsync());
+        }
         [HttpPost]
         [Consumes("multipart/form-data")]
         [RequestFormLimits(MultipartBodyLengthLimit = 629145600)]
@@ -54,7 +67,7 @@ namespace exdrive_web.Controllers
                 await UploadAsync.UploadFileAsync(file, dir, files, ms);
                 TempData["AlertMessage"] = downloadLink;
             }
-            
+
             return RedirectToAction("Index", "Home");
         }
     }

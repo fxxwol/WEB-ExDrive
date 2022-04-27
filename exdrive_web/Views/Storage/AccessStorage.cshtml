@@ -8,9 +8,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,300&display=swap" rel="stylesheet">
 </head>
 <body>
+    <form method="get" asp-action="AccessStorage" style = "margin-left:420px">
+        <p>
+            <input type="search" placeholder="Enter file name" value="@ViewData["GetFiles"]" name="filename" style="width:500px;" />
+            <input type="submit" value="Search" class="btn btn-primary" />
+            @*<a asp-action="AccessStorage">Get Files</a>*@
+        </p>
+    </form>
     <div class="storage__window">
         <div class="upload-btn-wrapper">
-        <button class="btn__">Upload a file</button>
+            <button class="btn__">Upload a file</button>
         </div>
 
         <div class="button_plus">
