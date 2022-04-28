@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace exdrive_web.Controllers
 {
-    [Authorize]
+    
     public class StorageController : Controller
     {
         private IWebHostEnvironment _webHostEnvironment;
@@ -16,10 +16,13 @@ namespace exdrive_web.Controllers
             _webHostEnvironment = environment;
             _db = db;
         }
+        [Authorize]
         public IActionResult AccessStorage()
         {
             return View();
         }
+
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> AccessStorage(string filename)
         {
@@ -32,11 +35,17 @@ namespace exdrive_web.Controllers
             }
             return View(await files.AsNoTracking().ToListAsync());
         }
+        public IActionResult SingleFile()
+        {
+            return View(new UploadInstance());
+        }
+
         [HttpPost]
         [Consumes("multipart/form-data")]
         [RequestFormLimits(MultipartBodyLengthLimit = 629145600)]
-        public async Task<IActionResult> SingleFile(IFormFile file)
+        public async Task<IActionResult> SingleFile(UploadInstance _file)
         {
+            var file = _file.MyFile;
             if (file != null)
             {
                 var dir = _webHostEnvironment.ContentRootPath;

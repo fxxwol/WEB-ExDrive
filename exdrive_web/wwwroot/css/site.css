@@ -47,13 +47,14 @@ body {
 }
 
 .btn_upload {
-    border: 2px solid #000000;
-    color: #000000;
-    background-color: #299847;
+    border: #000000;
+    color: #e2e2e2;
+    background-color: #60b2dcec;
     padding: 8px 20px;
     border-radius: 80px;
     font-size: 20px;
-    font-weight: 600;
+    font-weight: 400;
+    font-family: Lato;
     text-align: center;
     margin: 0 auto;
     display: block;
@@ -75,18 +76,19 @@ body {
 }
 
 .btn_submit {
-    border: 2px solid #000000;
-    color: #000000;
-    background-color: #861b2d;
+    border: #000000;
+    color: #e2e2e2;
+    background-color: #60b2dcec;
     padding: 8px 20px;
     border-radius: 80px;
     font-size: 20px;
-    font-weight: 600;
+    font-weight: 400;
+    font-family: Lato;
     text-align: center;
     margin: 5px auto;
+    margin-left: 321px;
     display: block;
 }
-
 
 .upload-btn-wrapper_telegram {
     position: relative;
@@ -95,13 +97,14 @@ body {
 }
 
 .btn_telegram {
-    border: 2px solid #000000;
-    color: #000000;
-    background-color: #279eda;
+    border: #000000;
+    color: #e2e2e2;
+    background-color: #60b2dcec;
     padding: 10px 20px;
     border-radius: 80px;
     font-size: 20px;
-    font-weight: 600;
+    font-weight: 400;
+    font-family: Lato;
     text-align: center;
     margin: 1px auto;
     display: block;

@@ -30,13 +30,18 @@
                <img src="~/css/images/ExDrivePatriot.png" alt="Avatar" class="avatar">
          </div>
     </div>
-     <div class="upload-btn-wrapper_upload">
+
+    @model UploadInstance
+    <form asp-controller="Storage" asp-action="SingleFile" enctype="multipart/form-data">
+        <div class="upload-btn-wrapper_upload">
         <button class="btn_upload">Upload a file</button>
         <input type="file" name="myfile" />
-     </div>
-     <div class="upload-btn-wrapper_submit">
+     	</div>
+     	<div class="upload-btn-wrapper_submit">
         <button class="btn_submit">Submit your choice</button>
-     </div>
+     	</div>
+    </form>
+
      <div class="upload-btn-wrapper_telegram">
         <button class="btn_telegram">Telegram</button>
      </div>
