@@ -5,7 +5,7 @@ body {
     font-size: 18px;
     line-height: 1.8;
     color: #000000;
-    background: #808080 fixed;
+    background: url(../css/images/background.png);
 }
 
 *,
@@ -16,7 +16,7 @@ body {
 
 /*Container*/
 .container {
-    background: #808080 center;
+    
     width: 100%;
     max-width: auto;
     margin: 0 auto;
@@ -44,6 +44,9 @@ body {
     position: relative;
     overflow: hidden;
     display: inline-block;
+    margin: 0 auto;
+    display: block;
+    top: 5px;
 }
 
 .btn_upload {
@@ -58,6 +61,8 @@ body {
     text-align: center;
     margin: 0 auto;
     display: block;
+    position: center;
+    top: 5px;
 }
 
 .upload-btn-wrapper_upload input[type=file] {
@@ -67,12 +72,18 @@ body {
     top: 15px;
     opacity: 0;
     text-align: center;
+    margin: 0 auto;
+    display: block;
+    top: 5px;
 }
 
 .upload-btn-wrapper_submit {
     position: relative;
     overflow: hidden;
     display: inline-block;
+    margin: 0 auto;
+    display: block;
+    top: 10px;
 }
 
 .btn_submit {
@@ -88,12 +99,18 @@ body {
     margin: 5px auto;
     margin-left: 321px;
     display: block;
+    margin: 0 auto;
+    display: block;
+    top: 10px;
 }
 
 .upload-btn-wrapper_telegram {
     position: relative;
     overflow: hidden;
     display: inline-block;
+    margin: 0 auto;
+    display: block;
+    top: 15px;
 }
 
 .btn_telegram {
@@ -103,11 +120,14 @@ body {
     padding: 10px 20px;
     border-radius: 80px;
     font-size: 20px;
-    font-weight: 400;
+    font-weight: 500;
     font-family: Lato;
     text-align: center;
     margin: 1px auto;
     display: block;
+    margin: 0 auto;
+    display: block;
+    top: 15px;
 }
 
 /* Center the avatar image inside this container */
