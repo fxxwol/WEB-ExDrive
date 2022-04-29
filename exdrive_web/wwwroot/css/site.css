@@ -1,11 +1,13 @@
 /*Body*/
 body {
     margin: 0;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Lato', sans-serif;
+    font-style: italic;
     font-size: 18px;
     line-height: 1.8;
     color: #000000;
     background: url(../css/images/background.png);
+    background-size: cover;
 }
 
 *,
@@ -47,22 +49,31 @@ body {
     margin: 0 auto;
     display: block;
     top: 5px;
+    width: 149px;
+    height: 52px;
 }
 
 .btn_upload {
     border: #000000;
-    color: #e2e2e2;
+    color: #eeeeee;
     background-color: #60b2dcec;
     padding: 8px 20px;
     border-radius: 80px;
     font-size: 20px;
     font-weight: 400;
-    font-family: Lato;
+    font-family: 'Lato', sans-serif;
     text-align: center;
     margin: 0 auto;
     display: block;
     position: center;
     top: 5px;
+    animation-duration: 1s;
+    transition: all 1.5s;
+    cursor: pointer;
+}
+
+.upload-btn-wrapper_upload:hover .btn_upload {
+    background-color: #0aacffec;
 }
 
 .upload-btn-wrapper_upload input[type=file] {
@@ -75,6 +86,7 @@ body {
     margin: 0 auto;
     display: block;
     top: 5px;
+    cursor: pointer;
 }
 
 .upload-btn-wrapper_submit {
@@ -84,17 +96,39 @@ body {
     margin: 0 auto;
     display: block;
     top: 10px;
+    width: 207px;
+    height: 52px;
+}
+
+.btn_logout {
+    display: inline-block;
+    font-weight: 400;
+    color: #212529;
+    text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    font-family: 'Lato', sans-serif;
+    font-style: italic;
+    background-color: transparent;
+    border: 1px solid transparent;
+    padding: .375rem .75rem;
+    border-radius: .25rem;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }
 
 .btn_submit {
     border: #000000;
-    color: #e2e2e2;
+    color: #eeeeee;
     background-color: #60b2dcec;
     padding: 8px 20px;
     border-radius: 80px;
     font-size: 20px;
     font-weight: 400;
-    font-family: Lato;
+    font-family: 'Lato', sans-serif;
     text-align: center;
     margin: 5px auto;
     margin-left: 321px;
@@ -102,7 +136,16 @@ body {
     margin: 0 auto;
     display: block;
     top: 10px;
+    animation-duration: 1s;
+    transition: all 1.5s;
+    cursor: pointer;
 }
+
+.upload-btn-wrapper_submit:hover .btn_submit {
+    background-color: #0aacffec;
+}
+
+
 
 .upload-btn-wrapper_telegram {
     position: relative;
@@ -113,6 +156,22 @@ body {
     top: 15px;
 }
 
+a:link {
+    text-decoration: none;
+}
+
+a:visited {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+a:active {
+    text-decoration: none;
+}
+
 .btn_telegram {
     border: #000000;
     color: #e2e2e2;
@@ -121,15 +180,21 @@ body {
     border-radius: 80px;
     font-size: 20px;
     font-weight: 500;
-    font-family: Lato;
+    font-family: 'Lato', sans-serif;
     text-align: center;
     margin: 1px auto;
     display: block;
     margin: 0 auto;
     display: block;
     top: 15px;
+    animation-duration: 1s;
+    transition: all 1.5s;
+    cursor: pointer;
 }
 
+.btn_telegram:hover {
+     background-color: #0aacffec;
+}
 /* Center the avatar image inside this container */
 .imgcontainer {
     text-align: center;
