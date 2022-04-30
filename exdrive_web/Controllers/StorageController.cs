@@ -12,11 +12,12 @@ namespace exdrive_web.Controllers
     {
         private IWebHostEnvironment _webHostEnvironment;
         private readonly ApplicationDbContext _db;
-        private string _userId;
+        private string? _userId;
         public StorageController(IWebHostEnvironment environment, ApplicationDbContext db)
         {
             _webHostEnvironment = environment;
             _db = db;
+            _userId = null;
         }
         [Authorize]
         public IActionResult AccessStorage()
@@ -116,8 +117,9 @@ namespace exdrive_web.Controllers
 
                 await UploadPermAsync.UploadFileAsync(file, dir, files, ms);
             }
-
-            return RedirectToAction("AccessStorage");
+            List<string> files_ = AvailableFilesToUserDB.GetUserFilesDB(_userId);
+            AvailableFilesToUserSA.GetUserFilesSA(files_);
+            return RedirectToAction("AccessStorage", "Storage");
         }
     }
 }
