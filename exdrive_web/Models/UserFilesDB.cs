@@ -8,7 +8,7 @@ using System.Text;
 
 namespace exdrive_web.Models
 {
-    public class AvailableFilesToUserDB
+    public class UserFilesDB
     {
         public static List<string> GetUserFilesDB(string _userId)
         {

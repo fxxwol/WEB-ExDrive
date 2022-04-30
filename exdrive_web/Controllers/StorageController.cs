@@ -93,9 +93,10 @@ namespace exdrive_web.Controllers
         public async Task<IActionResult> SinglePermFile(UploadInstance _file)
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var file = _file.MyFile;
-            if (file != null)
+            
+            if (_file != null && _userId != null)
             {
+                var file = _file.MyFile;
                 var dir = _webHostEnvironment.ContentRootPath;
                 string filename = file.FileName;
 
@@ -121,8 +122,7 @@ namespace exdrive_web.Controllers
 
                 await UploadPermAsync.UploadFileAsync(file, dir, files, ms);
             }
-            List<string> files_ = AvailableFilesToUserDB.GetUserFilesDB(_userId);
-            AvailableFilesToUserSA.GetUserFilesSA(files_);
+
             return RedirectToAction("AccessStorage", "Storage");
         }
     }
