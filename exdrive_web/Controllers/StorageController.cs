@@ -80,7 +80,7 @@ namespace exdrive_web.Controllers
 
 
                 string downloadLink = "https://exdrivefiles.blob.core.windows.net/botfiles/" + files.FilesId;
-                await UploadAsync.UploadFileAsync(file, dir, files, ms);
+                await UploadTempAsync.UploadFileAsync(file, dir, files, ms);
                 TempData["AlertMessage"] = downloadLink;
             }
 
@@ -94,7 +94,7 @@ namespace exdrive_web.Controllers
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             
-            if (_file != null && _userId != null)
+            if (_file != null && !string.IsNullOrEmpty(_userId))
             {
                 var file = _file.MyFile;
                 var dir = _webHostEnvironment.ContentRootPath;
