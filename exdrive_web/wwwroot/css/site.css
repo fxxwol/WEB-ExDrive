@@ -2,7 +2,7 @@
 body {
     margin: 0;
     font-family: 'Lato', sans-serif;
-    font-style: italic;
+    font-style: normal;
     font-size: 18px;
     line-height: 1.8;
     color: #000000;
@@ -112,7 +112,7 @@ body {
     -moz-user-select: none;
     user-select: none;
     font-family: 'Lato', sans-serif;
-    font-style: italic;
+    font-style: normal;
     background-color: transparent;
     border: 1px solid transparent;
     padding: .375rem .75rem;

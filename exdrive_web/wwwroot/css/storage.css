@@ -3,12 +3,12 @@
     font-family: 'Lato', sans-serif;
     font-weight: 400;
     /* Size and position */
-    width: 400px;
+    width: 1270px;
     margin: 10px 10px;
-    padding: 50px;
+    padding: 20px;
     overflow: hidden;
-    height: 450px;
-    margin-left: 10px;
+    height: 460px;
+    margin-left: 5px;
     margin-top: 0.1px;
     /* Styles */
     background: #150f6828;
@@ -17,51 +17,69 @@
     box-shadow: inset 0 0 2px 1px rgba(255,255,255,0.08), 0 16px 10px -8px rgba(0, 0, 0, 0.6);
 }
 /*upload button*/
-.upload-btn-wrapper {
-    position: center;
-    overflow: hidden;
-    display: block;
-    margin: 0 auto;
-}
 
-.btn_upload {
-    border: 2px solid dimgrey;
-    color: dimgrey;
-    background-color: lightskyblue;
-    padding: 8px 20px;
+.btn__upload {
+    border: #000000;
+    color: #e2e2e2;
+    background-color: #60b2dcec;
     border-radius: 80px;
-    font-size: 20px;
-    font-weight: bold;
-    margin: 0 auto;
-    display: block;
-
+    animation-duration: 1s;
+    transition: all 1.5s;
+    cursor: pointer;
+    padding: 10px 20px;
+    margin-bottom: 10px;
+    margin-left: 5px;
+}
+.btn__upload:hover {
+    background-color: #0aacffec;
 }
 
-.upload-btn-wrapper input[type=file] {
-    font-size: 100px;
-    position: center;
-    left: 1px;
-    top: 15px;
-    opacity: 0;
+.btn__upload input[type=file] 
+{
 }
-.btn_delete {
-    border: 2px solid dimgrey;
-    color: dimgrey;
-    background-color: lightskyblue;
-    padding: 8px 20px;
+.btn__delete {
+    border: #000000;
+    color: #e2e2e2;
+    background-color: #60b2dcec;
+    border-radius: 80px;
+    animation-duration: 1s;
+    transition: all 1.5s;
+    cursor: pointer;
+    padding: 10px 20px;
+    margin-bottom: 10px;
+    margin-left: 5px;
+}
+    .btn__delete:hover {
+        background-color: #0aacffec;
+    }
+
+.btn__delete input[type=file] {
+}
+
+/*.storage__buttons {
+    padding: 8px 10px;
+    max-width: 150px;
     border-radius: 80px;
     font-size: 20px;
     font-weight: 400;
     font-family: Lato;
-    top: 30px;
-   /* font-weight: bold;*/
-    margin: 0 auto;
-    display: block;
+    top: 60px;
+}*/
+/*    margin-bottom: 5px;
+    margin-top: 1px;*/
+.search__button {
+    border: #000000;
+    color: #e2e2e2;
+    background-color: #60b2dcec;
+    border-radius: 80px;
+    animation-duration: 1s;
+    transition: all 1.5s;
+    cursor: pointer;
+    padding: 10px 20px;
+    margin-bottom: 15px;
+    margin-left: 5px;
+    margin-top: 5px;
 }
-.delete-wrapper input[type=file] {
-    font-size: 100px;
-    position: center;
-    left: 1px;
-    top: 30px;
-    opacity: 0;
-}
+    .search__button:hover {
+        background-color: #0aacffec;
+    }
