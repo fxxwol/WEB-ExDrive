@@ -23,6 +23,10 @@ namespace exdrive_web.Controllers
         {
             return View();
         }
+        public IActionResult Trashcan()
+        {
+            return View();
+        }
 
         [Authorize]
         [HttpGet]
