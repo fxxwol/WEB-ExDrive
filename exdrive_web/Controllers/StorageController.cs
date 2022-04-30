@@ -120,7 +120,7 @@ namespace exdrive_web.Controllers
                 files.IsTemporary = false;
                 files.HasAccess = _userId;
 
-                await UploadPermAsync.UploadFileAsync(file, dir, files, ms);
+                await UploadPermAsync.UploadFileAsync(file, dir, files, ms, _userId);
             }
 
             return RedirectToAction("AccessStorage", "Storage");

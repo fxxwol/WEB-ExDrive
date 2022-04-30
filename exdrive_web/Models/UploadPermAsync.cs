@@ -8,14 +8,15 @@ namespace exdrive_web.Models
 {
     public class UploadPermAsync
     {
-        public static async Task UploadFileAsync(IFormFile formFile, string folderPath, Files newFile, MemoryStream ms)
+        public static async Task UploadFileAsync(IFormFile formFile, string folderPath, Files newFile, MemoryStream ms, string userId)
         {
             const string connectionString = "DefaultEndpointsProtocol=https;AccountName=exdrivefiles;AccountKey=zW8bG071a7HbJ4+D5Pxruz4rL47KEx0XwExd7m5CmYtCNdu8A71/rVvvY/ld8hwJ4nObLnAcDB27KZV/0L92TA==;EndpointSuffix=core.windows.net";
             CloudStorageAccount StorageAccount = CloudStorageAccount.Parse(connectionString);
 
             CloudBlobClient BlobClient = StorageAccount.CreateCloudBlobClient();
 
-            CloudBlobContainer Container = BlobClient.GetContainerReference("files");
+            CloudBlobContainer Container = BlobClient.GetContainerReference(userId);
+            await Container.CreateIfNotExistsAsync(BlobContainerPublicAccessType.Off, new BlobRequestOptions(), new OperationContext());
 
             CloudBlockBlob blob = Container.GetBlockBlobReference(newFile.FilesId);
             HashSet<string> blocklist = new HashSet<string>();
@@ -61,6 +62,7 @@ namespace exdrive_web.Models
             }
 
             await blob.PutBlockListAsync(blocklist);
+            await ms.DisposeAsync();
             File.Delete(folderPath + newFile.FilesId);
         }
     }

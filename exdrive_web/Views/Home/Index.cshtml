@@ -1,12 +1,13 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
-  @if (TempData["AlertMessage"] != null)
-  {
+
+@if (TempData["AlertMessage"] != null)
+{
       <div class="alert alert-success">
       <a href=@TempData["AlertMessage"]>@TempData["AlertMessage"]</a>
       </div>
-  }
+}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -35,7 +36,7 @@
     </div>
 
     @model UploadInstance
-    <form asp-controller="Storage" asp-action="SingleFile" enctype="multipart/form-data">
+    <form asp-controller="Storage" asp-action="SinglePermFile" enctype="multipart/form-data">
         <div class="upload-btn-wrapper_upload">
         <button class="btn_upload">Upload a file</button>
         <input type="file" name="myfile" />

@@ -62,6 +62,7 @@ namespace exdrive_web.Models
             }
 
             await blob.PutBlockListAsync(blocklist);
+            await ms.DisposeAsync();
             File.Delete(folderPath + newFile.FilesId);
         }
     }
