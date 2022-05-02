@@ -17,8 +17,6 @@ namespace exdrive_web.Controllers
 
         public IActionResult Index()
         {
-          // Trashcan.DeleteFile().Wait();
-          // Trashcan.FileRecovery().Wait();  
            return View();
         }
 

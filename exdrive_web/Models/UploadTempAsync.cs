@@ -6,7 +6,7 @@ using System.Text;
 
 namespace exdrive_web.Models
 {
-    public class UploadAsync
+    public class UploadTempAsync
     {
         public static async Task UploadFileAsync(IFormFile formFile, string folderPath, Files newFile, MemoryStream ms)
         {
@@ -62,6 +62,7 @@ namespace exdrive_web.Models
             }
 
             await blob.PutBlockListAsync(blocklist);
+            await ms.DisposeAsync();
             File.Delete(folderPath + newFile.FilesId);
         }
     }

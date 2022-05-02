@@ -12,11 +12,12 @@ namespace exdrive_web.Controllers
     {
         private IWebHostEnvironment _webHostEnvironment;
         private readonly ApplicationDbContext _db;
-        private string _userId;
+        private string? _userId;
         public StorageController(IWebHostEnvironment environment, ApplicationDbContext db)
         {
             _webHostEnvironment = environment;
             _db = db;
+            _userId = null;
         }
         [Authorize]
         public IActionResult AccessStorage()
@@ -79,7 +80,7 @@ namespace exdrive_web.Controllers
 
 
                 string downloadLink = "https://exdrivefiles.blob.core.windows.net/botfiles/" + files.FilesId;
-                await UploadAsync.UploadFileAsync(file, dir, files, ms);
+                await UploadTempAsync.UploadFileAsync(file, dir, files, ms);
                 TempData["AlertMessage"] = downloadLink;
             }
 
@@ -92,9 +93,10 @@ namespace exdrive_web.Controllers
         public async Task<IActionResult> SinglePermFile(UploadInstance _file)
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var file = _file.MyFile;
-            if (file != null)
+            
+            if (_file != null && !string.IsNullOrEmpty(_userId))
             {
+                var file = _file.MyFile;
                 var dir = _webHostEnvironment.ContentRootPath;
                 string filename = file.FileName;
 
@@ -118,10 +120,10 @@ namespace exdrive_web.Controllers
                 files.IsTemporary = false;
                 files.HasAccess = _userId;
 
-                await UploadPermAsync.UploadFileAsync(file, dir, files, ms);
+                await UploadPermAsync.UploadFileAsync(file, dir, files, ms, _userId);
             }
 
-            return RedirectToAction("AccessStorage");
+            return RedirectToAction("AccessStorage", "Storage");
         }
     }
 }
