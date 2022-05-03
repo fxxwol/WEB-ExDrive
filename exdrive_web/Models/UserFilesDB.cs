@@ -16,7 +16,7 @@ namespace exdrive_web.Models
             using (SqlConnection con = new SqlConnection("Server=tcp:exdrive.database.windows.net,1433;Initial Catalog=Exdrive;Persist Security Info=False;User ID=fxxwol;Password=AbCD.123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"))
             {
                 con.Open();
-                using (SqlCommand cmd = new SqlCommand($"SELECT FilesId FROM dbo.Files WHERE HasAccess='{_userId}'", con))
+                using (SqlCommand cmd = new SqlCommand($"SELECT FilesId FROM dbo.Files WHERE HasAccess='{_userId}' ORDER BY FilesId DESC", con))
                 {
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
