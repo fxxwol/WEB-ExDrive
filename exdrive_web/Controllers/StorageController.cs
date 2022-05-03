@@ -17,12 +17,13 @@ namespace exdrive_web.Controllers
         {
             _webHostEnvironment = environment;
             _db = db;
-            _userId = null;
         }
         [Authorize]
         public IActionResult AccessStorage()
         {
-            return View();
+            _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            List<string> list = new List<string>(UserFilesDB.GetUserFilesDB(_userId));
+            return View(list);
         }
         public IActionResult Trashcan()
         {
@@ -31,7 +32,7 @@ namespace exdrive_web.Controllers
 
         [Authorize]
         [HttpGet]
-        public async Task<IActionResult> AccessStorage(string filename)
+        public async Task<IActionResult> AccessStoragew(string filename)
         {
             ViewData["GetFiles"] = filename;
             var files = from x in _db.Files select x;

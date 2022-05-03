@@ -145,6 +145,34 @@ body {
     background-color: #0aacffec;
 }
 
+.file-form {
+    background-color: azure;
+    width: 150px;
+    height: 150px;
+    text-align:center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+div.item {
+    /* To correctly align image, regardless of content height: */
+    vertical-align: top;
+    display: inline-block;
+    /* To horizontally center images and caption */
+    text-align: center;
+    /* The width of the container also implies margin around the images. */
+    width: 120px;
+}
+
+.caption {
+    /* Make the caption a block so it occupies its own line. */
+    display: block;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
 
 .upload-btn-wrapper_telegram {

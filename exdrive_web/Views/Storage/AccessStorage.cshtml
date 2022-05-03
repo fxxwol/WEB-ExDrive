@@ -10,13 +10,22 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
 </head>
-<body style="overflow:hidden">
-    <button class="btn__upload">
+<body> @*style="overflow:hidden"*@
+    <form asp-controller="Storage" asp-action="SinglePermFile" enctype="multipart/form-data">
+        <div class="upload-btn-wrapper_upload">
+        <button class="btn_upload">Upload a file</button>
+        <input type="file" name="myfile" />
+     	</div>
+     	<div class="upload-btn-wrapper_submit">
+        <button class="btn_submit">Submit your choice</button>
+     	</div>
+    </form>
+        <button class="btn__upload">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder-plus" viewBox="0 0 16 16">
             <path d="m.5 3 .04.87a1.99 1.99 0 0 0-.342 1.311l.637 7A2 2 0 0 0 2.826 14H9v-1H2.826a1 1 0 0 1-.995-.91l-.637-7A1 1 0 0 1 2.19 4h11.62a1 1 0 0 1 .996 1.09L14.54 8h1.005l.256-2.819A2 2 0 0 0 13.81 3H9.828a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 6.172 1H2.5a2 2 0 0 0-2 2zm5.672-1a1 1 0 0 1 .707.293L7.586 3H2.19c-.24 0-.47.042-.683.12L1.5 2.98a1 1 0 0 1 1-.98h3.672z" />
             <path d="M13.5 10a.5.5 0 0 1 .5.5V12h1.5a.5.5 0 1 1 0 1H14v1.5a.5.5 0 1 1-1 0V13h-1.5a.5.5 0 0 1 0-1H13v-1.5a.5.5 0 0 1 .5-.5z" />
         </svg>
-    </button>
+        </button>
       <button class="btn__heart">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark-heart" viewBox="0 0 16 16">
   <path fill-rule="evenodd" d="M8 4.41c1.387-1.425 4.854 1.07 0 4.277C3.146 5.48 6.613 2.986 8 4.412z"/>
@@ -74,5 +83,46 @@
 </svg>
 </button>
     </div>
+   @model List<string>
+        @foreach (var row in @Model)
+        {
+        string type = "";
+        @for (int i = row.LastIndexOf('.') + 1; i < row.Length; i++)
+        {
+            type += row.ElementAt(i);
+        }
+
+        string imagetoview = "";
+        switch(type)
+        {
+            case "png":
+                imagetoview = "~/css/images/png.png";
+                break;
+            case "jpg":
+                imagetoview = "~/css/images/jpg.png";
+                break;
+            case "pdf":
+                imagetoview = "~/css/images/pdf.png";
+                break;
+            case "mp4":
+                imagetoview = "~/css/images/mp4.png";
+                break;
+            case "txt":
+                imagetoview = "~/css/images/txt.png";
+                break;
+            case "mp3":
+                imagetoview = "~/css/images/mp3.png";
+                break;
+            default:
+                imagetoview = "";
+                break;
+
+        }
+        <div class="item">
+                <img src="@Url.Content(imagetoview)" runat="server" style="width: 100px; height: 100px"/>
+                <span class="caption">@row</span>
+            </div>
+        }
 </body>
 </html>
+

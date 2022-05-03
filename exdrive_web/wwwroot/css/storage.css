@@ -34,8 +34,27 @@
     background-color: #0aacffec;
 }
 
-.btn__upload input[type=file] 
-{
+.btn__upload-wrapper input[type=file] {
+    border: #000000;
+    color: #e2e2e2;
+    background-color: #60b2dcec;
+    border-radius: 80px;
+    animation-duration: 1s;
+    transition: all 1.5s;
+    cursor: pointer;
+    padding: 10px 20px;
+    margin-bottom: 10px;
+    margin-left: 5px;
+    font-size: 100px;
+    position: absolute;
+    left: 1px;
+    top: 15px;
+    opacity: 0;
+    text-align: center;
+    margin: 0 auto;
+    display: block;
+    top: 5px;
+    cursor: pointer;
 }
 .btn__heart {
     border: #000000;
