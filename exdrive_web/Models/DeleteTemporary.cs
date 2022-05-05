@@ -20,9 +20,10 @@ namespace exdrive_web.Models
                 foreach (Azure.Storage.Blobs.Models.BlobItem blob in blobs)
                 {
                     containerClient.DeleteBlobAsync(blob.Name).Wait();
-                    var todelete = _context.Roles.Find(blob.Name);
+                    var todelete = _context.Files.Find(blob.Name);
                     if (todelete != null)
-                        _context.Roles.Remove(todelete);
+                        _context.Files.Remove(todelete);
+                    _context.SaveChanges();
                 }
             }
         }
