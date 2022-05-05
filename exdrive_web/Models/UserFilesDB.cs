@@ -10,9 +10,9 @@ namespace exdrive_web.Models
 {
     public class UserFilesDB
     {
-        public static List<string> GetUserFilesDB(string _userId)
+        public static List<NameInstance> GetUserFilesDB(string _userId)
         {
-            List<string> files = new List<string>();
+            List<NameInstance> files = new List<NameInstance>();
             using (SqlConnection con = new SqlConnection("Server=tcp:exdrive.database.windows.net,1433;Initial Catalog=Exdrive;Persist Security Info=False;User ID=fxxwol;Password=AbCD.123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"))
             {
                 con.Open();
@@ -22,7 +22,7 @@ namespace exdrive_web.Models
                     {
                         while (reader.Read())
                         {
-                            files.Add((string)reader["Name"]);
+                            files.Add(new NameInstance((string)reader["Name"]));
                         }
                     }
                 }

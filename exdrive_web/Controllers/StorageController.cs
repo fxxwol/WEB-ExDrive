@@ -13,6 +13,7 @@ namespace exdrive_web.Controllers
         private IWebHostEnvironment _webHostEnvironment;
         private readonly ApplicationDbContext _db;
         private string? _userId;
+        private static List<NameInstance> _nameInstances = new List<NameInstance>();
         public StorageController(IWebHostEnvironment environment, ApplicationDbContext db)
         {
             _webHostEnvironment = environment;
@@ -22,8 +23,8 @@ namespace exdrive_web.Controllers
         public IActionResult AccessStorage()
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            List<string> list = new List<string>(UserFilesDB.GetUserFilesDB(_userId));
-            return View(list);
+            _nameInstances = new List<NameInstance>(UserFilesDB.GetUserFilesDB(_userId));
+            return View(_nameInstances);
         }
         public IActionResult Trashcan()
         {
@@ -125,6 +126,12 @@ namespace exdrive_web.Controllers
             }
 
             return RedirectToAction("AccessStorage", "Storage");
+        }
+        public ActionResult FileClick(string afile) 
+        {
+            int position = Int32.Parse(afile);
+            _nameInstances.ElementAt(position).IsSelected ^= true;
+            return View("AccessStorage", _nameInstances);
         }
     }
 }

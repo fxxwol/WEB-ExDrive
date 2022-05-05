@@ -83,46 +83,71 @@
 </svg>
 </button>
     </div>
-   @model List<string>
+   @model List<NameInstance>
+   @using (Html.BeginForm("FileClick", "Storage"))
+   {
+        int count = 0;
         @foreach (var row in @Model)
         {
         string type = "";
-        @for (int i = row.LastIndexOf('.') + 1; i < row.Length; i++)
+        @for (int i = row.Name.LastIndexOf('.') + 1; i < row.Name.Length; i++)
         {
-            type += row.ElementAt(i);
+            type += row.Name.ElementAt(i);
         }
 
         string imagetoview = "";
         switch(type)
         {
             case "png":
+            if(row.IsSelected == false)
                 imagetoview = "~/css/images/png.png";
+            else
+                imagetoview = "~/css/images/pngon.png";
                 break;
             case "jpg":
+            if(row.IsSelected == false)
                 imagetoview = "~/css/images/jpg.png";
+            else
+                imagetoview = "~/css/images/jpgon.png";
                 break;
             case "pdf":
+            if(row.IsSelected == false)
                 imagetoview = "~/css/images/pdf.png";
+            else
+                imagetoview = "~/css/images/pdfon.png";
                 break;
             case "mp4":
+            if(row.IsSelected == false)
                 imagetoview = "~/css/images/mp4.png";
+            else
+                imagetoview = "~/css/images/mp4on.png";
                 break;
             case "txt":
+            if(row.IsSelected == false)
                 imagetoview = "~/css/images/txt.png";
+            else
+                imagetoview = "~/css/images/txton.png";
                 break;
             case "mp3":
+            if(row.IsSelected == false)
                 imagetoview = "~/css/images/mp3.png";
+            else
+                imagetoview = "~/css/images/mp3on.png";
                 break;
             default:
                 imagetoview = "";
                 break;
 
         }
+        <button type="submit" name="afile" value=@count style="background-color:transparent; border-block-color:transparent; border-bottom-color:transparent; border-left-color:transparent; border-right-color:transparent">
         <div class="item">
                 <img src="@Url.Content(imagetoview)" runat="server" style="width: 100px; height: 100px"/>
-                <span class="caption">@row</span>
-            </div>
+                <span class="caption">@row.Name</span> 
+        </div>
+        </button>
+        count++;
         }
+    }
 </body>
 </html>
 
