@@ -99,7 +99,7 @@ namespace exdrive_web.Controllers
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             
-            if (_file != null && !string.IsNullOrEmpty(_userId))
+            if (_file.MyFile != null && !string.IsNullOrEmpty(_userId))
             {
                 var file = _file.MyFile;
                 var dir = _webHostEnvironment.ContentRootPath;
@@ -127,7 +127,6 @@ namespace exdrive_web.Controllers
 
                 await UploadPermAsync.UploadFileAsync(file, dir, files, ms, _userId);
             }
-
             return RedirectToAction("AccessStorage", "Storage");
         }
         public ActionResult FileClick(string afile) 
