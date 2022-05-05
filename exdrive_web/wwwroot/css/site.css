@@ -246,3 +246,67 @@ img.avatar {
     left: 0;
     z-index: 1000;
 }
+
+.context-menu {
+    width: 200px;
+    height: 132px;
+    background: #a636ad75;
+}
+
+.getlink {
+    height: 30px;
+    width: 200px;
+    border: none;
+    background-repeat: no-repeat;
+    filter: drop-shadow(0 1px 1px #000a);
+    transition: .3s ease;
+}
+
+    .getlink:hover {
+        filter: drop-shadow(0 5px 5px #0008);
+        cursor: pointer;
+    }
+
+.follow {
+    height: 30px;
+    width: 200px;
+    border: none;
+    background-repeat: no-repeat;
+    filter: drop-shadow(0 1px 1px #000a);
+    transition: .3s ease;
+}
+
+    .follow:hover {
+        filter: drop-shadow(0 5px 5px #0008);
+        cursor: pointer;
+    }
+
+.rename {
+    height: 30px;
+    width: 200px;
+    border: none;
+    background-repeat: no-repeat;
+    filter: drop-shadow(0 1px 1px #000a);
+    transition: .3s ease;
+}
+
+    .rename:hover {
+        filter: drop-shadow(0 5px 5px #0008);
+        cursor: pointer;
+    }
+
+.delete {
+    height: 30px;
+    width: 200px;
+    border: none;
+    background-repeat: no-repeat;
+    filter: drop-shadow(0 1px 1px #000a);
+    transition: .3s ease;
+}
+
+    .delete:hover {
+        filter: drop-shadow(0 5px 5px #0008);
+        cursor: pointer;
+    }
+
+
