@@ -14,6 +14,8 @@ namespace exdrive_web.Controllers
         private readonly ApplicationDbContext _db;
         private string? _userId;
         private static List<NameInstance> _nameInstances = new List<NameInstance>();
+        private static List<NameInstance> _searchResult = new List<NameInstance>();
+        private static bool _isDeleted = false;
         public StorageController(IWebHostEnvironment environment, ApplicationDbContext db)
         {
             _webHostEnvironment = environment;
@@ -24,6 +26,7 @@ namespace exdrive_web.Controllers
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             _nameInstances = new List<NameInstance>(UserFilesDB.GetUserFilesDB(_userId));
+            _searchResult = null;
             return View(_nameInstances);
         }
         public IActionResult Trashcan()
@@ -32,20 +35,41 @@ namespace exdrive_web.Controllers
         }
 
         [Authorize]
-        [HttpGet]
-        public async Task<IActionResult> Search(string filename)
+        public IActionResult Search(string searchString)
         {
-            ViewData["GetFiles"] = filename;
-            //var files = from x in _db.Files select x;
+            ViewData["GetFiles"] = searchString;
 
-            List<NameInstance> file;
-            if (!String.IsNullOrEmpty(filename))
+            if (searchString == null)
             {
-                file = _nameInstances.Where(x => x.Name == filename).ToList();
-                return View("AccessStorage", file);
+                if (_isDeleted)
+                {
+                    _isDeleted = false;
+                    return RedirectToAction("AccessStorage", "Storage");
+                }
+                else
+                    return View("AccessStorage", _nameInstances);
+
             }
+
+            _searchResult = _nameInstances.Where(x => x.NoFormat.Equals(searchString)).ToList();
+            if (_searchResult.Count > 0)
+                return View("AccessStorage", _searchResult);
             else
-                return View("AccessStorage");
+            {
+                _searchResult = _nameInstances.Where(x => x.Name.Equals(searchString)).ToList();
+                if (_searchResult.Count > 0)
+                    return View("AccessStorage", _searchResult);
+                else
+                {
+                    if (_isDeleted)
+                    {
+                        _isDeleted = false;
+                        return RedirectToAction("AccessStorage", "Storage");
+                    }
+                    else
+                        return View("AccessStorage", _nameInstances);
+                }
+            }
         }
         public IActionResult SingleFile()
         {
@@ -132,20 +156,51 @@ namespace exdrive_web.Controllers
         public ActionResult FileClick(string afile) 
         {
             int position = Int32.Parse(afile);
-            _nameInstances.ElementAt(position).IsSelected ^= true;
-            return View("AccessStorage", _nameInstances);
+            _isDeleted = true;
+
+            if (_searchResult == null)
+            {
+                _nameInstances.ElementAt(position).IsSelected ^= true;
+                return View("AccessStorage", _nameInstances);
+            }
+            else
+            {
+                _searchResult.ElementAt(position).IsSelected ^= true;
+                return View("AccessStorage", _searchResult);
+            }
         }
 
         public async Task<ActionResult> Delete(string file)
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            foreach (var name in _nameInstances)
+            if (_searchResult == null)
             {
-                if (name.IsSelected == true)
-                    await exdrive_web.Models.Trashcan.DeleteFile(name.Id, _userId);
+                foreach (var name in _nameInstances)
+                {
+                    if (name.IsSelected == true)
+                        await exdrive_web.Models.Trashcan.DeleteFile(name.Id, _userId);
+                }
+                return RedirectToAction("AccessStorage", "Storage");
             }
-
-            return RedirectToAction("AccessStorage", "Storage");
+            else
+            {
+                int i = 0;
+                List<NameInstance> newsearch = new List<NameInstance>();
+                foreach (var name in _searchResult)
+                {
+                    if (name.IsSelected == true)
+                    {
+                        await exdrive_web.Models.Trashcan.DeleteFile(name.Id, _userId);
+                    }
+                    else
+                    {
+                        newsearch.Add(_searchResult.ElementAt(i));
+                    }
+                    i++;
+                }
+                _searchResult = newsearch;
+                return View("AccessStorage", _searchResult);
+            }
         }
     }
 }

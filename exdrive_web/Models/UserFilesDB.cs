@@ -12,6 +12,8 @@ namespace exdrive_web.Models
     {
         public static List<NameInstance> GetUserFilesDB(string _userId)
         {
+            string name;
+            string noformat;
             List<NameInstance> files = new List<NameInstance>();
             using (SqlConnection con = new SqlConnection("Server=tcp:exdrive.database.windows.net,1433;Initial Catalog=Exdrive;Persist Security Info=False;User ID=fxxwol;Password=AbCD.123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"))
             {
@@ -22,7 +24,12 @@ namespace exdrive_web.Models
                     {
                         while (reader.Read())
                         {
-                            files.Add(new NameInstance((string)reader["Name"], (string)reader["FilesId"]));
+                            noformat = "";
+                            name = (string)reader["Name"];
+                            for (int i = 0; i < name.LastIndexOf('.'); i++)
+                                noformat += name.ElementAt(i);
+
+                            files.Add(new NameInstance(name, noformat, (string)reader["FilesId"]));
                         }
                     }
                 }

@@ -11,7 +11,6 @@ namespace exdrive_web.Models
     public class Trashcan
     {
         private static string connectionString = "DefaultEndpointsProtocol=https;AccountName=exdrivefiles;AccountKey=zW8bG071a7HbJ4+D5Pxruz4rL47KEx0XwExd7m5CmYtCNdu8A71/rVvvY/ld8hwJ4nObLnAcDB27KZV/0L92TA==;EndpointSuffix=core.windows.net";
-        //private static string filename = "77dedb09-52d0-4e52-abf8-1e35fd33e54b.exe";
 
         public static async Task DeleteFile(string filename, string _userId)
         {
@@ -21,7 +20,6 @@ namespace exdrive_web.Models
             var storageAccount = CloudStorageAccount.Parse(connectionString);
             var blobClient = storageAccount.CreateCloudBlobClient();
 
-            // details of our source file
             var sourceContainerName = _userId;
 
             var sourceContainer = blobClient.GetContainerReference(sourceContainerName);
