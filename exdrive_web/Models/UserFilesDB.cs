@@ -16,13 +16,13 @@ namespace exdrive_web.Models
             using (SqlConnection con = new SqlConnection("Server=tcp:exdrive.database.windows.net,1433;Initial Catalog=Exdrive;Persist Security Info=False;User ID=fxxwol;Password=AbCD.123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"))
             {
                 con.Open();
-                using (SqlCommand cmd = new SqlCommand($"SELECT Name FROM dbo.Files WHERE HasAccess='{_userId}' ORDER BY FilesId ASC", con))
+                using (SqlCommand cmd = new SqlCommand($"SELECT Name, FilesId FROM dbo.Files WHERE HasAccess='{_userId}' ORDER BY FilesId ASC", con))
                 {
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            files.Add(new NameInstance((string)reader["Name"]));
+                            files.Add(new NameInstance((string)reader["Name"], (string)reader["FilesId"]));
                         }
                     }
                 }

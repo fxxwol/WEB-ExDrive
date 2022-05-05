@@ -33,16 +33,19 @@ namespace exdrive_web.Controllers
 
         [Authorize]
         [HttpGet]
-        public async Task<IActionResult> AccessStoragew(string filename)
+        public async Task<IActionResult> Search(string filename)
         {
             ViewData["GetFiles"] = filename;
-            var files = from x in _db.Files select x;
-            
+            //var files = from x in _db.Files select x;
+
+            List<NameInstance> file;
             if (!String.IsNullOrEmpty(filename))
             {
-                files = files.Where(x => x.Name.Contains(filename));
+                file = _nameInstances.Where(x => x.Name == filename).ToList();
+                return View("AccessStorage", file);
             }
-            return View(await files.AsNoTracking().ToListAsync());
+            else
+                return View("AccessStorage");
         }
         public IActionResult SingleFile()
         {
@@ -132,6 +135,18 @@ namespace exdrive_web.Controllers
             int position = Int32.Parse(afile);
             _nameInstances.ElementAt(position).IsSelected ^= true;
             return View("AccessStorage", _nameInstances);
+        }
+
+        public async Task<ActionResult> Delete(string file)
+        {
+            _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            foreach (var name in _nameInstances)
+            {
+                if (name.IsSelected == true)
+                    await exdrive_web.Models.Trashcan.DeleteFile(name.Id, _userId);
+            }
+
+            return RedirectToAction("AccessStorage", "Storage");
         }
     }
 }
