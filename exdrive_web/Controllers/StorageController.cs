@@ -3,6 +3,7 @@ using JWTAuthentication.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.IO.Compression;
 using System.Security.Claims;
 
 namespace exdrive_web.Controllers
@@ -170,7 +171,7 @@ namespace exdrive_web.Controllers
             }
         }
 
-        public async Task<ActionResult> Delete(string file)
+        public async Task<ActionResult> Delete()
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (_searchResult == null)
@@ -200,6 +201,46 @@ namespace exdrive_web.Controllers
                 }
                 _searchResult = newsearch;
                 return View("AccessStorage", _searchResult);
+            }
+        }
+
+        public ActionResult DownloadFiles()
+        {
+
+            var zipName = $"archive-{DateTime.Now.ToString("yyyy_MM_dd-HH_mm_ss")}.zip";
+            _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            System.IO.Directory.CreateDirectory(_userId);
+            int i = 0;
+            foreach (var name in _nameInstances)
+            {
+                if (name.IsSelected == true)
+                    using (var fileStream = new FileStream(Path.Combine(_webHostEnvironment.ContentRootPath + _userId, _nameInstances.ElementAt(i).Name), FileMode.Create, FileAccess.Write))
+                        DownloadAzureFile.DownloadFile(_nameInstances.ElementAt(i).Id, _userId).CopyTo(fileStream);
+                i++;
+            }
+            
+            var files = Directory.GetFiles(Path.Combine(_webHostEnvironment.ContentRootPath, _userId)).ToList();
+            if (files.Count < 1)
+                return View("AccessStorage", _nameInstances);
+
+            using (var memoryStream = new MemoryStream())
+            {
+                using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+                {
+                    files.ForEach(file =>
+                    {
+                        string newname = file.Replace(Path.Combine(_webHostEnvironment.ContentRootPath + _userId) + "\\", string.Empty);
+                        var theFile = archive.CreateEntry(newname);
+                        using (var streamWriter = new StreamWriter(theFile.Open()))
+                        {
+                            streamWriter.Write(System.IO.File.ReadAllText(file));
+                        }
+                    });
+                }
+
+                System.IO.Directory.Delete(Path.Combine(_webHostEnvironment.ContentRootPath, _userId), true);
+                return File(memoryStream.ToArray(), "application/zip", zipName);
             }
         }
     }
