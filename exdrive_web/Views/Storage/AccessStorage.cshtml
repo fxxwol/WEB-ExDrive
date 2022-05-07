@@ -1,5 +1,20 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            $(document).contextmenu(function () {
+                return false;
+            });
+        
+        $('.filebutton').mousedown(function (event) {
+            if (event.which == 3)
+            {
+                $.post("@Url.Action("FileClick", "Storage")", { afile: this.getAttribute("value")}, function() {});
+            }
+        });
+    });
+    </script>
 <head>
     <meta chaster="UTF-8">
     <link rel="stylesheet" href="../wwwroot/css/storage.css">
@@ -54,7 +69,7 @@
             <input type="submit" value="Search" class="search__button" />
     }
     <div class="storage__window">
-        @model List<NameInstance>
+   @model List<NameInstance>
    @using (Html.BeginForm("FileClick", "Storage"))
    {
         int count = 0;
@@ -184,19 +199,16 @@
                 break;
 
         }
-        <button type="submit" name="afile" value=@count style="background-color:transparent; border-block-color:transparent; border-bottom-color:transparent; border-left-color:transparent; border-right-color:transparent">
+        <button class="filebutton" type="submit" name="afile" value=@count style="background-color:transparent; border-block-color:transparent; border-bottom-color:transparent; border-left-color:transparent; border-right-color:transparent">
         <div class="item">
                 <img src="@Url.Content(imagetoview)" runat="server" style="width: 100px; height: 100px"/>
                 <span class="caption">@row.Name</span> 
         </div>
-        </button>
+        </button> 
         count++;
                 }
         }
     }
-      
-    </div>
-   
 </body>
 </html>
 

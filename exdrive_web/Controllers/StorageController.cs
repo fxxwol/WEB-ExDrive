@@ -230,12 +230,7 @@ namespace exdrive_web.Controllers
                 {
                     files.ForEach(file =>
                     {
-                        string newname = file.Replace(Path.Combine(_webHostEnvironment.ContentRootPath + _userId) + "\\", string.Empty);
-                        var theFile = archive.CreateEntry(newname);
-                        using (var streamWriter = new StreamWriter(theFile.Open()))
-                        {
-                            streamWriter.Write(System.IO.File.ReadAllText(file));
-                        }
+                        archive.CreateEntryFromFile(file, file.Replace(Path.Combine(_webHostEnvironment.ContentRootPath + _userId) + "\\", string.Empty));
                     });
                 }
 
