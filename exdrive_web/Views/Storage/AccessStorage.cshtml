@@ -65,6 +65,10 @@
             <input type="search" placeholder="Enter file name" value="@ViewData["GetFiles"]" name="searchString" style="width:500px; margin-left:460px; top: 95px; position:absolute;" />
             <input type="submit" value="Search" class="search__button" />
     }
+    @using (Html.BeginForm("ReadFiles", "Storage"))
+    {
+        <input type="submit" value="Open file" class="search__button" style="width:200px; margin-left:200px; margin-top: 2px" />
+    }
     <div class="storage__window">
    @model List<NameInstance>
    @using (Html.BeginForm("FileClick", "Storage"))
