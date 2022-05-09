@@ -361,5 +361,26 @@ img.avatar {
         filter: drop-shadow(0 5px 5px #0008);
         cursor: pointer;
     }
+.textFile {
+    display: block;
+    min-height: 600px;
+    height: fit-content;
+    width: 600px;
+    text-align: left;
+    text-justify: inter-word;
+    background-color: aliceblue;
+    margin: auto;
+    box-shadow: inherit;
+}
 
+.txt {
+    display: block;
+    min-height: 500px;
+    height: fit-content;
+    text-align: left;
+    text-justify: inter-word;
+    background-color: aliceblue;
+    margin-top: 30px;
+    margin-left: 40px;
+}
 

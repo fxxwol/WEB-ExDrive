@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace exdrive_web.Controllers
 {
-    
+
     public class StorageController : Controller
     {
         private IWebHostEnvironment _webHostEnvironment;
@@ -123,7 +123,7 @@ namespace exdrive_web.Controllers
         public async Task<IActionResult> SinglePermFile(UploadInstance _file)
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            
+
             if (_file.MyFile != null && !string.IsNullOrEmpty(_userId))
             {
                 var file = _file.MyFile;
@@ -154,7 +154,7 @@ namespace exdrive_web.Controllers
             }
             return RedirectToAction("AccessStorage", "Storage");
         }
-        public ActionResult FileClick(string afile) 
+        public ActionResult FileClick(string afile)
         {
             int position = Int32.Parse(afile);
             _isDeleted = true;
@@ -220,7 +220,7 @@ namespace exdrive_web.Controllers
                         DownloadAzureFile.DownloadFile(_nameInstances.ElementAt(i).Id, _userId).CopyTo(fileStream);
                 i++;
             }
-            
+
             var files = Directory.GetFiles(Path.Combine(_webHostEnvironment.ContentRootPath, _userId)).ToList();
             if (files.Count < 1)
                 return View("AccessStorage", _nameInstances);
@@ -239,5 +239,24 @@ namespace exdrive_web.Controllers
                 return File(memoryStream.ToArray(), "application/zip", zipName);
             }
         }
+        public IActionResult ReadFiles()
+        {
+            _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string[] texts = { };
+            foreach (var name in _nameInstances)
+            {
+                if (name.IsSelected == true && (name.Name.EndsWith("txt") || name.Name.EndsWith("doc") || name.Name.EndsWith("docx")))
+                {
+
+                    texts = System.IO.File.ReadAllLines(Path.Combine(_webHostEnvironment.ContentRootPath, name.Name));
+
+                    TempData["GetContent"] = texts;
+                    break;
+
+                }
+            }
+            return View("ReadTXT", texts);
+        }
     }
 }
+
