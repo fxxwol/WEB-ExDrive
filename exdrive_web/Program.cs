@@ -33,5 +33,8 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
 
-DeleteTemporaryTimer.SetTimer();
+DeleteTemporaryTimer botfiles = new DeleteTemporaryTimer(7, "botfiles");
+botfiles.SetTimer();
+DeleteTemporaryTimer trashcan = new DeleteTemporaryTimer(15, "trashcan");
+trashcan.SetTimer();
 app.Run();

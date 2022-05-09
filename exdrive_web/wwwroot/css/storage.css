@@ -17,8 +17,9 @@
     border: 1px solid #191919;
     box-shadow: inset 0 0 2px 1px rgba(255,255,255,0.08), 0 16px 10px -8px rgba(0, 0, 0, 0.6);
 }
+
 .buttons__rect {
-    position:relative;
+    position: relative;
     width: 1070px;
     height: 60px;
     background-color: #eeeeee;
@@ -33,7 +34,7 @@
     position: relative;
     overflow: hidden;
     display: inline-block;
-    margin: 0  auto;
+    margin: 0 auto;
     top: 5px;
     left: 10px;
     width: 110px;
@@ -189,6 +190,7 @@ upload-btn-wrapper__delete {
     width: 80px;
     height: 52px;
 }
+
 .btn__download {
     position: absolute;
     border: #000000;
@@ -209,9 +211,10 @@ upload-btn-wrapper__delete {
     display: inline-block;
     margin: 0 auto;
 }
-.btn__download:hover {
-    background-color: #0aacffec;
-}
+
+    .btn__download:hover {
+        background-color: #0aacffec;
+    }
 
 /*.storage__buttons {
     padding: 8px 10px;
@@ -240,6 +243,7 @@ upload-btn-wrapper__delete {
     top: 85px;
     left: 970px;
 }
+
     .search__button:hover {
         background-color: #0aacffec;
     }
@@ -284,3 +288,15 @@ upload-btn-wrapper__delete {
     .alert-success:hover {
         background-color: #0aacffec;
     }
+
+
+.txt {
+    display: block;
+    min-height: 500px;
+    height: fit-content;
+    text-align: left;
+    text-justify: inter-word;
+    background-color: aliceblue;
+    margin-top: 30px;
+    margin-left: 40px;
+}

@@ -19,7 +19,10 @@ namespace JWTAuthentication
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            DeleteTemporaryTimer.SetTimer();
+            DeleteTemporaryTimer botfiles = new DeleteTemporaryTimer(7,"botfiles");
+            botfiles.SetTimer();
+            DeleteTemporaryTimer trashcan = new DeleteTemporaryTimer(30, "trashcan");
+            trashcan.SetTimer();
         }
 
         public IConfiguration Configuration { get; }

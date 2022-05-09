@@ -82,38 +82,19 @@ namespace exdrive_web.Controllers
         [RequestFormLimits(MultipartBodyLengthLimit = 629145600)]
         public async Task<IActionResult> SingleFile(UploadInstance _file)
         {
-            var file = _file.MyFile;
-            if (file != null)
+            if (_file.MyFile != null)
             {
-                var dir = _webHostEnvironment.ContentRootPath;
-                string filename = file.FileName;
-
                 string format = "";
-                for (int i = filename.LastIndexOf('.'); i < filename.Length; i++)
-                    format += file.FileName.ElementAt(i);
+                for (int i = _file.MyFile.FileName.LastIndexOf('.'); i < _file.MyFile.FileName.Length; i++)
+                    format += _file.MyFile.FileName.ElementAt(i);
 
                 string newname = Guid.NewGuid().ToString() + format;
-                //using (var fileStream = new FileStream(Path.Combine(dir, newname), FileMode.Create, FileAccess.Write))
-                //{
-                //    file.CopyTo(fileStream);
-                //}
-                
-                MemoryStream ms = new MemoryStream();
-                var filems = file.OpenReadStream();
-                filems.CopyToAsync(ms).Wait();
-
-                Files files = new Files();
-                files.Name = filename;
-                files.FilesId = newname;
-                files.IsTemporary = true;
-                files.HasAccess = "*";
-
+                Files files = new Files(newname, _file.MyFile.FileName, "*", true);
 
                 string downloadLink = "https://exdrivefiles.blob.core.windows.net/botfiles/" + files.FilesId;
-                await UploadTempAsync.UploadFileAsync(file, dir, files, ms);
+                await UploadTempAsync.UploadFileAsync(_file, files);
                 TempData["AlertMessage"] = downloadLink;
             }
-
             return RedirectToAction("Index", "Home");
         }
 
@@ -123,34 +104,16 @@ namespace exdrive_web.Controllers
         public async Task<IActionResult> SinglePermFile(UploadInstance _file)
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
             if (_file.MyFile != null && !string.IsNullOrEmpty(_userId))
             {
-                var file = _file.MyFile;
-                var dir = _webHostEnvironment.ContentRootPath;
-                string filename = file.FileName;
-
                 string format = "";
-                for (int i = filename.LastIndexOf('.'); i < filename.Length; i++)
-                    format += file.FileName.ElementAt(i);
+                for (int i = _file.MyFile.FileName.LastIndexOf('.'); i < _file.MyFile.FileName.Length; i++)
+                    format += _file.MyFile.FileName.ElementAt(i);
 
                 string newname = Guid.NewGuid().ToString() + format;
-                using (var fileStream = new FileStream(Path.Combine(dir, newname), FileMode.Create, FileAccess.Write))
-                {
-                    file.CopyTo(fileStream);
-                }
+                Files files = new Files(newname, _file.MyFile.FileName, _userId, false);
 
-                MemoryStream ms = new MemoryStream();
-                var filems = file.OpenReadStream();
-                filems.CopyToAsync(ms).Wait();
-
-                Files files = new Files();
-                files.Name = filename;
-                files.FilesId = newname;
-                files.IsTemporary = false;
-                files.HasAccess = _userId;
-
-                await UploadPermAsync.UploadFileAsync(file, dir, files, ms, _userId);
+                await UploadPermAsync.UploadFileAsync(_file, files, _userId);
             }
             return RedirectToAction("AccessStorage", "Storage");
         }
@@ -242,20 +205,33 @@ namespace exdrive_web.Controllers
         public IActionResult ReadFiles()
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            string[] texts = { };
+            List<string> readtext = new List<string>();
+            System.IO.Directory.CreateDirectory(_userId);
+            Stream stream;
+            string? line;
+
+            int i = 0;
             foreach (var name in _nameInstances)
             {
-                if (name.IsSelected == true && (name.Name.EndsWith("txt") || name.Name.EndsWith("doc") || name.Name.EndsWith("docx")))
+                if (name.IsSelected == true) // && name.Name.EndsWith("txt")
                 {
+                    stream = DownloadAzureFile.DownloadFile(_nameInstances.ElementAt(i).Id, _userId);
+                    TextReader tr = new StreamReader(stream);
 
-                    texts = System.IO.File.ReadAllLines(Path.Combine(_webHostEnvironment.ContentRootPath, name.Name));
-
-                    TempData["GetContent"] = texts;
+                    do
+                    {
+                        line = tr.ReadLine();
+                        if (line != null)
+                            readtext.Add(line);
+                    } while (line != null);
+                    
+                    tr.Dispose();
                     break;
-
                 }
+                i++;
             }
-            return View("ReadTXT", texts);
+
+            return View("ReadTXT", readtext);
         }
     }
 }

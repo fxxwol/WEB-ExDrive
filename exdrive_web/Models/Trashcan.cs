@@ -14,7 +14,7 @@ namespace exdrive_web.Models
 
         public static async Task DeleteFile(string filename, string _userId)
         {
-            BlobContainerClient containerDest = new BlobContainerClient(connectionString, "botfiles");
+            BlobContainerClient containerDest = new BlobContainerClient(connectionString, "trashcan");
             BlobContainerClient containerSource = new BlobContainerClient(connectionString, _userId);
 
             var storageAccount = CloudStorageAccount.Parse(connectionString);
@@ -52,8 +52,7 @@ namespace exdrive_web.Models
             var storageAccount = CloudStorageAccount.Parse(connectionString);
             var blobClient = storageAccount.CreateCloudBlobClient();
 
-            // details of our source file
-            var sourceContainerName = "botfiles";
+            var sourceContainerName = "trashcan";
 
             var sourceContainer = blobClient.GetContainerReference(sourceContainerName);
 
