@@ -72,6 +72,59 @@ body {
     cursor: pointer;
 }
 
+.ccontext-menu {
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.1);
+    padding: 10px 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: none;
+    width: 200px;
+}
+
+.ccontext-menu__item1 {
+    cursor: pointer;
+    padding: 8px 15px;
+}
+
+.ccontext-menu__item1:hover {
+        background-color: #f8f8f8;
+}
+
+.ccontext-menu__item2 {
+    cursor: pointer;
+    padding: 8px 15px;
+}
+
+    .ccontext-menu__item2:hover {
+        background-color: #f8f8f8;
+    }
+
+.ccontext-menu__item3 {
+    cursor: pointer;
+    padding: 8px 15px;
+}
+
+    .ccontext-menu__item3:hover {
+        background-color: #f8f8f8;
+    }
+
+.ccontext-menu__item4 {
+    cursor: pointer;
+    padding: 8px 15px;
+}
+
+    .ccontext-menu__item4:hover {
+        background-color: #f8f8f8;
+    }
+
+.ccontext-menu__divider {
+    border-bottom: 1px solid #eeeeee;
+    margin: 10px 0;
+}
+
 .upload-btn-wrapper_upload:hover .btn_upload {
     background-color: #0aacffec;
 }

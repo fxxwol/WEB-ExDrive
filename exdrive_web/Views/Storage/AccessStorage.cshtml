@@ -1,20 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-    <script>
-        $(document).ready(function () {
-            $(document).contextmenu(function () {
-                return false;
-            });
-        
-        $('.filebutton').mousedown(function (event) {
-            if (event.which == 3)
-            {
-                $.post("@Url.Action("FileClick", "Storage")", { afile: this.getAttribute("value")}, function() {});
-            }
-        });
-    });
-    </script>
+    
 <head>
     <meta chaster="UTF-8">
     <link rel="stylesheet" href="../wwwroot/css/storage.css">
@@ -26,6 +12,57 @@
     <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
 </head>
 <body> @*style="overflow:hidden"*@
+
+        <div class="ccontext-menu"> 
+          <div class="ccontext-menu__item1">Link</div>
+          <div class="ccontext-menu__item2">Favourite</div>
+          <div class="ccontext-menu__item3">Rename</div>
+          <div class="ccontext-menu__divider"></div>
+          <div class="ccontext-menu__item4">Delete</div>
+         </div>
+
+         @*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>*@
+         <script>
+             const cm = document.querySelector('.ccontext-menu');
+
+             function showContextMenu (show = true) {
+                 cm.style.display = show ? 'block' : 'none'; 
+             }
+
+             window.addEventListener('contextmenu', (e) => {
+                 e.preventDefault();
+                 showContextMenu();
+                 cm.style.top = e.y + cm.offsetHeight > window.innerHeight ? 
+                 window.innerHeight - cm.offsetHeight + "px" : e.y + "px";
+                 cm.style.left = e.x + cm.offsetWidth > window.innerWidth ? 
+                 window.innerWidth - cm.offsetWidth + "px" : e.x + "px";
+                 console.log(e.returnValue);
+             });
+
+             window.addEventListener('click', () => {
+                 showContextMenu(false);
+             });
+         </script>
+            @*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+                <script>
+                const cm = document.querySelector('.ccontext-menu');
+
+                function showContextMenu (show = true) {
+                 cm.style.display = show ? 'block' : 'none'; 
+                }
+
+                $(document).ready(function(){
+                $("div.item").on("contextmenu", function(e) {
+                e.preventDefault();
+                 showContextMenu();
+                 cm.style.top = e.y + cm.offsetHeight > window.innerHeight ? 
+                 window.innerHeight - cm.offsetHeight + "px" : e.y + "px";
+                 cm.style.left = e.x + cm.offsetWidth > window.innerWidth ? 
+                 window.innerWidth - cm.offsetWidth + "px" : e.x + "px";
+                showContextMenu(true);
+                });
+            });
+         </script>*@
     <div class="buttons__rect">
     <form asp-controller="Storage" asp-action="SinglePermFile" enctype="multipart/form-data">
         <div class="upload-btn-wrapper__upload">
@@ -127,9 +164,9 @@
                 break;
             case "docx":
             if(row.IsSelected == false)
-                imagetoview = "~/css/images/docx-file.png";
+                imagetoview = "~/css/images/docx.png";
             else
-                imagetoview = "~/css/images/docx-fileon.png";
+                imagetoview = "~/css/images/docxon.png";
                 break;
             case "xls":
             if(row.IsSelected == false)
@@ -145,9 +182,9 @@
                 break;
             case "3gp":
             if(row.IsSelected == false)
-                imagetoview = "~/css/images/3gp-file.png";
+                imagetoview = "~/css/images/3gp.png";
             else
-                imagetoview = "~/css/images/3gp-fileon.png";
+                imagetoview = "~/css/images/3gpon.png";
                 break;
             case "avi":
             if(row.IsSelected == false)
@@ -194,7 +231,6 @@
             default:
                 imagetoview = "";
                 break;
-
         }
         <button class="filebutton" type="submit" name="afile" value=@count style="background-color:transparent; border-block-color:transparent; border-bottom-color:transparent; border-left-color:transparent; border-right-color:transparent">
         <div class="item">
@@ -203,9 +239,10 @@
         </div>
         </button> 
         count++;
-                }
         }
-    }
+        }
+   }
+   </div>
 </body>
 </html>
 

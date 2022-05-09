@@ -2,13 +2,6 @@
     ViewData["Title"] = "Home Page";
 }
 
-@if (TempData["AlertMessage"] != null)
-{
-      <div class="alert alert-success">
-      <a href=@TempData["AlertMessage"]>@TempData["AlertMessage"]</a>
-      </div>
-}
-
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -28,13 +21,45 @@
             </div>
         </header>
 
-         <div class="context-menu"> 
-          <button class ="getlink">Get a link</button>
-          <button class ="follow">Add to favorites</button>
-          <button class ="rename">Rename</button>
-          <button class ="delete">Delete</button>
-       </div>
+         <div class="ccontext-menu"> 
+          <div class="ccontext-menu__item1">Link</div>
+          <div class="ccontext-menu__item2">Favourite</div>
+          <div class="ccontext-menu__item3">Rename</div>
+          <div class="ccontext-menu__divider"></div>
+          <div class="ccontext-menu__item4">Delete</div>
+         </div>
 
+         <script>
+             const cm = document.querySelector('.ccontext-menu');
+
+             function showContextMenu (show = true) {
+                 cm.style.display = show ? 'block' : 'none'; 
+             }
+
+             window.addEventListener('contextmenu', (e) => {
+                 e.preventDefault();
+
+                 $(".item").click(function(e){
+                     showContextMenu();
+                 cm.style.top = e.y + cm.offsetHeight > window.innerHeight ? 
+                 window.innerHeight - cm.offsetHeight + "px" : e.y + "px";
+                 cm.style.left = e.x + cm.offsetWidth > window.innerWidth ? 
+                 window.innerWidth - cm.offsetWidth + "px" : e.x + "px";
+                 });
+             });
+
+             window.addEventListener('click', () => {
+                 showContextMenu(false);
+             });
+
+             $(".ccontext-menu__item4").click(function(e){
+                 e.preventDefault();
+                $.post("@Url.Action("Delete","Storage")", 1, function(data){
+                    alert(data);
+                });
+            });
+            
+         </script>
 
 <div class="intro">
     <div class="container">
@@ -50,6 +75,12 @@
         <button class="btn_upload">Upload a file</button>
         <input type="file" name="myfile" />
      	</div>
+         @if (TempData["AlertMessage"] != null)
+{
+      <div class="alert alert-success">
+      <a href=@TempData["AlertMessage"]>@TempData["AlertMessage"]</a>
+      </div>
+}
      	<div class="upload-btn-wrapper_submit">
         <button class="btn_submit">Submit your choice</button>
      	</div>

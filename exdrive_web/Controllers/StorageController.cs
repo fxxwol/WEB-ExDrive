@@ -93,11 +93,11 @@ namespace exdrive_web.Controllers
                     format += file.FileName.ElementAt(i);
 
                 string newname = Guid.NewGuid().ToString() + format;
-                using (var fileStream = new FileStream(Path.Combine(dir, newname), FileMode.Create, FileAccess.Write))
-                {
-                    file.CopyTo(fileStream);
-                }
-
+                //using (var fileStream = new FileStream(Path.Combine(dir, newname), FileMode.Create, FileAccess.Write))
+                //{
+                //    file.CopyTo(fileStream);
+                //}
+                
                 MemoryStream ms = new MemoryStream();
                 var filems = file.OpenReadStream();
                 filems.CopyToAsync(ms).Wait();
@@ -171,6 +171,7 @@ namespace exdrive_web.Controllers
             }
         }
 
+        [HttpPost]
         public async Task<ActionResult> Delete()
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
