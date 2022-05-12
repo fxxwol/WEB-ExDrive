@@ -33,42 +33,6 @@ namespace exdrive_web.Controllers
             return View();
         }
 
-        //public IActionResult Search(string searchString)
-        //{
-        //    ViewData["GetFiles"] = searchString;
-
-        //    if (searchString == null)
-        //    {
-        //        if (_isDeleted)
-        //        {
-        //            _isDeleted = false;
-        //            return RedirectToAction("AccessStorage", "Storage");
-        //        }
-        //        else
-        //            return View("AccessStorage", _nameInstances);
-
-        //    }
-
-        //    _searchResult = _nameInstances.Where(x => x.NoFormat.Equals(searchString)).ToList();
-        //    if (_searchResult.Count > 0)
-        //        return View("AccessStorage", _searchResult);
-        //    else
-        //    {
-        //        _searchResult = _nameInstances.Where(x => x.Name.Equals(searchString)).ToList();
-        //        if (_searchResult.Count > 0)
-        //            return View("AccessStorage", _searchResult);
-        //        else
-        //        {
-        //            if (_isDeleted)
-        //            {
-        //                _isDeleted = false;
-        //                return RedirectToAction("AccessStorage", "Storage");
-        //            }
-        //            else
-        //                return View("AccessStorage", _nameInstances);
-        //        }
-        //    }
-        //}
         [Authorize]
         public IActionResult Search(string searchString)
         {
@@ -261,6 +225,35 @@ namespace exdrive_web.Controllers
             }
 
             return View("ReadTXT", readtext);
+        }
+
+        [HttpPost, DisableRequestSizeLimit]
+        //[Consumes("application/octet-stream")]
+        public ActionResult UploadTempFileBot()
+        {
+            if (Request.ContentLength == 0 || Request.ContentLength == null)
+                return BadRequest("File for upload is empty");
+
+            string name = Request.Headers.ContentDisposition;
+            string newname = "";
+            for (int i = name.LastIndexOf('=') + 1; i < name.Length && name[i] != '"'; i++)
+                newname += name[i];
+
+            Files file = new(Guid.NewGuid().ToString() + ExFunctions.FindFormat(newname),
+                newname, "*", true);
+
+            Stream stream = Request.Body;
+            HttpContent content = new StringContent("https://exdrivefiles.blob.core.windows.net/botfiles/" + file.FilesId);
+            UploadTempBotAsync.UploadFileAsync(stream, (long)Request.ContentLength, file).Wait();
+
+            HttpResponse response = Response;
+            response.Clear();
+            response.StatusCode = 200;
+            response.ContentType = "text/xml";
+            response.WriteAsync("https://exdrivefiles.blob.core.windows.net/botfiles/" + file.FilesId);
+            
+            return Ok(response);
+            //return StatusCode(StatusCodes.Status200OK, "link here");
         }
     }
 }
