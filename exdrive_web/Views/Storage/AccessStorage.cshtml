@@ -1,6 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
-    
+
 <head>
     <meta chaster="UTF-8">
     <link rel="stylesheet" href="../wwwroot/css/storage.css">
@@ -11,242 +11,250 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
 </head>
-<body> @*style="overflow:hidden"*@
+<body>
+    @*style="overflow:hidden"*@
 
-        <div class="ccontext-menu"> 
-          <div class="ccontext-menu__item1">Link</div>
-          <div class="ccontext-menu__item2">Favourite</div>
-          <div class="ccontext-menu__item3">Rename</div>
-          <div class="ccontext-menu__divider"></div>
-          <div class="ccontext-menu__item4">Delete</div>
-         </div>
+    <div class="ccontext-menu">
+        <div class="ccontext-menu__item1">Link</div>
+        <div class="ccontext-menu__item2">Favourite</div>
+        <div class="ccontext-menu__item3">Rename</div>
+        <div class="ccontext-menu__divider"></div>
+        <div class="ccontext-menu__item4">Delete</div>
+    </div>
 
-         @*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>*@
-         <script>
-             const cm = document.querySelector('.ccontext-menu');
+    @*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>*@
+    <script>
+        const cm = document.querySelector('.ccontext-menu');
 
-             function showContextMenu (show = true) {
-                 cm.style.display = show ? 'block' : 'none'; 
-             }
+        function showContextMenu (show = true) {
+            cm.style.display = show ? 'block' : 'none';
+        }
 
-             window.addEventListener('contextmenu', (e) => {
-                 e.preventDefault();
-                 showContextMenu();
-                 cm.style.top = e.y + cm.offsetHeight > window.innerHeight ? 
-                 window.innerHeight - cm.offsetHeight + "px" : e.y + "px";
-                 cm.style.left = e.x + cm.offsetWidth > window.innerWidth ? 
-                 window.innerWidth - cm.offsetWidth + "px" : e.x + "px";
-                 console.log(e.returnValue);
-             });
+        window.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            showContextMenu();
+            cm.style.top = e.y + cm.offsetHeight > window.innerHeight ?
+            window.innerHeight - cm.offsetHeight + "px" : e.y + "px";
+            cm.style.left = e.x + cm.offsetWidth > window.innerWidth ?
+            window.innerWidth - cm.offsetWidth + "px" : e.x + "px";
+            console.log(e.returnValue);
+        });
 
-             window.addEventListener('click', () => {
-                 showContextMenu(false);
-             });
-         </script>
-            @*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-                <script>
-                const cm = document.querySelector('.ccontext-menu');
+        window.addEventListener('click', () => {
+            showContextMenu(false);
+        });
+    </script>
+    @*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script>
+        const cm = document.querySelector('.ccontext-menu');
 
-                function showContextMenu (show = true) {
-                 cm.style.display = show ? 'block' : 'none'; 
-                }
+        function showContextMenu (show = true) {
+        cm.style.display = show ? 'block' : 'none';
+        }
 
-                $(document).ready(function(){
-                $("div.item").on("contextmenu", function(e) {
-                e.preventDefault();
-                 showContextMenu();
-                 cm.style.top = e.y + cm.offsetHeight > window.innerHeight ? 
-                 window.innerHeight - cm.offsetHeight + "px" : e.y + "px";
-                 cm.style.left = e.x + cm.offsetWidth > window.innerWidth ? 
-                 window.innerWidth - cm.offsetWidth + "px" : e.x + "px";
-                showContextMenu(true);
-                });
-            });
-         </script>*@
+        $(document).ready(function(){
+        $("div.item").on("contextmenu", function(e) {
+        e.preventDefault();
+        showContextMenu();
+        cm.style.top = e.y + cm.offsetHeight > window.innerHeight ?
+        window.innerHeight - cm.offsetHeight + "px" : e.y + "px";
+        cm.style.left = e.x + cm.offsetWidth > window.innerWidth ?
+        window.innerWidth - cm.offsetWidth + "px" : e.x + "px";
+        showContextMenu(true);
+        });
+        });
+        </script>*@
     <div class="buttons__rect">
-    <form asp-controller="Storage" asp-action="SinglePermFile" enctype="multipart/form-data">
-        <div class="upload-btn-wrapper__upload">
-        <button class="btn__upload">Upload</button>
-        <input type="file" name="myfile" />
-     	</div>
-     	<div class="upload-btn-wrapper__submit">
-        <button class="btn__submit">Submit</button>
-     	</div>
+        <form asp-controller="Storage" asp-action="SinglePermFile" enctype="multipart/form-data">
+            <div class="upload-btn-wrapper__upload">
+                <button class="btn__upload">Upload</button>
+                <input type="file" name="myfile" />
+            </div>
+            <div class="upload-btn-wrapper__submit">
+                <button class="btn__submit">Submit</button>
+            </div>
         </form>
-        </div>
-      <button class="btn__heart">
+    </div>
+    <button class="btn__heart">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark-heart" viewBox="0 0 16 16">
-  <path fill-rule="evenodd" d="M8 4.41c1.387-1.425 4.854 1.07 0 4.277C3.146 5.48 6.613 2.986 8 4.412z"/>
-  <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
-</svg>
+            <path fill-rule="evenodd" d="M8 4.41c1.387-1.425 4.854 1.07 0 4.277C3.146 5.48 6.613 2.986 8 4.412z" />
+            <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z" />
+        </svg>
     </button>
     @using (Html.BeginForm("Delete", "Storage"))
     {
         <button class="btn__delete" type="submit" value="delete">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
-            <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z" />
-        </svg>
-    </button>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z" />
+            </svg>
+        </button>
     }
+    
     @using (Html.BeginForm("DownloadFiles", "Storage"))
     {
+        <div></div>
         <button class="btn__download" type="submit" value="delete">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cloud-arrow-down" viewBox="0 0 16 16">
-         <path fill-rule="evenodd" d="M7.646 10.854a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 9.293V5.5a.5.5 0 0 0-1 0v3.793L6.354 8.146a.5.5 0 1 0-.708.708l2 2z"/>
-           <path d="M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.579C14.758 6.804 16 8.137 16 9.773 16 11.569 14.502 13 12.687 13H3.781C1.708 13 0 11.366 0 9.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383zm.653.757c-.757.653-1.153 1.44-1.153 2.056v.448l-.445.049C2.064 6.805 1 7.952 1 9.318 1 10.785 2.23 12 3.781 12h8.906C13.98 12 15 10.988 15 9.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 4.825 10.328 3 8 3a4.53 4.53 0 0 0-2.941 1.1z"/>
-           </svg>
-            </button>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cloud-arrow-down" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M7.646 10.854a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 9.293V5.5a.5.5 0 0 0-1 0v3.793L6.354 8.146a.5.5 0 1 0-.708.708l2 2z" />
+                <path d="M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.579C14.758 6.804 16 8.137 16 9.773 16 11.569 14.502 13 12.687 13H3.781C1.708 13 0 11.366 0 9.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383zm.653.757c-.757.653-1.153 1.44-1.153 2.056v.448l-.445.049C2.064 6.805 1 7.952 1 9.318 1 10.785 2.23 12 3.781 12h8.906C13.98 12 15 10.988 15 9.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 4.825 10.328 3 8 3a4.53 4.53 0 0 0-2.941 1.1z" />
+            </svg>
+        </button>
     }
     @using (Html.BeginForm("Search", "Storage"))
     {
-            <input type="search" placeholder="Enter file name" value="@ViewData["GetFiles"]" name="searchString" style="width:500px; margin-left:460px; top: 95px; position:absolute;" />
-            <input type="submit" value="Search" class="search__button" />
+        <input type="search" placeholder="Enter file name" value="@ViewData["GetFiles"]" name="searchString" style="width:500px; margin-left:460px; top: 95px; position:absolute;" />
+        <input type="submit" value="Search" class="search__button" />
     }
     @using (Html.BeginForm("ReadFile", "Storage"))
     {
-        <input type="submit" value="Open file" class="search__button" style="width:200px; margin-left:200px; margin-top: 2px" />
+        <input type="submit" value="Open file" class="search__button" style="width:150px; margin-left:150px; margin-top: 2px" />
+    }
+    @using (Html.BeginForm("Deleted", "Trashcan"))
+    {
+        <input type="submit" value="Trashcan" class="search__button" style="width:150px; margin-left:320px; margin-top: 2px" />
+
     }
     <div class="storage__window">
-   @model List<NameInstance>
-   @using (Html.BeginForm("FileClick", "Storage"))
-   {
-        int count = 0;
-        @foreach (var row in @Model)
+        @model List<NameInstance>
+        @using (Html.BeginForm("FileClick", "Storage"))
         {
-            if (row.Name != null)
+            int count = 0;
+            @foreach (var row in @Model)
+            {
+                if (row.Name != null)
                 {
                     string type = "";
-        @for (int i = row.Name.LastIndexOf('.') + 1; i < row.Name.Length; i++)
-        {
-            type += row.Name.ElementAt(i);
-        }
+                    @for (int i = row.Name.LastIndexOf('.') + 1; i < row.Name.Length; i++)
+                    {
+                        type += row.Name.ElementAt(i);
+                    }
 
-        string imagetoview = "";
-        switch(type)
-        {
-            case "png":
-            if(row.IsSelected == false)
-                imagetoview = "~/css/images/png.png";
-            else
-                imagetoview = "~/css/images/pngon.png";
-                break;
-            case "jpg":
-            if(row.IsSelected == false)
-                imagetoview = "~/css/images/jpg.png";
-            else
-                imagetoview = "~/css/images/jpgon.png";
-                break;
-            case "pdf":
-            if(row.IsSelected == false)
-                imagetoview = "~/css/images/pdf.png";
-            else
-                imagetoview = "~/css/images/pdfon.png";
-                break;
-            case "mp4":
-            if(row.IsSelected == false)
-                imagetoview = "~/css/images/mp4.png";
-            else
-                imagetoview = "~/css/images/mp4on.png";
-                break;
-            case "txt":
-            if(row.IsSelected == false)
-                imagetoview = "~/css/images/txt.png";
-            else
-                imagetoview = "~/css/images/txton.png";
-                break;
-            case "mp3":
-            if(row.IsSelected == false)
-                imagetoview = "~/css/images/mp3.png";
-            else
-                imagetoview = "~/css/images/mp3on.png";
-                break;
-            case "doc":
-            if(row.IsSelected == false)
-                imagetoview = "~/css/images/doc.png";
-            else
-                imagetoview = "~/css/images/docon.png";
-                break;
-            case "docx":
-            if(row.IsSelected == false)
-                imagetoview = "~/css/images/docx.png";
-            else
-                imagetoview = "~/css/images/docxon.png";
-                break;
-            case "xls":
-            if(row.IsSelected == false)
-                imagetoview = "~/css/images/xls.png";
-            else
-                imagetoview = "~/css/images/xlson.png";
-                break;
-            case "xlsx":
-            if(row.IsSelected == false)
-                imagetoview = "~/css/images/xlsx.png";
-            else
-                imagetoview = "~/css/images/xlsxon.png";
-                break;
-            case "3gp":
-            if(row.IsSelected == false)
-                imagetoview = "~/css/images/3gp.png";
-            else
-                imagetoview = "~/css/images/3gpon.png";
-                break;
-            case "avi":
-            if(row.IsSelected == false)
-                imagetoview = "~/css/images/avi.png";
-            else
-                imagetoview = "~/css/images/avion.png";
-                break;
-            case "mov":
-            if(row.IsSelected == false)
-                imagetoview = "~/css/images/mov.png";
-            else
-                imagetoview = "~/css/images/movon.png";
-                break;
-            case "ogv":
-            if(row.IsSelected == false)
-                imagetoview = "~/css/images/ogv.png";
-            else
-                imagetoview = "~/css/images/ogvon.png";
-                break;
-            case "webm":
-            if(row.IsSelected == false)
-                imagetoview = "~/css/images/webm.png";
-            else
-                imagetoview = "~/css/images/webmon.png";
-                break;
-            case "ogg":
-            if(row.IsSelected == false)
-                imagetoview = "~/css/images/ogg.png";
-            else
-                imagetoview = "~/css/images/oggon.png";
-                break;
-            case "zip":
-            if(row.IsSelected == false)
-                imagetoview = "~/css/images/zip.png";
-            else
-                imagetoview = "~/css/images/zipon.png";
-                break;
-            case "gif":
-            if(row.IsSelected == false)
-                imagetoview = "~/css/images/gif.png";
-            else
-                imagetoview = "~/css/images/gifon.png";
-                break;
-            default:
-                imagetoview = "";
-                break;
+                    string imagetoview = "";
+                    switch (type)
+                    {
+                        case "png":
+                            if (row.IsSelected == false)
+                                imagetoview = "~/css/images/png.png";
+                            else
+                                imagetoview = "~/css/images/pngon.png";
+                            break;
+                        case "jpg":
+                            if (row.IsSelected == false)
+                                imagetoview = "~/css/images/jpg.png";
+                            else
+                                imagetoview = "~/css/images/jpgon.png";
+                            break;
+                        case "pdf":
+                            if (row.IsSelected == false)
+                                imagetoview = "~/css/images/pdf.png";
+                            else
+                                imagetoview = "~/css/images/pdfon.png";
+                            break;
+                        case "mp4":
+                            if (row.IsSelected == false)
+                                imagetoview = "~/css/images/mp4.png";
+                            else
+                                imagetoview = "~/css/images/mp4on.png";
+                            break;
+                        case "txt":
+                            if (row.IsSelected == false)
+                                imagetoview = "~/css/images/txt.png";
+                            else
+                                imagetoview = "~/css/images/txton.png";
+                            break;
+                        case "mp3":
+                            if (row.IsSelected == false)
+                                imagetoview = "~/css/images/mp3.png";
+                            else
+                                imagetoview = "~/css/images/mp3on.png";
+                            break;
+                        case "doc":
+                            if (row.IsSelected == false)
+                                imagetoview = "~/css/images/doc.png";
+                            else
+                                imagetoview = "~/css/images/docon.png";
+                            break;
+                        case "docx":
+                            if (row.IsSelected == false)
+                                imagetoview = "~/css/images/docx.png";
+                            else
+                                imagetoview = "~/css/images/docxon.png";
+                            break;
+                        case "xls":
+                            if (row.IsSelected == false)
+                                imagetoview = "~/css/images/xls.png";
+                            else
+                                imagetoview = "~/css/images/xlson.png";
+                            break;
+                        case "xlsx":
+                            if (row.IsSelected == false)
+                                imagetoview = "~/css/images/xlsx.png";
+                            else
+                                imagetoview = "~/css/images/xlsxon.png";
+                            break;
+                        case "3gp":
+                            if (row.IsSelected == false)
+                                imagetoview = "~/css/images/3gp.png";
+                            else
+                                imagetoview = "~/css/images/3gpon.png";
+                            break;
+                        case "avi":
+                            if (row.IsSelected == false)
+                                imagetoview = "~/css/images/avi.png";
+                            else
+                                imagetoview = "~/css/images/avion.png";
+                            break;
+                        case "mov":
+                            if (row.IsSelected == false)
+                                imagetoview = "~/css/images/mov.png";
+                            else
+                                imagetoview = "~/css/images/movon.png";
+                            break;
+                        case "ogv":
+                            if (row.IsSelected == false)
+                                imagetoview = "~/css/images/ogv.png";
+                            else
+                                imagetoview = "~/css/images/ogvon.png";
+                            break;
+                        case "webm":
+                            if (row.IsSelected == false)
+                                imagetoview = "~/css/images/webm.png";
+                            else
+                                imagetoview = "~/css/images/webmon.png";
+                            break;
+                        case "ogg":
+                            if (row.IsSelected == false)
+                                imagetoview = "~/css/images/ogg.png";
+                            else
+                                imagetoview = "~/css/images/oggon.png";
+                            break;
+                        case "zip":
+                            if (row.IsSelected == false)
+                                imagetoview = "~/css/images/zip.png";
+                            else
+                                imagetoview = "~/css/images/zipon.png";
+                            break;
+                        case "gif":
+                            if (row.IsSelected == false)
+                                imagetoview = "~/css/images/gif.png";
+                            else
+                                imagetoview = "~/css/images/gifon.png";
+                            break;
+                        default:
+                            imagetoview = "";
+                            break;
+                    }
+                    <button class="filebutton" type="submit" name="afile" value=@count style="background-color:transparent; border-block-color:transparent; border-bottom-color:transparent; border-left-color:transparent; border-right-color:transparent">
+                        <div class="item">
+                            <img src="@Url.Content(imagetoview)" runat="server" style="width: 100px; height: 100px" />
+                            <span class="caption">@row.Name</span>
+                        </div>
+                    </button>
+                    count++;
+                }
+            }
         }
-        <button class="filebutton" type="submit" name="afile" value=@count style="background-color:transparent; border-block-color:transparent; border-bottom-color:transparent; border-left-color:transparent; border-right-color:transparent">
-        <div class="item">
-                <img src="@Url.Content(imagetoview)" runat="server" style="width: 100px; height: 100px"/>
-                <span class="caption">@row.Name</span> 
-        </div>
-        </button> 
-        count++;
-        }
-        }
-   }
-   </div>
+    </div>
 </body>
 </html>
 

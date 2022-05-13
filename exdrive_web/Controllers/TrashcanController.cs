@@ -19,22 +19,22 @@ namespace exdrive_web.Controllers
             return View(_deleted);
         }
         [HttpPost]
-        public ActionResult Delete()
+        public ActionResult Deleted()
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            List<NameInstance> deleted = new List<NameInstance>();
+            List<NameInstance> _deleted = new List<NameInstance>();
             int i = 0;
             foreach (var name in _nameInstances)
             {
                 if (_isDeleted == true)
                 {
-                    deleted.Add(_nameInstances.ElementAt(i)); // add deleted files to list
+                    _deleted.Add(_nameInstances.ElementAt(i)); // add deleted files to list
                 }
                 else
                     _isDeleted = false;
                 i++;
             }
-            return View("AccessStorage", _deleted);
+            return View("Trashcan", _deleted);
         }
     }
 }

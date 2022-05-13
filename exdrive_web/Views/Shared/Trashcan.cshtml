@@ -1,0 +1,156 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta chaster="UTF-8">
+    <link rel="stylesheet" href="../wwwroot/css/storage.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,300&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="storage__window">
+   @model List<NameInstance>
+   @using (Html.BeginForm("FileClick", "Storage"))
+   {
+        int count = 0;
+        @foreach (var row in @Model)
+        {
+            if (row.Name != null)
+                {
+                    string type = "";
+        @for (int i = row.Name.LastIndexOf('.') + 1; i < row.Name.Length; i++)
+        {
+            type += row.Name.ElementAt(i);
+        }
+
+        string imagetoview = "";
+        switch(type)
+        {
+            case "png":
+            if(row.IsSelected == false)
+                imagetoview = "~/css/images/png.png";
+            else
+                imagetoview = "~/css/images/pngon.png";
+                break;
+            case "jpg":
+            if(row.IsSelected == false)
+                imagetoview = "~/css/images/jpg.png";
+            else
+                imagetoview = "~/css/images/jpgon.png";
+                break;
+            case "pdf":
+            if(row.IsSelected == false)
+                imagetoview = "~/css/images/pdf.png";
+            else
+                imagetoview = "~/css/images/pdfon.png";
+                break;
+            case "mp4":
+            if(row.IsSelected == false)
+                imagetoview = "~/css/images/mp4.png";
+            else
+                imagetoview = "~/css/images/mp4on.png";
+                break;
+            case "txt":
+            if(row.IsSelected == false)
+                imagetoview = "~/css/images/txt.png";
+            else
+                imagetoview = "~/css/images/txton.png";
+                break;
+            case "mp3":
+            if(row.IsSelected == false)
+                imagetoview = "~/css/images/mp3.png";
+            else
+                imagetoview = "~/css/images/mp3on.png";
+                break;
+            case "doc":
+            if(row.IsSelected == false)
+                imagetoview = "~/css/images/doc.png";
+            else
+                imagetoview = "~/css/images/docon.png";
+                break;
+            case "docx":
+            if(row.IsSelected == false)
+                imagetoview = "~/css/images/docx.png";
+            else
+                imagetoview = "~/css/images/docxon.png";
+                break;
+            case "xls":
+            if(row.IsSelected == false)
+                imagetoview = "~/css/images/xls.png";
+            else
+                imagetoview = "~/css/images/xlson.png";
+                break;
+            case "xlsx":
+            if(row.IsSelected == false)
+                imagetoview = "~/css/images/xlsx.png";
+            else
+                imagetoview = "~/css/images/xlsxon.png";
+                break;
+            case "3gp":
+            if(row.IsSelected == false)
+                imagetoview = "~/css/images/3gp.png";
+            else
+                imagetoview = "~/css/images/3gpon.png";
+                break;
+            case "avi":
+            if(row.IsSelected == false)
+                imagetoview = "~/css/images/avi.png";
+            else
+                imagetoview = "~/css/images/avion.png";
+                break;
+            case "mov":
+            if(row.IsSelected == false)
+                imagetoview = "~/css/images/mov.png";
+            else
+                imagetoview = "~/css/images/movon.png";
+                break;
+            case "ogv":
+            if(row.IsSelected == false)
+                imagetoview = "~/css/images/ogv.png";
+            else
+                imagetoview = "~/css/images/ogvon.png";
+                break;
+            case "webm":
+            if(row.IsSelected == false)
+                imagetoview = "~/css/images/webm.png";
+            else
+                imagetoview = "~/css/images/webmon.png";
+                break;
+            case "ogg":
+            if(row.IsSelected == false)
+                imagetoview = "~/css/images/ogg.png";
+            else
+                imagetoview = "~/css/images/oggon.png";
+                break;
+            case "zip":
+            if(row.IsSelected == false)
+                imagetoview = "~/css/images/zip.png";
+            else
+                imagetoview = "~/css/images/zipon.png";
+                break;
+            case "gif":
+            if(row.IsSelected == false)
+                imagetoview = "~/css/images/gif.png";
+            else
+                imagetoview = "~/css/images/gifon.png";
+                break;
+            default:
+                imagetoview = "";
+                break;
+        }
+        <button class="filebutton" type="submit" name="afile" value=@count style="background-color:transparent; border-block-color:transparent; border-bottom-color:transparent; border-left-color:transparent; border-right-color:transparent">
+        <div class="item">
+                <img src="@Url.Content(imagetoview)" runat="server" style="width: 100px; height: 100px"/>
+                <span class="caption">@row.Name</span> 
+        </div>
+        </button> 
+        count++;
+        }
+        }
+   }
+   </div>
+</body>
+</html>

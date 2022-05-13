@@ -145,13 +145,12 @@ namespace exdrive_web.Controllers
             // function adds files that are not marked for deletion newsearch List
             int i = 0;
             List<NameInstance> newsearch = new List<NameInstance>();
-            List<NameInstance> deleted = new List<NameInstance>();
+
             foreach (var name in _searchResult)
             {
                 if (name.IsSelected == true)
                 {
                     await exdrive_web.Models.Trashcan.DeleteFile(name.Id, _userId);
-                    deleted.Add(_searchResult.ElementAt(i)); // add deleted files to list
                 }
                 else
                     newsearch.Add(_searchResult.ElementAt(i));
@@ -234,7 +233,7 @@ namespace exdrive_web.Controllers
                 System.IO.Directory.CreateDirectory(outputDirectory);
                 System.IO.Directory.CreateDirectory(inputDirectory);
 
-                string outputFilePath = Path.Combine(outputDirectory, "output" + name.Id);
+                string outputFilePath = Path.Combine(outputDirectory, "output " + name.Id);
                 using (var filestream = System.IO.File.Create(Path.Combine(inputDirectory, name.Id)))
                 {
                     stream.CopyTo(filestream);
