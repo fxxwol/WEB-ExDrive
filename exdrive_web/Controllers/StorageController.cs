@@ -1,8 +1,10 @@
 ﻿using exdrive_web.Models;
+using GroupDocs.Viewer;
+using GroupDocs.Viewer.Interfaces;
+using GroupDocs.Viewer.Options;
 using JWTAuthentication.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.IO.Compression;
 using System.Security.Claims;
 
@@ -16,7 +18,7 @@ namespace exdrive_web.Controllers
         private static List<NameInstance>? _searchResult = new List<NameInstance>();
         private static bool _isDeleted = false;
         public StorageController(IWebHostEnvironment environment, ApplicationDbContext db)
-        { 
+        {
 
         }
 
@@ -44,7 +46,7 @@ namespace exdrive_web.Controllers
 
                 if (_isDeleted == false)
                     return View("AccessStorage", _nameInstances);
-                                    
+
                 _isDeleted = false;
                 return RedirectToAction("AccessStorage", "Storage");
             }
@@ -65,7 +67,7 @@ namespace exdrive_web.Controllers
 
             // if file is deleted, generating new List
             _isDeleted = false;
-            return RedirectToAction("AccessStorage", "Storage");   
+            return RedirectToAction("AccessStorage", "Storage");
         }
         public IActionResult SingleFile()
         {
@@ -143,10 +145,14 @@ namespace exdrive_web.Controllers
             // function adds files that are not marked for deletion newsearch List
             int i = 0;
             List<NameInstance> newsearch = new List<NameInstance>();
+            List<NameInstance> deleted = new List<NameInstance>();
             foreach (var name in _searchResult)
             {
                 if (name.IsSelected == true)
+                {
                     await exdrive_web.Models.Trashcan.DeleteFile(name.Id, _userId);
+                    deleted.Add(_searchResult.ElementAt(i)); // add deleted files to list
+                }
                 else
                     newsearch.Add(_searchResult.ElementAt(i));
 
@@ -190,41 +196,71 @@ namespace exdrive_web.Controllers
                 }
 
                 System.IO.Directory.Delete(Path.Combine("C:\\Users\\Public\\tmpfiles\\", _userId), true);
-                
+
                 return File(memoryStream.ToArray(), "application/zip", zipName);
             }
         }
+        //public static void Loading_a_License_from_a_Stream_Object()
+        //{
+        //    Console.WriteLine("***** {0} *****", "Loading a License from a Stream Object");
 
-        public IActionResult ReadFiles()
+        //    /* ********************* SAMPLE ********************* */
+
+        //    // Obtain license stream
+        //    FileStream licenseStream = new FileStream(@"C:\Users\User\Source\Repos\license.txt", FileMode.Open);
+
+        //    // Setup license
+        //    GroupDocs.Viewer.License lic = new GroupDocs.Viewer.License();
+        //    lic.SetLicense(licenseStream);
+        //}
+        [HttpPost]
+        public IActionResult ReadFile()
         {
-            _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            List<string> readtext = new();
+            // Loading_a_License_from_a_Stream_Object();
             Stream stream;
-            string? line;
-
+            FileStreamResult? fsResult = null;
+            _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             int i = -1;
             foreach (var name in _nameInstances)
             {
                 i++;
-
                 if (name.IsSelected == false)
                     continue;
 
                 stream = DownloadAzureFile.DownloadFile(_nameInstances.ElementAt(i).Id, _userId);
-                TextReader tr = new StreamReader(stream);
+                string outputDirectory = Path.Combine("C:\\Users\\Public\\reader\\Output", _userId);
+                string inputDirectory = Path.Combine("C:\\Users\\Public\\reader\\Input", _userId);
 
-                do
+                System.IO.Directory.CreateDirectory(outputDirectory);
+                System.IO.Directory.CreateDirectory(inputDirectory);
+
+                string outputFilePath = Path.Combine(outputDirectory, "output" + name.Id);
+                using (var filestream = System.IO.File.Create(Path.Combine(inputDirectory, name.Id)))
                 {
-                     line = tr.ReadLine();
-                     if (line != null)
-                         readtext.Add(line);
-                } while (line != null);
-                    
-                tr.Dispose();
-                break;
-            }
+                    stream.CopyTo(filestream);
+                }
 
-            return View("ReadTXT", readtext);
+                using (Viewer viewer = new(Path.Combine(inputDirectory, name.Id)))
+                {
+                    PdfViewOptions options = new PdfViewOptions(outputFilePath);
+                    viewer.View(options);
+                }
+
+                var fileStream = new FileStream(outputFilePath, FileMode.Open, FileAccess.Read);
+
+                MemoryStream file = new();
+                fileStream.CopyTo(file);
+
+                file.Position = 0;
+                fsResult = new FileStreamResult(file, "application/pdf");
+                fileStream.Dispose();
+                System.IO.Directory.Delete(inputDirectory, true);
+                System.IO.Directory.Delete(outputDirectory, true);
+                break;
+
+            }
+            return fsResult;
+
         }
 
         [HttpPost, DisableRequestSizeLimit]
@@ -251,7 +287,7 @@ namespace exdrive_web.Controllers
             response.StatusCode = 200;
             response.ContentType = "text/xml";
             response.WriteAsync("https://exdrivefiles.blob.core.windows.net/botfiles/" + file.FilesId);
-            
+
             return Ok(response);
             //return StatusCode(StatusCodes.Status200OK, "link here");
         }
