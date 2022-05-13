@@ -269,17 +269,26 @@ namespace exdrive_web.Controllers
             if (Request.ContentLength == 0 || Request.ContentLength == null)
                 return BadRequest("File for upload is empty");
 
-            string name = Request.Headers.ContentDisposition;
-            string newname = "";
-            for (int i = name.LastIndexOf('=') + 1; i < name.Length && name[i] != '"'; i++)
-                newname += name[i];
+            Microsoft.Extensions.Primitives.StringValues vs;
+            Request.Headers.TryGetValue("file-name", out vs);
+            string name = vs.First();
 
-            Files file = new(Guid.NewGuid().ToString() + ExFunctions.FindFormat(newname),
-                newname, "*", true);
+            Files file = new(Guid.NewGuid().ToString() + ExFunctions.FindFormat(name),
+                name, "*", true);
 
             Stream stream = Request.Body;
-            HttpContent content = new StringContent("https://exdrivefiles.blob.core.windows.net/botfiles/" + file.FilesId);
-            UploadTempBotAsync.UploadFileAsync(stream, (long)Request.ContentLength, file).Wait();
+            try
+            {
+                UploadTempBotAsync.UploadFileAsync(stream, (long)Request.ContentLength, file).Wait();
+            }
+            catch (Exception)
+            {
+                HttpResponse badresponse = Response;
+                badresponse.Clear();
+                badresponse.StatusCode = 500;
+
+                return BadRequest(badresponse);
+            }
 
             HttpResponse response = Response;
             response.Clear();
@@ -288,7 +297,6 @@ namespace exdrive_web.Controllers
             response.WriteAsync("https://exdrivefiles.blob.core.windows.net/botfiles/" + file.FilesId);
 
             return Ok(response);
-            //return StatusCode(StatusCodes.Status200OK, "link here");
         }
     }
 }

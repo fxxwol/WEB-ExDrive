@@ -65,6 +65,9 @@ namespace exdrive_web.Models
             await blob.PutBlockListAsync(blocklist);
             await stream.DisposeAsync();
             await ms.DisposeAsync();
+
+            if (blob.ExistsAsync().Result == false)
+                throw new Exception("Failed at creating the blob specified");
         }
     }
 }
