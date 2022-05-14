@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System.Text;
+using VirusTotalNet.Results;
 
 namespace exdrive_web.Models
 {
@@ -10,9 +11,7 @@ namespace exdrive_web.Models
     {
         public static async Task UploadFileAsync(UploadInstance formFile, Files newFile)
         {
-
-            const string connectionString = "DefaultEndpointsProtocol=https;AccountName=exdrivefiles;AccountKey=zW8bG071a7HbJ4+D5Pxruz4rL47KEx0XwExd7m5CmYtCNdu8A71/rVvvY/ld8hwJ4nObLnAcDB27KZV/0L92TA==;EndpointSuffix=core.windows.net";
-            CloudStorageAccount StorageAccount = CloudStorageAccount.Parse(connectionString);
+            CloudStorageAccount StorageAccount = CloudStorageAccount.Parse(ExFunctions.storageConnectionString);
 
             CloudBlobClient BlobClient = StorageAccount.CreateCloudBlobClient();
 
@@ -24,7 +23,20 @@ namespace exdrive_web.Models
             MemoryStream ms = new MemoryStream();
             var filems = formFile.MyFile.OpenReadStream();
             filems.CopyToAsync(ms).Wait();
+            filems.Position = 0;
 
+            try
+            {
+                VirusTotalNet.VirusTotal virusTotal = new(ExFunctions.virusTotalToken);
+                virusTotal.UseTLS = true;
+
+                FileReport report = await virusTotal.GetFileReportAsync(virusTotal.ScanFileAsync(filems, newFile.FilesId).Result.Resource);
+                if (report.Positives != 0)
+                    throw new Exception("File may be malicious");
+            }
+            catch (Exception ex)
+            { }
+            
             const int pageSizeInBytes = 10485760;
             long prevLastByte = 0;
             long bytesRemain = formFile.MyFile.Length;
@@ -56,7 +68,7 @@ namespace exdrive_web.Models
             } while (bytesRemain > 0);
             
             var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-            optionsBuilder.UseSqlServer("Server=tcp:exdrive.database.windows.net,1433;Initial Catalog=Exdrive;Persist Security Info=False;User ID=fxxwol;Password=AbCD.123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+            optionsBuilder.UseSqlServer(ExFunctions.sqlConnectionString);
             using (var _context = new ApplicationDbContext(optionsBuilder.Options))
             {
 
@@ -66,6 +78,7 @@ namespace exdrive_web.Models
             }
 
             await blob.PutBlockListAsync(blocklist);
+            await filems.DisposeAsync();
             await ms.DisposeAsync();
         }
     }

@@ -10,9 +10,7 @@ namespace exdrive_web.Models
     {
         public static async Task UploadFileAsync(Stream stream, long bytesRemain, Files newFile)
         {
-
-            const string connectionString = "DefaultEndpointsProtocol=https;AccountName=exdrivefiles;AccountKey=zW8bG071a7HbJ4+D5Pxruz4rL47KEx0XwExd7m5CmYtCNdu8A71/rVvvY/ld8hwJ4nObLnAcDB27KZV/0L92TA==;EndpointSuffix=core.windows.net";
-            CloudStorageAccount StorageAccount = CloudStorageAccount.Parse(connectionString);
+            CloudStorageAccount StorageAccount = CloudStorageAccount.Parse(ExFunctions.storageConnectionString);
 
             CloudBlobClient BlobClient = StorageAccount.CreateCloudBlobClient();
 
@@ -53,12 +51,10 @@ namespace exdrive_web.Models
             } while (bytesRemain > 0);
 
             var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-            optionsBuilder.UseSqlServer("Server=tcp:exdrive.database.windows.net,1433;Initial Catalog=Exdrive;Persist Security Info=False;User ID=fxxwol;Password=AbCD.123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+            optionsBuilder.UseSqlServer(ExFunctions.sqlConnectionString);
             using (var _context = new ApplicationDbContext(optionsBuilder.Options))
             {
-
                 _context.Files.Add(newFile);
-
                 _context.SaveChanges();
             }
 

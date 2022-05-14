@@ -85,9 +85,17 @@ namespace exdrive_web.Controllers
             string newname = Guid.NewGuid().ToString() + ExFunctions.FindFormat(_file.MyFile.FileName);
             Files files = new(newname, _file.MyFile.FileName, "*", true);
 
-            await UploadTempAsync.UploadFileAsync(_file, files);
-            TempData["AlertMessage"] = "https://exdrivefiles.blob.core.windows.net/botfiles/" + files.FilesId;
+            try
+            {
+                await UploadTempAsync.UploadFileAsync(_file, files);
+            }
+            catch(Exception)
+            {
+                TempData["AlertMessage"] = "Failed to upload: file may contain viruses";
+                return RedirectToAction("Index", "Home");
+            }
 
+            TempData["AlertMessage"] = "https://exdrivefiles.blob.core.windows.net/botfiles/" + files.FilesId;
             return RedirectToAction("Index", "Home");
         }
 
@@ -104,7 +112,13 @@ namespace exdrive_web.Controllers
             string newname = Guid.NewGuid().ToString() + ExFunctions.FindFormat(_file.MyFile.FileName);
             Files files = new(newname, _file.MyFile.FileName, _userId, false);
 
-            await UploadPermAsync.UploadFileAsync(_file, files, _userId);
+            try
+            {
+                await UploadPermAsync.UploadFileAsync(_file, files, _userId);
+            }
+            catch (Exception)
+            { }
+
             return RedirectToAction("AccessStorage", "Storage");
         }
         public ActionResult FileClick(string afile)
@@ -199,19 +213,7 @@ namespace exdrive_web.Controllers
                 return File(memoryStream.ToArray(), "application/zip", zipName);
             }
         }
-        //public static void Loading_a_License_from_a_Stream_Object()
-        //{
-        //    Console.WriteLine("***** {0} *****", "Loading a License from a Stream Object");
 
-        //    /* ********************* SAMPLE ********************* */
-
-        //    // Obtain license stream
-        //    FileStream licenseStream = new FileStream(@"C:\Users\User\Source\Repos\license.txt", FileMode.Open);
-
-        //    // Setup license
-        //    GroupDocs.Viewer.License lic = new GroupDocs.Viewer.License();
-        //    lic.SetLicense(licenseStream);
-        //}
         [HttpPost]
         public IActionResult ReadFile()
         {
@@ -259,11 +261,9 @@ namespace exdrive_web.Controllers
 
             }
             return fsResult;
-
         }
 
         [HttpPost, DisableRequestSizeLimit]
-        //[Consumes("application/octet-stream")]
         public ActionResult UploadTempFileBot()
         {
             if (Request.ContentLength == 0 || Request.ContentLength == null)
