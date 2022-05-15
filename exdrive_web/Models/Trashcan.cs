@@ -47,7 +47,7 @@ namespace exdrive_web.Models
         public static async Task FileRecovery(string filename)
         {
             BlobContainerClient containerDest = new BlobContainerClient(ExFunctions.storageConnectionString, "files");
-            BlobContainerClient containerSource = new BlobContainerClient(ExFunctions.storageConnectionString, "botfiles");
+            BlobContainerClient containerSource = new BlobContainerClient(ExFunctions.storageConnectionString, "trashcan");
 
             var storageAccount = CloudStorageAccount.Parse(ExFunctions.storageConnectionString);
             var blobClient = storageAccount.CreateCloudBlobClient();

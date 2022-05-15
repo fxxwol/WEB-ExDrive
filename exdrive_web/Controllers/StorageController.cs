@@ -145,6 +145,7 @@ namespace exdrive_web.Controllers
 
             // if there was no search, files from main List are deleted
             // (user is not in search mode)
+
             if (_searchResult == null)
             {
                 foreach (var name in _nameInstances)
