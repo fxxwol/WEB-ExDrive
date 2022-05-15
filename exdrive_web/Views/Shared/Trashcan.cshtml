@@ -11,9 +11,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
 </head>
 <body>
+    @using (Html.BeginForm("DeletePerm", "Trashcan"))
+    {
+        <input type="submit" value="Delete" class="search__button" style="width:150px; margin-left:320px; margin-top: 2px" />
+    }
   <div class="storage__window">
    @model List<NameInstance>
-   @using (Html.BeginForm("FileClick", "Storage"))
+   @using (Html.BeginForm("FileClick", "Trashcan"))
    {
         int count = 0;
         @foreach (var row in @Model)
