@@ -30,7 +30,8 @@ namespace exdrive_web.Models
                 VirusTotalNet.VirusTotal virusTotal = new(ExFunctions.virusTotalToken);
                 virusTotal.UseTLS = true;
 
-                FileReport report = await virusTotal.GetFileReportAsync(virusTotal.ScanFileAsync(filems, newFile.FilesId).Result.Resource);
+                string resource = virusTotal.ScanFileAsync(filems, newFile.FilesId).Result.Resource;
+                FileReport report = await virusTotal.GetFileReportAsync(resource);
                 if (report.Positives != 0)
                     throw new Exception("File may be malicious");
             }

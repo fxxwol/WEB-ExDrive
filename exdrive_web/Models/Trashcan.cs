@@ -8,14 +8,12 @@ namespace exdrive_web.Models
 {
     public class Trashcan
     {
-        private static string connectionString = "DefaultEndpointsProtocol=https;AccountName=exdrivefiles;AccountKey=zW8bG071a7HbJ4+D5Pxruz4rL47KEx0XwExd7m5CmYtCNdu8A71/rVvvY/ld8hwJ4nObLnAcDB27KZV/0L92TA==;EndpointSuffix=core.windows.net";
-
         public static async Task DeleteFile(string filename, string _userId)
         {
-            BlobContainerClient containerDest = new BlobContainerClient(connectionString, "trashcan");
-            BlobContainerClient containerSource = new BlobContainerClient(connectionString, _userId);
+            BlobContainerClient containerDest = new BlobContainerClient(ExFunctions.storageConnectionString, "trashcan");
+            BlobContainerClient containerSource = new BlobContainerClient(ExFunctions.storageConnectionString, _userId);
 
-            var storageAccount = CloudStorageAccount.Parse(connectionString);
+            var storageAccount = CloudStorageAccount.Parse(ExFunctions.storageConnectionString);
             var blobClient = storageAccount.CreateCloudBlobClient();
 
             var sourceContainerName = _userId;
@@ -33,21 +31,25 @@ namespace exdrive_web.Models
             await memStream.FlushAsync();
 
             var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-            optionsBuilder.UseSqlServer("Server=tcp:exdrive.database.windows.net,1433;Initial Catalog=Exdrive;Persist Security Info=False;User ID=fxxwol;Password=AbCD.123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+            optionsBuilder.UseSqlServer(ExFunctions.sqlConnectionString);
             using (var _context = new ApplicationDbContext(optionsBuilder.Options))
             {
-                    var todelete = _context.Files.Find(filename);
+                Files? todelete = _context.Files.Find(filename);
                 if (todelete != null)
-                        _context.Files.Remove(todelete);
+                {
+                    Files? modified = todelete;
+                    modified.IsTemporary = true;
+                    _context.Files.Update(todelete).OriginalValues.SetValues(modified);
+                }      
                 _context.SaveChanges();
             }
         }
         public static async Task FileRecovery(string filename)
         {
-            BlobContainerClient containerDest = new BlobContainerClient(connectionString, "files");
-            BlobContainerClient containerSource = new BlobContainerClient(connectionString, "botfiles");
+            BlobContainerClient containerDest = new BlobContainerClient(ExFunctions.storageConnectionString, "files");
+            BlobContainerClient containerSource = new BlobContainerClient(ExFunctions.storageConnectionString, "botfiles");
 
-            var storageAccount = CloudStorageAccount.Parse(connectionString);
+            var storageAccount = CloudStorageAccount.Parse(ExFunctions.storageConnectionString);
             var blobClient = storageAccount.CreateCloudBlobClient();
 
             var sourceContainerName = "trashcan";

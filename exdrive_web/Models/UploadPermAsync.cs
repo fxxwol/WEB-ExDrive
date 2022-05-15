@@ -24,14 +24,16 @@ namespace exdrive_web.Models
             MemoryStream ms = new MemoryStream();
             var filems = formFile.MyFile.OpenReadStream();
             filems.CopyToAsync(ms).Wait();
-            filems.Position = 0;
 
             try
             {
                 VirusTotalNet.VirusTotal virusTotal = new(ExFunctions.virusTotalToken);
                 virusTotal.UseTLS = true;
 
-                FileReport report = await virusTotal.GetFileReportAsync(virusTotal.ScanFileAsync(filems, newFile.FilesId).Result.Resource);
+                filems.Position = 0;
+                ScanResult scanResult = virusTotal.ScanFileAsync(filems, newFile.FilesId).Result;
+                string resource = scanResult.Resource;
+                FileReport report = await virusTotal.GetFileReportAsync(resource);
                 if (report.Positives != 0)
                     throw new Exception("File may be malicious");
             }

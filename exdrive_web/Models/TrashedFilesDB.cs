@@ -2,9 +2,9 @@
 
 namespace exdrive_web.Models
 {
-    public class UserFilesDB
+    public class TrashedFilesDB
     {
-        public static List<NameInstance> GetUserFilesDB(string _userId)
+        public static List<NameInstance> GetTrashedFilesDB(string _userId)
         {
             string name;
             string noformat;
@@ -12,7 +12,7 @@ namespace exdrive_web.Models
             using (SqlConnection con = new SqlConnection(ExFunctions.sqlConnectionString))
             {
                 con.Open();
-                using (SqlCommand cmd = new SqlCommand($"SELECT Name, FilesId FROM dbo.Files WHERE HasAccess='{_userId}' AND IsTemporary='0' ORDER BY FilesId ASC", con))
+                using (SqlCommand cmd = new SqlCommand($"SELECT Name, FilesId FROM dbo.Files WHERE HasAccess='{_userId}' AND IsTemporary='1' ORDER BY FilesId ASC", con))
                 {
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
