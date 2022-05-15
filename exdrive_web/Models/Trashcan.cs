@@ -44,9 +44,9 @@ namespace exdrive_web.Models
                 _context.SaveChanges();
             }
         }
-        public static async Task FileRecovery(string filename)
+        public static async Task FileRecovery(string filename, string _userId)
         {
-            BlobContainerClient containerDest = new BlobContainerClient(ExFunctions.storageConnectionString, "files");
+            BlobContainerClient containerDest = new BlobContainerClient(ExFunctions.storageConnectionString, _userId);
             BlobContainerClient containerSource = new BlobContainerClient(ExFunctions.storageConnectionString, "trashcan");
 
             var storageAccount = CloudStorageAccount.Parse(ExFunctions.storageConnectionString);
@@ -65,6 +65,20 @@ namespace exdrive_web.Models
             await containerDest.UploadBlobAsync(filename, memStream);
             await containerSource.DeleteBlobAsync(filename);
             await memStream.FlushAsync();
+
+            var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
+            optionsBuilder.UseSqlServer(ExFunctions.sqlConnectionString);
+            using (var _context = new ApplicationDbContext(optionsBuilder.Options))
+            {
+                Files? torecover = _context.Files.Find(filename);
+                if (torecover != null)
+                {
+                    Files? modified = torecover;
+                    modified.IsTemporary = false;
+                    _context.Files.Update(torecover).OriginalValues.SetValues(modified);
+                }
+                _context.SaveChanges();
+            }
         }
 
     }

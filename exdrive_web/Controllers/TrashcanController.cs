@@ -40,7 +40,6 @@ namespace exdrive_web.Controllers
         [HttpPost]
         public ActionResult DeletePerm()
         {
-            //int i = 0;
             var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
             optionsBuilder.UseSqlServer(ExFunctions.sqlConnectionString);
             using (var _context = new ApplicationDbContext(optionsBuilder.Options))
@@ -60,13 +59,51 @@ namespace exdrive_web.Controllers
                         }
                         _context.SaveChanges();
                         break;
-                        //i++;
                     }
                 }
 
             }
-
             return View("Trashcan", _deleted);
+        }
+        [HttpPost]
+        public async Task<ActionResult> Recovery()
+        {
+            _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // if there was no search, files from main List are deleted
+            // (user is not in search mode)
+
+            if (_searchResult == null && _deleted != null)
+            {
+                foreach (var name in _deleted)
+                {
+                    if (name.IsSelected == true)
+                    {
+                        await exdrive_web.Models.Trashcan.FileRecovery(name.Id, _userId);
+                    }
+                  
+                }
+                return RedirectToAction("Trashcan", "Trashcan");
+            }
+            // creating new list to preserve search results
+            // function adds files that are not marked for deletion newsearch List
+            int i = 0;
+            List<NameInstance> newsearch = new List<NameInstance>();
+
+            foreach (var name in _searchResult)
+            {
+                if (name.IsSelected == true)
+                {
+                    await exdrive_web.Models.Trashcan.FileRecovery(name.Id, _userId);
+                }
+                else
+                    newsearch.Add(_searchResult.ElementAt(i));
+
+                i++;
+            }
+
+            _searchResult = newsearch;
+            return View("Trashcan", _searchResult);
         }
     }
 }
