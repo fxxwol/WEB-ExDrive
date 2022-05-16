@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta chaster="UTF-8">
-    <link rel="stylesheet" href="../wwwroot/css/storage.css">
+    <link rel="stylesheet" href="../wwwroot/css/trashcan.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,300&display=swap" rel="stylesheet">
@@ -11,14 +11,25 @@
     <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
 </head>
 <body>
-    @using (Html.BeginForm("DeletePerm", "Trashcan"))
+        <div class="buttons__rect">
+       
+    </div>
+       @using (Html.BeginForm("DeletePerm", "Trashcan"))
     {
-        <input type="submit" value="Delete" class="search__button" style="width:150px; margin-left:400px; margin-top: 2px" />
+             <input type="submit" value="Delete" class="delete__button" />
+       
     }
     @using (Html.BeginForm("Recovery", "Trashcan"))
     {
-        <input type="submit" value="Recover" class="search__button" style="width:150px; margin-left:220px; margin-top: 2px" />
+        <input type="submit" value="Recover" class="recovery__button" />
     }
+    @using (Html.BeginForm("Search", "Trashcan"))
+    {
+        <input type="search" placeholder="Enter file name" value="@ViewData["GetFiles"]" name="searchString" style="width:500px; margin-left:460px; top: 95px; position:absolute;" />
+        <input type="submit" value="Search" class="search__button" />
+    }
+   
+ 
   <div class="storage__window">
    @model List<NameInstance>
    @using (Html.BeginForm("FileClick", "Trashcan"))
