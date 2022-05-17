@@ -25,20 +25,25 @@ namespace exdrive_web.Models
             var filems = formFile.MyFile.OpenReadStream();
             filems.CopyToAsync(ms).Wait();
 
+            string fullpath = Path.Combine("C:\\Users\\Public\\scanning", userId);
+            System.IO.Directory.CreateDirectory(fullpath);
+
+            filems.Position = 0;
+            using (var fileStream = new FileStream(Path.Combine(fullpath, newFile.FilesId), FileMode.Create, FileAccess.Write))
+                filems.CopyToAsync(fileStream).Wait();
+
             try
             {
-                VirusTotalNet.VirusTotal virusTotal = new(ExFunctions.virusTotalToken);
-                virusTotal.UseTLS = true;
-
-                filems.Position = 0;
-                ScanResult scanResult = virusTotal.ScanFileAsync(filems, newFile.FilesId).Result;
-                string resource = scanResult.Resource;
-                FileReport report = await virusTotal.GetFileReportAsync(resource);
-                if (report.Positives != 0)
+                var scanner = new AntiVirus.Scanner();
+                var scanresult = scanner.ScanAndClean(Path.Combine(fullpath, newFile.FilesId));
+                var isinfected = scanresult.ToString();
+                if (isinfected == "VirusFound")
                     throw new Exception("File may be malicious");
             }
-            catch (Exception ex)
-            { }
+            catch (Exception)
+            {
+                
+            }
 
             var file = formFile;
             const int pageSizeInBytes = 10485760;
@@ -85,6 +90,7 @@ namespace exdrive_web.Models
 
             if (blob.ExistsAsync().Result == false)
                 throw new Exception("Failed at creating the blob specified");
+            System.IO.Directory.Delete(fullpath, true);
         }
     }
 }

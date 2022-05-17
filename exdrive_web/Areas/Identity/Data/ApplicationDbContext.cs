@@ -9,7 +9,7 @@ namespace JWTAuthentication.Authentication
         public DbSet<Files> Files { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=tcp:exdrive.database.windows.net,1433;Initial Catalog=Exdrive;Persist Security Info=False;User ID=fxxwol;Password=AbCD.123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+            optionsBuilder.UseSqlServer(ExFunctions.sqlConnectionString);
         }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         { }

@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AntiVirusScanner" Version="1.0.2" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.11.0" />
     <PackageReference Include="GroupDocs.Viewer" Version="22.5.0" />
     <PackageReference Include="jQuery" Version="3.6.0" />

@@ -9,7 +9,7 @@ namespace exdrive_web.Models
             string name;
             string noformat;
             List<NameInstance> deleted = new List<NameInstance>();
-            using (SqlConnection con = new SqlConnection("Server=tcp:exdrive.database.windows.net,1433;Initial Catalog=Exdrive;Persist Security Info=False;User ID=fxxwol;Password=AbCD.123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"))
+            using (SqlConnection con = new SqlConnection(ExFunctions.sqlConnectionString))
             {
                 con.Open();
                 using (SqlCommand cmd = new SqlCommand($"SELECT Name, FilesId FROM dbo.Files WHERE HasAccess='{_userId}' AND IsTemporary=1 ORDER BY FilesId ASC", con))
