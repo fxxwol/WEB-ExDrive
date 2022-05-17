@@ -9,7 +9,7 @@ namespace exdrive_web.Models
 {
     public class UploadTempAsync
     {
-        public static async Task UploadFileAsync(UploadInstance formFile, Files newFile)
+        public static async Task UploadFileAsync(UploadInstance formFile, Files newFile, ApplicationDbContext applicationDbContext)
         {
             CloudStorageAccount StorageAccount = CloudStorageAccount.Parse(ExFunctions.storageConnectionString);
 
@@ -74,16 +74,20 @@ namespace exdrive_web.Models
                 blocklist.Add(base64BlockId);
 
             } while (bytesRemain > 0);
-            
-            var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-            optionsBuilder.UseSqlServer(ExFunctions.sqlConnectionString);
-            using (var _context = new ApplicationDbContext(optionsBuilder.Options))
-            {
 
-                _context.Files.Add(newFile);
+            applicationDbContext.Files.Add(newFile);
 
-                _context.SaveChanges();
-            }
+            applicationDbContext.SaveChanges();
+
+            //var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
+            //optionsBuilder.UseSqlServer(ExFunctions.sqlConnectionString);
+            //using (var _context = new ApplicationDbContext(optionsBuilder.Options))
+            //{
+
+            //    _context.Files.Add(newFile);
+
+            //    _context.SaveChanges();
+            //}
 
             await blob.PutBlockListAsync(blocklist);
             await filems.DisposeAsync();

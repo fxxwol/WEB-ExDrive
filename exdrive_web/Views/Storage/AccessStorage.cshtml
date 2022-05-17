@@ -22,21 +22,42 @@
         <div class="ccontext-menu__item4">Delete</div>
     </div>
 
-    @*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>*@
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
+
         const cm = document.querySelector('.ccontext-menu');
+        const classname = document.querySelector('.ccontext-menu__item1');
 
         function showContextMenu (show = true) {
             cm.style.display = show ? 'block' : 'none';
         }
 
+        classname.addEventListener('click', function(event) {
+            console.log(event);
+           $.ajax({
+            url: '@Url.Action("Delete","Storage")'
+            }).done(function() {
+            window.location = window.location.href;
+                //alert('Added'); 
+            }); 
+            //console.log(event);
+        });
+        //classname.addEventListener('contextmenu', (e) => {
         window.addEventListener('contextmenu', (e) => {
+
+            // turn off default context menu
             e.preventDefault();
+
+            // show our context menu
             showContextMenu();
+            
+
             cm.style.top = e.y + cm.offsetHeight > window.innerHeight ?
             window.innerHeight - cm.offsetHeight + "px" : e.y + "px";
+
             cm.style.left = e.x + cm.offsetWidth > window.innerWidth ?
             window.innerWidth - cm.offsetWidth + "px" : e.x + "px";
+
             console.log(e.returnValue);
         });
 

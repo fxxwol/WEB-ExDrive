@@ -1,10 +1,13 @@
 ﻿using exdrive_web.Models;
+
 using GroupDocs.Viewer;
-using GroupDocs.Viewer.Interfaces;
 using GroupDocs.Viewer.Options;
+
 using JWTAuthentication.Authentication;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using System.IO.Compression;
 using System.Security.Claims;
 
@@ -12,17 +15,21 @@ namespace exdrive_web.Controllers
 {
     public class StorageController : Controller
     {
-        private string? _userId;
-        //private static readonly ApplicationDbContext applicationDbContext;
         private static List<NameInstance> _nameInstances = new List<NameInstance>();
         private static List<NameInstance>? _searchResult = new List<NameInstance>();
+
+        private static ApplicationDbContext _applicationDbContext;
+
+        private string? _userId;
         private static bool _isDeleted = false;
+
         private static readonly string _tmpFilesPath = "C:\\Users\\Public\\tmpfiles\\";
         private static readonly string _readerOutputPath = "C:\\Users\\Public\\reader\\Output";
         private static readonly string _readerInputPath = "C:\\Users\\Public\\reader\\Input";
-        public StorageController(ApplicationDbContext db)
+        
+        public StorageController(ApplicationDbContext applicationDbContext)
         {
-            
+            _applicationDbContext = applicationDbContext;
         }
 
         [Authorize]
@@ -90,7 +97,7 @@ namespace exdrive_web.Controllers
 
             try
             {
-                await UploadTempAsync.UploadFileAsync(_file, files);
+                await UploadTempAsync.UploadFileAsync(_file, files, _applicationDbContext);
             }
             catch(Exception)
             {
@@ -117,30 +124,41 @@ namespace exdrive_web.Controllers
 
             try
             {
-                await UploadPermAsync.UploadFileAsync(_file, files, _userId);
+                await UploadPermAsync.UploadFileAsync(_file, files, _userId, _applicationDbContext);
             }
             catch (Exception)
-            { }
+            {
+                
+            }
 
             return RedirectToAction("AccessStorage", "Storage");
         }
         public ActionResult FileClick(string afile)
         {
-            int position = Int32.Parse(afile);
-
-            // if there was no search, file from main List is selected
-            // (user is not in search mode)
-            if (_searchResult == null)
+            try
             {
-                _nameInstances.ElementAt(position).IsSelected ^= true;
-                return View("AccessStorage", _nameInstances);
-            }
+                int position = Int32.Parse(afile);
 
-            _searchResult.ElementAt(position).IsSelected ^= true;
-            return View("AccessStorage", _searchResult);
+                // if there was no search, file from main List is selected
+                // (user is not in search mode)
+                if (_searchResult == null)
+                {
+                    _nameInstances.ElementAt(position).IsSelected ^= true;
+                    return View("AccessStorage", _nameInstances);
+                }
+
+                _searchResult.ElementAt(position).IsSelected ^= true;
+                return View("AccessStorage", _searchResult);
+            }
+            catch (Exception)
+            {
+                if (_searchResult == null)
+                    return View("AccessStorage", _nameInstances);
+
+                return View("AccessStorage", _searchResult);
+            }
         }
 
-        [HttpPost]
         public async Task<ActionResult> Delete()
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -148,7 +166,45 @@ namespace exdrive_web.Controllers
 
             // if there was no search, files from main List are deleted
             // (user is not in search mode)
+            if (_searchResult == null)
+            {
+                foreach (var name in _nameInstances)
+                {
+                    if (name.IsSelected == true)
+                        await exdrive_web.Models.Trashcan.DeleteFile(name.Id, _userId);
+                }
+                return RedirectToAction("AccessStorage", "Storage");
+            }
 
+            // creating new list to preserve search results
+            // function adds files that are not marked for deletion newsearch List
+            int i = 0;
+            List<NameInstance> newsearch = new List<NameInstance>();
+
+            foreach (var name in _searchResult)
+            {
+                if (name.IsSelected == true)
+                {
+                    await exdrive_web.Models.Trashcan.DeleteFile(name.Id, _userId);
+                }
+                else
+                    newsearch.Add(_searchResult.ElementAt(i));
+
+                i++;
+            }
+
+            _searchResult = newsearch;
+            return View("AccessStorage", _searchResult);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> DeleteForTupaCnopka()
+        {
+            _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            _isDeleted = true;
+
+            // if there was no search, files from main List are deleted
+            // (user is not in search mode)
             if (_searchResult == null)
             {
                 foreach (var name in _nameInstances)
@@ -186,6 +242,7 @@ namespace exdrive_web.Controllers
             var zipName = $"archive-{DateTime.Now.ToString("yyyy_MM_dd-HH_mm_ss")}.zip";
 
             System.IO.Directory.CreateDirectory(Path.Combine(_tmpFilesPath, _userId));
+
             int i = -1;
             foreach (var name in _nameInstances)
             {
@@ -194,8 +251,12 @@ namespace exdrive_web.Controllers
                 if (name.IsSelected == false)
                     continue;
 
-                using (var fileStream = new FileStream(Path.Combine(_tmpFilesPath + _userId, _nameInstances.ElementAt(i).Name), FileMode.Create, FileAccess.Write))
+                using (var fileStream = new FileStream(Path.Combine(_tmpFilesPath + _userId,
+                                                                    _nameInstances.ElementAt(i).Name),
+                                                                    FileMode.Create, FileAccess.Write))
+                {
                     DownloadAzureFile.DownloadFile(_nameInstances.ElementAt(i).Id, _userId).CopyTo(fileStream);
+                }
             }
 
             var files = Directory.GetFiles(Path.Combine(_tmpFilesPath, _userId)).ToList();
@@ -208,7 +269,8 @@ namespace exdrive_web.Controllers
                 {
                     files.ForEach(file =>
                     {
-                        archive.CreateEntryFromFile(file, file.Replace(Path.Combine(_tmpFilesPath + _userId) + "\\", string.Empty));
+                        archive.CreateEntryFromFile(file, file.Replace(Path.Combine(_tmpFilesPath + _userId)
+                                                                       + "\\", string.Empty));
                     });
                 }
 
@@ -233,6 +295,7 @@ namespace exdrive_web.Controllers
                     continue;
 
                 stream = DownloadAzureFile.DownloadFile(_nameInstances.ElementAt(i).Id, _userId);
+
                 string outputDirectory = Path.Combine(_readerOutputPath, _userId);
                 string inputDirectory = Path.Combine(_readerInputPath, _userId);
 
@@ -248,7 +311,14 @@ namespace exdrive_web.Controllers
                 using (Viewer viewer = new(Path.Combine(inputDirectory, name.Id)))
                 {
                     PdfViewOptions options = new PdfViewOptions(outputFilePath);
-                    viewer.View(options);
+                    try
+                    {   
+                        viewer.View(options);
+                    }
+                    catch (Exception)
+                    {
+                        return RedirectToAction("AccessStorage", "Storage");
+                    }
                 }
 
                 var fileStream = new FileStream(outputFilePath, FileMode.Open, FileAccess.Read);
@@ -259,10 +329,11 @@ namespace exdrive_web.Controllers
                 file.Position = 0;
                 fsResult = new FileStreamResult(file, "application/pdf");
                 fileStream.Dispose();
+
                 System.IO.Directory.Delete(inputDirectory, true);
                 System.IO.Directory.Delete(outputDirectory, true);
-                break;
 
+                break;
             }
             return fsResult;
         }
@@ -281,6 +352,7 @@ namespace exdrive_web.Controllers
                 name, "*", true);
 
             Stream stream = Request.Body;
+
             try
             {
                 UploadTempBotAsync.UploadFileAsync(stream, (long)Request.ContentLength, file).Wait();

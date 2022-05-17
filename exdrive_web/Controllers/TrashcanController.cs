@@ -11,6 +11,12 @@ namespace exdrive_web.Controllers
         private string? _userId;
         private static List<NameInstance>? _deleted = new List<NameInstance>();
         private static List<NameInstance>? _searchResult = new List<NameInstance>();
+        private static ApplicationDbContext _applicationDbContext;
+        
+        public TrashcanController(ApplicationDbContext applicationDbContext)
+        {
+            _applicationDbContext = applicationDbContext;
+        }
         public IActionResult Trashcan()
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -40,29 +46,29 @@ namespace exdrive_web.Controllers
         [HttpPost]
         public ActionResult DeletePerm()
         {
-            var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-            optionsBuilder.UseSqlServer(ExFunctions.sqlConnectionString);
-            using (var _context = new ApplicationDbContext(optionsBuilder.Options))
-            {
+            //var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
+            //optionsBuilder.UseSqlServer(ExFunctions.sqlConnectionString);
+            //using (var _context = new ApplicationDbContext(optionsBuilder.Options))
+            //{
                 if (_deleted != null)
                 {
                     foreach (var name in _deleted)
                     {
                         if (name.IsSelected == true)
                         {
-                            Files? todelete = _context.Files.Find(name.Id);
+                            Files? todelete = _applicationDbContext.Files.Find(name.Id);
                             if (todelete != null)
                             {
                                 _deleted.Remove(name);
-                                _context.Remove(todelete);
+                                _applicationDbContext.Remove(todelete);
                             }
                         }
-                        _context.SaveChanges();
+                        _applicationDbContext.SaveChanges();
                         break;
                     }
                 }
 
-            }
+            //}
             return View("Trashcan", _deleted);
         }
         [HttpPost]
