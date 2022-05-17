@@ -10,16 +10,19 @@ using System.Security.Claims;
 
 namespace exdrive_web.Controllers
 {
-
     public class StorageController : Controller
     {
         private string? _userId;
+        //private static readonly ApplicationDbContext applicationDbContext;
         private static List<NameInstance> _nameInstances = new List<NameInstance>();
         private static List<NameInstance>? _searchResult = new List<NameInstance>();
         private static bool _isDeleted = false;
-        public StorageController(IWebHostEnvironment environment, ApplicationDbContext db)
+        private static readonly string _tmpFilesPath = "C:\\Users\\Public\\tmpfiles\\";
+        private static readonly string _readerOutputPath = "C:\\Users\\Public\\reader\\Output";
+        private static readonly string _readerInputPath = "C:\\Users\\Public\\reader\\Input";
+        public StorageController(ApplicationDbContext db)
         {
-
+            
         }
 
         [Authorize]
@@ -182,7 +185,7 @@ namespace exdrive_web.Controllers
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var zipName = $"archive-{DateTime.Now.ToString("yyyy_MM_dd-HH_mm_ss")}.zip";
 
-            System.IO.Directory.CreateDirectory(Path.Combine("C:\\Users\\Public\\tmpfiles\\", _userId));
+            System.IO.Directory.CreateDirectory(Path.Combine(_tmpFilesPath, _userId));
             int i = -1;
             foreach (var name in _nameInstances)
             {
@@ -191,11 +194,11 @@ namespace exdrive_web.Controllers
                 if (name.IsSelected == false)
                     continue;
 
-                using (var fileStream = new FileStream(Path.Combine("C:\\Users\\Public\\tmpfiles\\" + _userId, _nameInstances.ElementAt(i).Name), FileMode.Create, FileAccess.Write))
+                using (var fileStream = new FileStream(Path.Combine(_tmpFilesPath + _userId, _nameInstances.ElementAt(i).Name), FileMode.Create, FileAccess.Write))
                     DownloadAzureFile.DownloadFile(_nameInstances.ElementAt(i).Id, _userId).CopyTo(fileStream);
             }
 
-            var files = Directory.GetFiles(Path.Combine("C:\\Users\\Public\\tmpfiles\\", _userId)).ToList();
+            var files = Directory.GetFiles(Path.Combine(_tmpFilesPath, _userId)).ToList();
             if (files.Count < 1)
                 return View("AccessStorage", _nameInstances);
 
@@ -205,11 +208,11 @@ namespace exdrive_web.Controllers
                 {
                     files.ForEach(file =>
                     {
-                        archive.CreateEntryFromFile(file, file.Replace(Path.Combine("C:\\Users\\Public\\tmpfiles\\" + _userId) + "\\", string.Empty));
+                        archive.CreateEntryFromFile(file, file.Replace(Path.Combine(_tmpFilesPath + _userId) + "\\", string.Empty));
                     });
                 }
 
-                System.IO.Directory.Delete(Path.Combine("C:\\Users\\Public\\tmpfiles\\", _userId), true);
+                System.IO.Directory.Delete(Path.Combine(_tmpFilesPath, _userId), true);
 
                 return File(memoryStream.ToArray(), "application/zip", zipName);
             }
@@ -230,8 +233,8 @@ namespace exdrive_web.Controllers
                     continue;
 
                 stream = DownloadAzureFile.DownloadFile(_nameInstances.ElementAt(i).Id, _userId);
-                string outputDirectory = Path.Combine("C:\\Users\\Public\\reader\\Output", _userId);
-                string inputDirectory = Path.Combine("C:\\Users\\Public\\reader\\Input", _userId);
+                string outputDirectory = Path.Combine(_readerOutputPath, _userId);
+                string inputDirectory = Path.Combine(_readerInputPath, _userId);
 
                 System.IO.Directory.CreateDirectory(outputDirectory);
                 System.IO.Directory.CreateDirectory(inputDirectory);
