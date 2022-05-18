@@ -197,44 +197,44 @@ namespace exdrive_web.Controllers
             return View("AccessStorage", _searchResult);
         }
 
-        [HttpGet]
-        public async Task<ActionResult> DeleteForTupaCnopka()
-        {
-            _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            _isDeleted = true;
+        //[HttpGet]
+        //public async Task<ActionResult> DeleteForTupaCnopka()
+        //{
+        //    _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //    _isDeleted = true;
 
-            // if there was no search, files from main List are deleted
-            // (user is not in search mode)
-            if (_searchResult == null)
-            {
-                foreach (var name in _nameInstances)
-                {
-                    if (name.IsSelected == true)
-                        await exdrive_web.Models.Trashcan.DeleteFile(name.Id, _userId);
-                }
-                return RedirectToAction("AccessStorage", "Storage");
-            }
+        //    // if there was no search, files from main List are deleted
+        //    // (user is not in search mode)
+        //    if (_searchResult == null)
+        //    {
+        //        foreach (var name in _nameInstances)
+        //        {
+        //            if (name.IsSelected == true)
+        //                await exdrive_web.Models.Trashcan.DeleteFile(name.Id, _userId);
+        //        }
+        //        return RedirectToAction("AccessStorage", "Storage");
+        //    }
 
-            // creating new list to preserve search results
-            // function adds files that are not marked for deletion newsearch List
-            int i = 0;
-            List<NameInstance> newsearch = new List<NameInstance>();
+        //    // creating new list to preserve search results
+        //    // function adds files that are not marked for deletion newsearch List
+        //    int i = 0;
+        //    List<NameInstance> newsearch = new List<NameInstance>();
 
-            foreach (var name in _searchResult)
-            {
-                if (name.IsSelected == true)
-                {
-                    await exdrive_web.Models.Trashcan.DeleteFile(name.Id, _userId);
-                }
-                else
-                    newsearch.Add(_searchResult.ElementAt(i));
+        //    foreach (var name in _searchResult)
+        //    {
+        //        if (name.IsSelected == true)
+        //        {
+        //            await exdrive_web.Models.Trashcan.DeleteFile(name.Id, _userId);
+        //        }
+        //        else
+        //            newsearch.Add(_searchResult.ElementAt(i));
 
-                i++;
-            }
+        //        i++;
+        //    }
 
-            _searchResult = newsearch;
-            return View("AccessStorage", _searchResult);
-        }
+        //    _searchResult = newsearch;
+        //    return View("AccessStorage", _searchResult);
+        //}
         public ActionResult DownloadFiles()
         {
 
@@ -283,7 +283,6 @@ namespace exdrive_web.Controllers
         [HttpPost]
         public IActionResult ReadFile()
         {
-            // Loading_a_License_from_a_Stream_Object();
             Stream stream;
             FileStreamResult? fsResult = null;
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

@@ -14,7 +14,8 @@
         <div class="buttons__rect">
        
     </div>
-       @using (Html.BeginForm("DeletePerm", "Trashcan"))
+
+    @using (Html.BeginForm("Delete", "Trashcan"))
     {
              <input type="submit" value="Delete" class="delete__button" />
        
@@ -161,7 +162,7 @@
                 break;
         }
         <button class="filebutton" type="submit" name="afile" value=@count style="background-color:transparent; border-block-color:transparent; border-bottom-color:transparent; border-left-color:transparent; border-right-color:transparent">
-        <div class="item">
+        <div class="item" title="@row.Name">
                 <img src="@Url.Content(imagetoview)" runat="server" style="width: 100px; height: 100px"/>
                 <span class="caption">@row.Name</span> 
         </div>
