@@ -108,11 +108,15 @@
     }
     @using (Html.BeginForm("ReadFile", "Storage"))
     {
-        <input type="submit" value="Open file" class="search__button" style="width:150px; margin-left:150px; margin-top: 2px" />
+        <input type="submit" value="Open file" class="search__button" style="width:150px; margin-left:120px; margin-top: 2px" />
+    }
+    @using (Html.BeginForm("Favourite", "Storage"))
+    {
+        <input type="submit" value="Fav" class="search__button" style="width:50px; margin-left:290px; margin-top: 2px" />
     }
     @using (Html.BeginForm("Trashcan", "Trashcan"))
     {
-        <input type="submit" value="Trashcan" class="search__button" style="width:150px; margin-left:320px; margin-top: 2px" />
+        <input type="submit" value="Trashcan" class="search__button" style="width:150px; margin-left:380px; margin-top: 2px" />
     }
     <div class="storage__window">
         @model List<NameInstance>
