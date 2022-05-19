@@ -21,81 +21,11 @@
     </div>
     @if (TempData["LinkGet"] != null)
     {
-        @*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-        <script>
-            document.querySelector('.alert-context').style.left = window.screen.width / 2 - 425 + "px";
-        </script>*@
       <div class="alert-context">
       <a href=@TempData["LinkGet"] style="color:#eeeeee;">@TempData["LinkGet"]</a>
       </div>
     }
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script>
 
-        const cm = document.querySelector('.ccontext-menu');
-        const deletebtn = document.querySelector('.ccontext-menu__item4');
-        const linkbtn = document.querySelector('.ccontext-menu__item1');
-
-        function showContextMenu (show = true) {
-            cm.style.display = show ? 'block' : 'none';
-        }
-
-        linkbtn.addEventListener('click', function(event) {
-            alert("You will receive the link shortly...")
-           $.ajax({
-            url: '@Url.Action("GetLink","Storage")'
-            }).done(function() {
-                //alert(1);
-
-                window.location = window.location.href;
-                //document.querySelector('.alert-context').style.left = window.screen.width / 2 - 425 + "px";
-              //document.querySelector('.alert-context').style.left = window.screen.width / 2 - 425 + "px"; 
-               //alert(2);
-                //window.location.reload();
-                //var error = @Html.Raw(Json.Serialize(TempData["LinkGet"]))
-                // if ('@TempData["LinkGet"]' != null) {
-                //            alert(error);
-                //        } else {
-                //            alert("file uploaded successfully");
-                //        }
-                //alert('Added'); 
-            }); 
-            //console.log(event);
-        });
-
-        deletebtn.addEventListener('click', function(event) {
-            console.log(event);
-           $.ajax({
-            url: '@Url.Action("Delete","Storage")'
-            }).done(function() {
-            window.location = window.location.href;
-                //alert('Added'); 
-            }); 
-            //console.log(event);
-        });
-        //classname.addEventListener('contextmenu', (e) => {
-        window.addEventListener('contextmenu', (e) => {
-
-            // turn off default context menu
-            e.preventDefault();
-
-            // show our context menu
-            showContextMenu();
-            
-
-            cm.style.top = e.y + cm.offsetHeight > window.innerHeight ?
-            window.innerHeight - cm.offsetHeight + "px" : e.y + "px";
-
-            cm.style.left = e.x + cm.offsetWidth > window.innerWidth ?
-            window.innerWidth - cm.offsetWidth + "px" : e.x + "px";
-
-            console.log(e.returnValue);
-        });
-
-        window.addEventListener('click', () => {
-            showContextMenu(false);
-        });
-    </script>
     
     <div class="buttons__rect">
         <form asp-controller="Storage" asp-action="SinglePermFile" enctype="multipart/form-data">
@@ -108,6 +38,7 @@
             </div>
         </form>
     </div>
+
      @using (Html.BeginForm("Favourite", "Favourite")){
     <button class="btn__heart">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark-heart" viewBox="0 0 16 16">
@@ -152,6 +83,7 @@
     {
         <input type="submit" value="Trashcan" class="search__button" style="width:150px; margin-left:380px; margin-top: 2px" />
     }
+
     <div class="storage__window">
         @model List<NameInstance>
         @using (Html.BeginForm("FileClick", "Storage"))
@@ -171,128 +103,129 @@
                     switch (type)
                     {
                         case "png":
-                            if (row.IsSelected == false)
                                 imagetoview = "~/css/images/png.png";
-                            else
-                                imagetoview = "~/css/images/pngon.png";
                             break;
                         case "jpg":
-                            if (row.IsSelected == false)
                                 imagetoview = "~/css/images/jpg.png";
-                            else
-                                imagetoview = "~/css/images/jpgon.png";
                             break;
                         case "pdf":
-                            if (row.IsSelected == false)
                                 imagetoview = "~/css/images/pdf.png";
-                            else
-                                imagetoview = "~/css/images/pdfon.png";
                             break;
                         case "mp4":
-                            if (row.IsSelected == false)
                                 imagetoview = "~/css/images/mp4.png";
-                            else
-                                imagetoview = "~/css/images/mp4on.png";
                             break;
                         case "txt":
-                            if (row.IsSelected == false)
                                 imagetoview = "~/css/images/txt.png";
-                            else
-                                imagetoview = "~/css/images/txton.png";
                             break;
                         case "mp3":
-                            if (row.IsSelected == false)
                                 imagetoview = "~/css/images/mp3.png";
-                            else
-                                imagetoview = "~/css/images/mp3on.png";
                             break;
                         case "doc":
-                            if (row.IsSelected == false)
                                 imagetoview = "~/css/images/doc.png";
-                            else
-                                imagetoview = "~/css/images/docon.png";
                             break;
                         case "docx":
-                            if (row.IsSelected == false)
                                 imagetoview = "~/css/images/docx.png";
-                            else
-                                imagetoview = "~/css/images/docxon.png";
                             break;
                         case "xls":
-                            if (row.IsSelected == false)
                                 imagetoview = "~/css/images/xls.png";
-                            else
-                                imagetoview = "~/css/images/xlson.png";
                             break;
                         case "xlsx":
-                            if (row.IsSelected == false)
                                 imagetoview = "~/css/images/xlsx.png";
-                            else
-                                imagetoview = "~/css/images/xlsxon.png";
-                            break;
-                        case "3gp":
-                            if (row.IsSelected == false)
-                                imagetoview = "~/css/images/3gp.png";
-                            else
-                                imagetoview = "~/css/images/3gpon.png";
-                            break;
-                        case "avi":
-                            if (row.IsSelected == false)
-                                imagetoview = "~/css/images/avi.png";
-                            else
-                                imagetoview = "~/css/images/avion.png";
                             break;
                         case "mov":
-                            if (row.IsSelected == false)
                                 imagetoview = "~/css/images/mov.png";
-                            else
-                                imagetoview = "~/css/images/movon.png";
-                            break;
-                        case "ogv":
-                            if (row.IsSelected == false)
-                                imagetoview = "~/css/images/ogv.png";
-                            else
-                                imagetoview = "~/css/images/ogvon.png";
                             break;
                         case "webm":
-                            if (row.IsSelected == false)
                                 imagetoview = "~/css/images/webm.png";
-                            else
-                                imagetoview = "~/css/images/webmon.png";
-                            break;
-                        case "ogg":
-                            if (row.IsSelected == false)
-                                imagetoview = "~/css/images/ogg.png";
-                            else
-                                imagetoview = "~/css/images/oggon.png";
                             break;
                         case "zip":
-                            if (row.IsSelected == false)
                                 imagetoview = "~/css/images/zip.png";
-                            else
-                                imagetoview = "~/css/images/zipon.png";
                             break;
                         case "gif":
-                            if (row.IsSelected == false)
                                 imagetoview = "~/css/images/gif.png";
-                            else
-                                imagetoview = "~/css/images/gifon.png";
                             break;
                         default:
-                            imagetoview = "";
+                                imagetoview = "~/css/images/file.png";
                             break;
                     }
-                    <button class="filebutton" type="submit" name="afile" value=@count style="background-color:transparent; border-block-color:transparent; border-bottom-color:transparent; border-left-color:transparent; border-right-color:transparent">
-                        <div class="item" title="@row.Name">
-                            <img src="@Url.Content(imagetoview)" runat="server" style="width: 100px; height: 100px" />
-                            <span class="caption">@row.Name</span>
-                        </div>
-                    </button>
+
+                    <div class="item" title="@row.Name" value=@count style="border: medium none">
+                        <img src="@Url.Content(imagetoview)" value=@count runat="server" style="border: medium none; width: 100px; height: 100px; border-radius: 15px;" />
+                        <span class="caption">@row.Name</span>
+                    </div>
+
                     count++;
                 }
             }
         }
     </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+
+        const cm = document.querySelector('.ccontext-menu');
+        const deletebtn = document.querySelector('.ccontext-menu__item4');
+        const linkbtn = document.querySelector('.ccontext-menu__item1');
+
+        function showContextMenu (show = true) {
+            cm.style.display = show ? 'block' : 'none';
+        }
+
+        linkbtn.addEventListener('click', function(event) {
+           $.ajax({
+            url: '@Url.Action("GetLink","Storage")'
+            }).done(function() {
+                window.location = window.location.href;
+            }); 
+        });
+
+        deletebtn.addEventListener('click', function(event) {
+            console.log(event);
+           $.ajax({
+            url: '@Url.Action("Delete","Storage")'
+            }).done(function() {
+            window.location = window.location.href;
+            }); 
+        });
+
+        window.addEventListener('click', (e) => {
+            
+            let pos = e.target.getAttribute("value");
+            if (pos != null)
+            {
+                console.log(pos);
+                $.ajax({
+            url: '@Url.Action("FileClick","Storage")',
+            data: { afile: pos }
+            }).done(function() {
+                if (e.target.style.border == "medium none")
+                    e.target.style.border = "inset #408aff 8px";
+                else
+                    e.target.style.border = "medium none";
+            });
+            }
+        });
+
+        window.addEventListener('contextmenu', (e) => {
+
+            e.preventDefault();
+
+            showContextMenu();
+            
+            cm.style.top = e.y + cm.offsetHeight > window.innerHeight ?
+            window.innerHeight - cm.offsetHeight + "px" : e.y + "px";
+
+            cm.style.left = e.x + cm.offsetWidth > window.innerWidth ?
+            window.innerWidth - cm.offsetWidth + "px" : e.x + "px";
+
+            console.log(e.returnValue);
+        });
+
+        window.addEventListener('click', () => {
+            showContextMenu(false);
+        });
+    </script>
+     
 </body>
 </html>
 

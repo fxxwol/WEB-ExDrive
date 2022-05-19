@@ -29,24 +29,28 @@ namespace exdrive_web.Controllers
         }
         public ActionResult FileClick(string afile)
         {
-            int position = Int32.Parse(afile);
-
-            // if there was no search, file from main List is selected
-            // (user is not in search mode)
-            if (_searchResult == null)
+            try
             {
-                if (_deleted != null)
+                int position = Int32.Parse(afile);
+
+                // if there was no search, file from main List is selected
+                // (user is not in search mode)
+                if (_searchResult == null)
                 {
                     _deleted.ElementAt(position).IsSelected ^= true;
                     return View("Trashcan", _deleted);
                 }
-            }
-            else
-            {
-                _searchResult.ElementAt(position).IsSelected ^= true;
-            }
 
-            return View("Trashcan", _searchResult);
+                _searchResult.ElementAt(position).IsSelected ^= true;
+                return View("Trashcan", _searchResult);
+            }
+            catch (Exception)
+            {
+                if (_searchResult == null)
+                    return View("Trashcan", _deleted);
+
+                return View("Trashcan", _searchResult);
+            }
         }
 
         public ActionResult DeletePerm()
@@ -197,7 +201,6 @@ namespace exdrive_web.Controllers
             return RedirectToAction("Trashcan", "Trashcan");
         }
       
-        [HttpPost]
         public async Task<ActionResult> Recovery()
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

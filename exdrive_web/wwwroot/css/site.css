@@ -204,11 +204,17 @@ div.item {
     display: inline-block;
     /* To horizontally center images and caption */
     text-align: center;
+    border: medium none;
+    border-radius: 10px;
+    border-bottom-color: #abfaff;
+    border-left-color: aqua;
+    border-right-color: aqua;
+    border-top-color: #abfaff;
     /* The width of the container also implies margin around the images. */
     width: 120px;
 }
 
-div.item input[type=submit]{
+.item input[type=submit]{
     /* To correctly align image, regardless of content height: */
     vertical-align: top;
     display: inline-block;
