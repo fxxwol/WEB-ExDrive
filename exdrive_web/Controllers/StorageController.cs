@@ -79,7 +79,27 @@ namespace exdrive_web.Controllers
         {
             return View(new UploadInstance());
         }
+        [HttpPost]
+        public ActionResult Favourite()
+        {
+            _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            foreach (var name in _nameInstances)
+            {
+                if (name.IsSelected == true)
+                {
+                    Files? favourite = _applicationDbContext.Files.Find(name.Id);
+                    if (favourite != null)
+                    {
+                        Files? modified = favourite;
+                        modified.Favourite = true;
+                        _applicationDbContext.Files.Update(favourite).OriginalValues.SetValues(modified);
+                    }
+                    _applicationDbContext.SaveChanges();
 
+                }
+            }
+            return RedirectToAction("AccessStorage", "Storage");
+        }
         [HttpPost]
         [Consumes("multipart/form-data")]
         [RequestFormLimits(MultipartBodyLengthLimit = 629145600)]
@@ -95,7 +115,7 @@ namespace exdrive_web.Controllers
             {
                 await UploadTempAsync.UploadFileAsync(_file, files, _applicationDbContext);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 TempData["AlertMessage"] = "Failed to upload: file may contain viruses";
                 return RedirectToAction("Index", "Home");
@@ -124,7 +144,7 @@ namespace exdrive_web.Controllers
             }
             catch (Exception)
             {
-                
+
             }
 
             return RedirectToAction("AccessStorage", "Storage");
@@ -319,7 +339,7 @@ namespace exdrive_web.Controllers
                 {
                     PdfViewOptions options = new PdfViewOptions(outputFilePath);
                     try
-                    {   
+                    {
                         viewer.View(options);
                     }
                     catch (Exception)

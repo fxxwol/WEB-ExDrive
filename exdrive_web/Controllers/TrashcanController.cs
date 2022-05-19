@@ -2,7 +2,6 @@
 using JWTAuthentication.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace exdrive_web.Controllers
@@ -50,7 +49,7 @@ namespace exdrive_web.Controllers
             return View("Trashcan", _searchResult);
         }
 
-        public async Task<ActionResult> Delete()
+        public ActionResult DeletePerm()
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             _isDeleted = true;
@@ -197,30 +196,7 @@ namespace exdrive_web.Controllers
             _isDeleted = false;
             return RedirectToAction("Trashcan", "Trashcan");
         }
-        public ActionResult DeletePerm()
-        {
-            if (_deleted != null)
-            {
-                foreach (var name in _deleted)
-                {
-                    if (name.IsSelected == true)
-                    {
-                        Files? todelete = _applicationDbContext.Files.Find(name.Id);
-                        if (todelete != null)
-                        {
-                            _deleted.Remove(name);
-
-                            _applicationDbContext.Remove(todelete);
-
-                            _applicationDbContext.SaveChanges();
-                        }
-                    }
-
-                }
-            }
-
-            return View("Trashcan", _deleted);
-        }
+      
         [HttpPost]
         public async Task<ActionResult> Recovery()
         {

@@ -10,6 +10,7 @@ namespace exdrive_web.Models
         public string HasAccess { get; set; }
         [Required]
         public bool IsTemporary { get; set; }
+        public bool Favourite { get; set; }
         public Files(string id, string name, string access, bool istemporary)
         {
             FilesId = id;
