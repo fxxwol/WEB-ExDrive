@@ -279,6 +279,8 @@ upload-btn-wrapper__delete {
     margin-bottom: 10px;
     top: 12px;
     animation-duration: 1s;
+    position:absolute;
+    max-width:850px;
     transition: all 1.5s;
     cursor: pointer;
     width: 850px;
@@ -289,6 +291,32 @@ upload-btn-wrapper__delete {
         background-color: #0aacffec;
     }
 
+
+.alert-context {
+    border: #000000;
+    color: #e2e2e2;
+    background-color: #60b2dcec;
+    padding: 10px 20px;
+    border-radius: 80px;
+    font-size: 18px;
+    font-weight: 500;
+    font-family: 'Lato', sans-serif;
+    text-align: center;
+    margin: 1px auto;
+    display: block;
+    margin: 0 auto;
+    display: block;
+    margin-bottom: 10px;
+    top: 12px;
+    animation-duration: 1s;
+    position: absolute;
+    left:350px;
+    max-width: 850px;
+    transition: all 1.5s;
+    cursor: pointer;
+    width: 850px;
+    height: 50px;
+}
 
 .txt {
     display: block;

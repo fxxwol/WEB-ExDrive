@@ -43,7 +43,9 @@ namespace exdrive_web.Controllers
                 }
             }
             else
+            {
                 _searchResult.ElementAt(position).IsSelected ^= true;
+            }
 
             return View("Trashcan", _searchResult);
         }
@@ -108,6 +110,64 @@ namespace exdrive_web.Controllers
             return View("Trashcan", _searchResult);
         }
 
+        //[Authorize]
+        //public IActionResult Search(string searchString)
+        //{
+        //    ViewData["GetFiles"] = searchString;
+
+        //    if (searchString == null)
+        //    {
+        //        _searchResult = null;
+
+        //        if (_isDeleted == false)
+        //            return View("Trashcan", _deleted);
+
+        //        _isDeleted = false;
+        //        return RedirectToAction("Trashcan", "Trashcan");
+        //    }
+
+        //    // checking a file's name without format first
+        //    _searchResult = _deleted.Where(x => x.NoFormat.Equals(searchString)).ToList();
+        //    if (_searchResult.Count > 0)
+        //        return View("Trashcan", _searchResult);
+
+        //    // checking a file's name with format
+        //    _searchResult = _deleted.Where(x => x.Name.Equals(searchString)).ToList();
+        //    if (_searchResult.Count > 0)
+        //        return View("Trashcan", _searchResult);
+
+        //    // if file wasn't deleted, returning old view
+        //    if (_isDeleted == false)
+        //        return View("Trashcan", _deleted);
+
+        //    // if file is deleted, generating new List
+        //    _isDeleted = false;
+        //    return RedirectToAction("Trashcan", "Trashcan");
+        //}
+        //public ActionResult DeletePerm()
+        //{
+        //    if (_deleted != null)
+        //    {
+        //        foreach (var name in _deleted)
+        //        {
+        //            if (name.IsSelected == true)
+        //            {
+        //                Files? todelete = _applicationDbContext.Files.Find(name.Id);
+        //                if (todelete != null)
+        //                {
+        //                    _deleted.Remove(name);
+
+        //                    _applicationDbContext.Remove(todelete);
+
+        //                    _applicationDbContext.SaveChanges();
+        //                }
+        //            }
+
+        //        }
+        //    }
+
+        //    return View("Trashcan", _deleted);
+        //}
         [Authorize]
         public IActionResult Search(string searchString)
         {
@@ -124,13 +184,8 @@ namespace exdrive_web.Controllers
                 return RedirectToAction("Trashcan", "Trashcan");
             }
 
-            // checking a file's name without format first
-            _searchResult = _deleted.Where(x => x.NoFormat.Equals(searchString)).ToList();
-            if (_searchResult.Count > 0)
-                return View("Trashcan", _searchResult);
-
-            // checking a file's name with format
-            _searchResult = _deleted.Where(x => x.Name.Equals(searchString)).ToList();
+            // checking if user files' names contain search request
+            _searchResult = _deleted.Where(x => x.Name.Contains(searchString)).ToList();
             if (_searchResult.Count > 0)
                 return View("Trashcan", _searchResult);
 
@@ -198,12 +253,15 @@ namespace exdrive_web.Controllers
                     await exdrive_web.Models.Trashcan.FileRecovery(name.Id, _userId);
                 }
                 else
+                {
                     newsearch.Add(_searchResult.ElementAt(i));
+                }
 
                 i++;
             }
 
             _searchResult = newsearch;
+
             return View("Trashcan", _searchResult);
         }
     }
