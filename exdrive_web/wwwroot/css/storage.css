@@ -276,11 +276,7 @@ upload-btn-wrapper__delete {
     display: block;
     margin: 0 auto;
     display: block;
-    margin-bottom: 10px;
-    top: 12px;
     animation-duration: 1s;
-    position:absolute;
-    max-width:850px;
     transition: all 1.5s;
     cursor: pointer;
     width: 850px;

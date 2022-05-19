@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using JWTAuthentication.Authentication;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using exdrive_web.Models;
 using Microsoft.AspNetCore.Mvc;
+using WebPWrecover.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("ApplicationDbContextConnection"); 
@@ -12,6 +14,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.Configure<CookieTempDataProviderOptions>(options => {
     options.Cookie.IsEssential = true;
 });
+
+builder.Services.AddTransient<IEmailSender, EmailSender>();
+builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
