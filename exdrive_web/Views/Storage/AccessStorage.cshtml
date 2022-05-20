@@ -38,7 +38,6 @@
             </div>
         </form>
     </div>
-
      @using (Html.BeginForm("Favourite", "Favourite")){
     <button class="btn__heart">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark-heart" viewBox="0 0 16 16">
@@ -73,15 +72,15 @@
     }
     @using (Html.BeginForm("ReadFile", "Storage"))
     {
-        <input type="submit" value="Open file" class="search__button" style="width:150px; margin-left:120px; margin-top: 2px" />
+        <input type="submit" value="Open file" class="openfile__button" />
     }
-    @using (Html.BeginForm("Favourite", "Storage"))
+    @*@using (Html.BeginForm("Favourite", "Storage"))
     {
-        <input type="submit" value="Fav" class="search__button" style="width:50px; margin-left:290px; margin-top: 2px" />
-    }
+        <input type="submit" value="Fav" class="favorite__button" />
+    }*@
     @using (Html.BeginForm("Trashcan", "Trashcan"))
     {
-        <input type="submit" value="Trashcan" class="search__button" style="width:150px; margin-left:380px; margin-top: 2px" />
+        <input type="submit" value="Trashcan" class="trashcanstorage__button" />
     }
 
     <div class="storage__window">
@@ -166,6 +165,7 @@
         const cm = document.querySelector('.ccontext-menu');
         const deletebtn = document.querySelector('.ccontext-menu__item4');
         const linkbtn = document.querySelector('.ccontext-menu__item1');
+        const favbtn = document.querySelector('.ccontext-menu__item2');
 
         function showContextMenu (show = true) {
             cm.style.display = show ? 'block' : 'none';
@@ -180,9 +180,16 @@
         });
 
         deletebtn.addEventListener('click', function(event) {
-            console.log(event);
            $.ajax({
             url: '@Url.Action("Delete","Storage")'
+            }).done(function() {
+            window.location = window.location.href;
+            }); 
+        });
+
+        favbtn.addEventListener('click', function(event) {
+           $.ajax({
+            url: '@Url.Action("Favourite","Storage")'
             }).done(function() {
             window.location = window.location.href;
             }); 
