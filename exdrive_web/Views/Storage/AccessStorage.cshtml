@@ -75,10 +75,6 @@
     {
         <input type="submit" value="Open file" class="search__button" style="width:150px; margin-left:120px; margin-top: 2px" />
     }
-    @using (Html.BeginForm("Favourite", "Storage"))
-    {
-        <input type="submit" value="Fav" class="search__button" style="width:50px; margin-left:290px; margin-top: 2px" />
-    }
     @using (Html.BeginForm("Trashcan", "Trashcan"))
     {
         <input type="submit" value="Trashcan" class="search__button" style="width:150px; margin-left:380px; margin-top: 2px" />
@@ -166,6 +162,7 @@
         const cm = document.querySelector('.ccontext-menu');
         const deletebtn = document.querySelector('.ccontext-menu__item4');
         const linkbtn = document.querySelector('.ccontext-menu__item1');
+        const favbtn = document.querySelector('.ccontext-menu__item2');
 
         function showContextMenu (show = true) {
             cm.style.display = show ? 'block' : 'none';
@@ -179,8 +176,15 @@
             });
         });
 
+        favbtn.addEventListener('click', function(event) {
+           $.ajax({
+            url: '@Url.Action("Favourite","Storage")'
+            }).done(function() {
+                window.location = window.location.href;
+            });
+        });
+
         deletebtn.addEventListener('click', function(event) {
-            console.log(event);
            $.ajax({
             url: '@Url.Action("Delete","Storage")'
             }).done(function() {

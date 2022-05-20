@@ -101,7 +101,6 @@ namespace exdrive_web.Controllers
         {
             return View(new UploadInstance());
         }
-        [HttpPost]
         public ActionResult Favourite()
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
