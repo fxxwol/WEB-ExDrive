@@ -224,32 +224,7 @@
         window.addEventListener('click', () => {
             showContextMenu(false);
         });
-    </script>
-    <button onclick="return onclick(button)">filter</button>
-    <script>
-         function Filter(button) {
-        $.ajax({
-                 url: '@Url.Action("FilterFav","Storage")',
-                 }).done(function(button))
-         }
-         function RemoveFilter (button) {
-         $.ajax({
-                 url: '@Url.Action("AccessStorage","Storage")',
-                 }).done(function(button))
-         }
-
-         var called = false;
-         function Filter(button) {
-         called = true;
-         }
-
-         $(window).on('beforeunload',function(button){
-         if(called){
-         RemoveFilter (button);
-         }
-
-         });
-    </script>
+    </script>   
 </body>
 </html>
 

@@ -12,7 +12,7 @@ namespace exdrive_web.Models
             using (SqlConnection con = new SqlConnection(ExFunctions.sqlConnectionString))
             {
                 con.Open();
-                using (SqlCommand cmd = new SqlCommand($"SELECT Name, FilesId FROM dbo.Files WHERE HasAccess='{_userId}' AND IsTemporary=1 ORDER BY FilesId ASC", con))
+                using (SqlCommand cmd = new SqlCommand($"SELECT Name, FilesId, Favourite FROM dbo.Files WHERE HasAccess='{_userId}' AND IsTemporary=1 ORDER BY FilesId ASC", con))
                 {
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {

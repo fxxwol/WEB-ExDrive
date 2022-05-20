@@ -37,6 +37,7 @@ namespace exdrive_web.Controllers
         [Authorize]
         public IActionResult AccessStorage()
         {
+            _isFavourite = false;
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             _nameInstances = new List<NameInstance>(UserFilesDB.GetUserFilesDB(_userId));
             _searchResult = null;
@@ -63,11 +64,21 @@ namespace exdrive_web.Controllers
                 return RedirectToAction("AccessStorage", "Storage");
             }
 
+            if (_isFavourite == true)
+            {
+                _searchResult = _nameInstances.Where(x => x.Name.Contains(searchString) && x.IsFavourite == true).ToList();
+                if (_searchResult.Count > 0)
+                    return View("AccessStorage", _searchResult);
+                if (_isDeleted == false)
+                    return View("AccessStorage", _searchResult);
+            }
+            
             // checking if user files' names contain search request
             _searchResult = _nameInstances.Where(x => x.Name.Contains(searchString)).ToList();
             if (_searchResult.Count > 0)
                 return View("AccessStorage", _searchResult);
 
+ 
             // if file wasn't deleted, returning old view
             if (_isDeleted == false)
                 return View("AccessStorage", _nameInstances);
@@ -76,14 +87,15 @@ namespace exdrive_web.Controllers
             _isDeleted = false;
             return RedirectToAction("AccessStorage", "Storage");
         }
+
         [Authorize]
         public IActionResult FilterFav()
         {
+            _isFavourite = true;
+            if (_searchResult != null)
+                return RedirectToAction("AccessStorage", _nameInstances);
             _searchResult = _nameInstances.Where(x => x.IsFavourite == true).ToList();
-            if (_searchResult.Count > 0)
-                return View("AccessStorage", _searchResult);
-            else
-                return View("AccessStorage", _searchResult);
+            return View("AccessStorage", _searchResult);
         }
         public IActionResult SingleFile()
         {
@@ -93,6 +105,7 @@ namespace exdrive_web.Controllers
         public ActionResult Favourite()
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             foreach (var name in _nameInstances)
             {
                 if (name.IsSelected == true)
