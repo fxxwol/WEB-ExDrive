@@ -22,6 +22,7 @@ namespace exdrive_web.Controllers
 
         private string? _userId;
         private static bool _isDeleted = false;
+        private static bool _isFavourite = false;
 
         private static readonly string _tmpFilesPath = "C:\\Users\\Public\\tmpfiles\\";
         private static readonly string _getLinkArchive = "C:\\Users\\Public\\getlink\\";
@@ -66,7 +67,7 @@ namespace exdrive_web.Controllers
             _searchResult = _nameInstances.Where(x => x.Name.Contains(searchString)).ToList();
             if (_searchResult.Count > 0)
                 return View("AccessStorage", _searchResult);
-            
+
             // if file wasn't deleted, returning old view
             if (_isDeleted == false)
                 return View("AccessStorage", _nameInstances);
@@ -75,11 +76,20 @@ namespace exdrive_web.Controllers
             _isDeleted = false;
             return RedirectToAction("AccessStorage", "Storage");
         }
+        [Authorize]
+        public IActionResult FilterFav()
+        {
+            _searchResult = _nameInstances.Where(x => x.IsFavourite == true).ToList();
+            if (_searchResult.Count > 0)
+                return View("AccessStorage", _searchResult);
+            else
+                return View("AccessStorage", _searchResult);
+        }
         public IActionResult SingleFile()
         {
             return View(new UploadInstance());
         }
-        
+        [HttpPost]
         public ActionResult Favourite()
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -91,7 +101,7 @@ namespace exdrive_web.Controllers
                     if (favourite != null)
                     {
                         Files? modified = favourite;
-                        modified.Favourite = true;
+                        modified.Favourite ^= true;
                         _applicationDbContext.Files.Update(favourite).OriginalValues.SetValues(modified);
                     }
                     _applicationDbContext.SaveChanges();
@@ -100,6 +110,7 @@ namespace exdrive_web.Controllers
             }
             return RedirectToAction("AccessStorage", "Storage");
         }
+
         [HttpPost]
         [Consumes("multipart/form-data")]
         [RequestFormLimits(MultipartBodyLengthLimit = 629145600)]
@@ -403,4 +414,3 @@ namespace exdrive_web.Controllers
         }
     }
 }
-

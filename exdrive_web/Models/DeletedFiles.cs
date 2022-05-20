@@ -23,7 +23,7 @@ namespace exdrive_web.Models
                             for (int i = 0; i < name.LastIndexOf('.'); i++)
                                 noformat += name.ElementAt(i);
 
-                            deleted.Add(new NameInstance(name, noformat, (string)reader["FilesId"]));
+                            deleted.Add(new NameInstance(name, noformat, (string)reader["FilesId"], (bool)reader["Favourite"]));
                         }
                     }
                 }

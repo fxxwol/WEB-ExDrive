@@ -21,12 +21,11 @@
     </div>
     @if (TempData["LinkGet"] != null)
     {
-      <div class="alert-context">
-      <a href=@TempData["LinkGet"] style="color:#eeeeee;">@TempData["LinkGet"]</a>
-      </div>
+        <div class="alert-context">
+            <a href=@TempData["LinkGet"] style="color:#eeeeee;">@TempData["LinkGet"]</a>
+        </div>
     }
 
-    
     <div class="buttons__rect">
         <form asp-controller="Storage" asp-action="SinglePermFile" enctype="multipart/form-data">
             <div class="upload-btn-wrapper__upload">
@@ -38,13 +37,15 @@
             </div>
         </form>
     </div>
-     @using (Html.BeginForm("Favourite", "Favourite")){
-    <button class="btn__heart">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark-heart" viewBox="0 0 16 16">
-            <path fill-rule="evenodd" d="M8 4.41c1.387-1.425 4.854 1.07 0 4.277C3.146 5.48 6.613 2.986 8 4.412z" />
-            <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z" />
-        </svg>
-    </button>
+
+    @using (Html.BeginForm("FilterFav", "Storage"))
+    {
+        <button class="btn__heart">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark-heart" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M8 4.41c1.387-1.425 4.854 1.07 0 4.277C3.146 5.48 6.613 2.986 8 4.412z" />
+                <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z" />
+            </svg>
+        </button>
     }
     @using (Html.BeginForm("Delete", "Storage"))
     {
@@ -54,7 +55,7 @@
             </svg>
         </button>
     }
-    
+
     @using (Html.BeginForm("DownloadFiles", "Storage"))
     {
         <div></div>
@@ -72,15 +73,15 @@
     }
     @using (Html.BeginForm("ReadFile", "Storage"))
     {
-        <input type="submit" value="Open file" class="openfile__button" />
+        <input type="submit" value="Open file" class="search__button" style="width:150px; margin-left:120px; margin-top: 2px" />
     }
-    @*@using (Html.BeginForm("Favourite", "Storage"))
+    @using (Html.BeginForm("Favourite", "Storage"))
     {
-        <input type="submit" value="Fav" class="favorite__button" />
-    }*@
+        <input type="submit" value="Fav" class="search__button" style="width:50px; margin-left:290px; margin-top: 2px" />
+    }
     @using (Html.BeginForm("Trashcan", "Trashcan"))
     {
-        <input type="submit" value="Trashcan" class="trashcanstorage__button" />
+        <input type="submit" value="Trashcan" class="search__button" style="width:150px; margin-left:380px; margin-top: 2px" />
     }
 
     <div class="storage__window">
@@ -102,49 +103,49 @@
                     switch (type)
                     {
                         case "png":
-                                imagetoview = "~/css/images/png.png";
+                            imagetoview = "~/css/images/png.png";
                             break;
                         case "jpg":
-                                imagetoview = "~/css/images/jpg.png";
+                            imagetoview = "~/css/images/jpg.png";
                             break;
                         case "pdf":
-                                imagetoview = "~/css/images/pdf.png";
+                            imagetoview = "~/css/images/pdf.png";
                             break;
                         case "mp4":
-                                imagetoview = "~/css/images/mp4.png";
+                            imagetoview = "~/css/images/mp4.png";
                             break;
                         case "txt":
-                                imagetoview = "~/css/images/txt.png";
+                            imagetoview = "~/css/images/txt.png";
                             break;
                         case "mp3":
-                                imagetoview = "~/css/images/mp3.png";
+                            imagetoview = "~/css/images/mp3.png";
                             break;
                         case "doc":
-                                imagetoview = "~/css/images/doc.png";
+                            imagetoview = "~/css/images/doc.png";
                             break;
                         case "docx":
-                                imagetoview = "~/css/images/docx.png";
+                            imagetoview = "~/css/images/docx.png";
                             break;
                         case "xls":
-                                imagetoview = "~/css/images/xls.png";
+                            imagetoview = "~/css/images/xls.png";
                             break;
                         case "xlsx":
-                                imagetoview = "~/css/images/xlsx.png";
+                            imagetoview = "~/css/images/xlsx.png";
                             break;
                         case "mov":
-                                imagetoview = "~/css/images/mov.png";
+                            imagetoview = "~/css/images/mov.png";
                             break;
                         case "webm":
-                                imagetoview = "~/css/images/webm.png";
+                            imagetoview = "~/css/images/webm.png";
                             break;
                         case "zip":
-                                imagetoview = "~/css/images/zip.png";
+                            imagetoview = "~/css/images/zip.png";
                             break;
                         case "gif":
-                                imagetoview = "~/css/images/gif.png";
+                            imagetoview = "~/css/images/gif.png";
                             break;
                         default:
-                                imagetoview = "~/css/images/file.png";
+                            imagetoview = "~/css/images/file.png";
                             break;
                     }
 
@@ -165,7 +166,6 @@
         const cm = document.querySelector('.ccontext-menu');
         const deletebtn = document.querySelector('.ccontext-menu__item4');
         const linkbtn = document.querySelector('.ccontext-menu__item1');
-        const favbtn = document.querySelector('.ccontext-menu__item2');
 
         function showContextMenu (show = true) {
             cm.style.display = show ? 'block' : 'none';
@@ -176,27 +176,20 @@
             url: '@Url.Action("GetLink","Storage")'
             }).done(function() {
                 window.location = window.location.href;
-            }); 
+            });
         });
 
         deletebtn.addEventListener('click', function(event) {
+            console.log(event);
            $.ajax({
             url: '@Url.Action("Delete","Storage")'
             }).done(function() {
             window.location = window.location.href;
-            }); 
-        });
-
-        favbtn.addEventListener('click', function(event) {
-           $.ajax({
-            url: '@Url.Action("Favourite","Storage")'
-            }).done(function() {
-            window.location = window.location.href;
-            }); 
+            });
         });
 
         window.addEventListener('click', (e) => {
-            
+
             let pos = e.target.getAttribute("value");
             if (pos != null)
             {
@@ -218,7 +211,7 @@
             e.preventDefault();
 
             showContextMenu();
-            
+
             cm.style.top = e.y + cm.offsetHeight > window.innerHeight ?
             window.innerHeight - cm.offsetHeight + "px" : e.y + "px";
 
@@ -232,7 +225,31 @@
             showContextMenu(false);
         });
     </script>
-     
+    <button onclick="return onclick(button)">filter</button>
+    <script>
+         function Filter(button) {
+        $.ajax({
+                 url: '@Url.Action("FilterFav","Storage")',
+                 }).done(function(button))
+         }
+         function RemoveFilter (button) {
+         $.ajax({
+                 url: '@Url.Action("AccessStorage","Storage")',
+                 }).done(function(button))
+         }
+
+         var called = false;
+         function Filter(button) {
+         called = true;
+         }
+
+         $(window).on('beforeunload',function(button){
+         if(called){
+         RemoveFilter (button);
+         }
+
+         });
+    </script>
 </body>
 </html>
 
