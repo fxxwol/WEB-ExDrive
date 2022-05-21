@@ -16,7 +16,7 @@ public class EmailSender : IEmailSender
         _logger = logger;
     }
 
-    public AuthMessageSenderOptions Options { get; } //Set with Secret Manager.
+    public AuthMessageSenderOptions Options { get; } // Set with Secret Manager.
 
     public async Task SendEmailAsync(string toEmail, string subject, string message)
     {
@@ -24,6 +24,7 @@ public class EmailSender : IEmailSender
         {
             throw new Exception("Null SendGridKey");
         }
+
         await Execute(Options.SendGridKey, subject, message, toEmail);
     }
 
@@ -32,11 +33,12 @@ public class EmailSender : IEmailSender
         var client = new SendGridClient(apiKey);
         var msg = new SendGridMessage()
         {
-            From = new EmailAddress("mailexdrive@gmail.com", "Password Recovery"),
+            From = new EmailAddress("mailexdrive@gmail.com"),
             Subject = subject,
             PlainTextContent = message,
             HtmlContent = message
         };
+
         msg.AddTo(new EmailAddress(toEmail));
 
         // Disable click tracking.

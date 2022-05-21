@@ -1,9 +1,4 @@
-﻿using JWTAuthentication.Authentication;
-using Microsoft.EntityFrameworkCore;
-using Azure.Storage.Blobs;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
-using System.Text;
+﻿using Azure.Storage.Blobs;
 
 namespace exdrive_web.Models
 {
@@ -11,24 +6,34 @@ namespace exdrive_web.Models
     {
         public static IEnumerable<Azure.Storage.Blobs.Models.BlobItem> GetUserFilesSA(string _userId)
         {
-            BlobContainerClient containerClient = new BlobContainerClient(ExFunctions.storageConnectionString, _userId);
+            if (string.IsNullOrWhiteSpace(_userId))
+            {
+                return Enumerable.Empty<Azure.Storage.Blobs.Models.BlobItem>();
+            }
 
             try
             {
-                containerClient.Exists();
-            }
-            catch (Azure.RequestFailedException)
-            {
-                return null;
-            }
+                BlobContainerClient containerClient = new(ExFunctions.storageConnectionString, _userId);
 
-            IEnumerable<Azure.Storage.Blobs.Models.BlobItem> blobs;
+                if (!containerClient.Exists())
+                {
+                    throw new Exception();
+                }
 
-            blobs = containerClient.GetBlobs();
-            if (blobs != null)
+                IEnumerable<Azure.Storage.Blobs.Models.BlobItem> blobs = containerClient.GetBlobs();
+
+                if (blobs == null)
+                {
+                    throw new Exception();
+
+                }
+
                 return blobs;
-            else
-                throw new Exception("No files belonging to the user were found.");
+            }
+            catch (Exception)
+            {
+                return Enumerable.Empty<Azure.Storage.Blobs.Models.BlobItem>();
+            }
         }
     }
 }

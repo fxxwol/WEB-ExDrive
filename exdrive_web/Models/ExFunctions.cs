@@ -7,9 +7,18 @@
         public static readonly string sqlConnectionString = "Server=tcp:exdrive1.database.windows.net,1433;Initial Catalog=ExDrive;Persist Security Info=False;User ID=senyakappa;Password=d3ltA_Pr0mi[neNs32ngO;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
         public static string FindFormat(string filename)
         {
+            if (string.IsNullOrWhiteSpace(filename) ||
+                filename.LastIndexOf('.') < 0)
+            {
+                return "";
+            }
+
             string format = "";
+
             for (int i = filename.LastIndexOf('.'); i < filename.Length; i++)
+            {
                 format += filename.ElementAt(i);
+            }
 
             return format;
         }
