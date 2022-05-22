@@ -28,98 +28,11 @@
     margin-bottom: 15px;
     border-radius: 80px;
 }
-/*upload button*/
 
-.upload-btn-wrapper__upload {
-    position: relative;
-    overflow: hidden;
-    display: inline-block;
-    margin: 0 auto;
-    top: 5px;
-    left: 10px;
-    width: 110px;
-    height: 52px;
-}
 
-.btn__upload {
-    display: inline-block;
-    margin: 0 auto;
-    border: #000000;
-    color: #eeeeee;
-    background-color: #60b2dcec;
-    padding: 8px 20px;
-    border-radius: 80px;
-    font-size: 20px;
-    font-weight: 400;
-    font-family: 'Lato', sans-serif;
-    text-align: center;
-    position: center;
-    top: 4px;
-    left: 10px;
-    animation-duration: 1s;
-    transition: all 1.5s;
-    cursor: pointer;
-}
 
-.upload-btn-wrapper__upload:hover .btn__upload {
-    background-color: #0aacffec;
-}
 
-.upload-btn-wrapper__upload input[type=file] {
-    font-size: 100px;
-    position: absolute;
-    left: 10px;
-    top: 15px;
-    opacity: 0;
-    text-align: center;
-    top: 15px;
-    cursor: pointer;
-}
-
-.upload-btn-wrapper__submit {
-    position: relative;
-    overflow: hidden;
-    display: inline-block;
-    margin: 0 auto;
-    top: 4px;
-    margin-left: 10px;
-    width: 110px;
-    height: 52px;
-}
-
-.btn__submit {
-    border: #000000;
-    color: #eeeeee;
-    background-color: #60b2dcec;
-    padding: 8px 20px;
-    border-radius: 80px;
-    font-size: 20px;
-    font-weight: 400;
-    font-family: 'Lato', sans-serif;
-    text-align: center;
-    position: center;
-    top: 4px;
-    animation-duration: 1s;
-    transition: all 1.5s;
-    cursor: pointer;
-}
-
-.upload-btn-wrapper__submit:hover .btn__submit {
-    background-color: #0aacffec;
-}
-
-.upload-btn-wrapper__heart {
-    position: relative;
-    overflow: hidden;
-    display: inline-block;
-    margin: 0 auto;
-    top: 4px;
-    margin-left: 100px;
-    width: 110px;
-    height: 52px;
-}
-
-.btn__heart {
+.recovery__button {
     display: inline-block;
     margin: 0 auto;
     border: #000000;
@@ -133,18 +46,19 @@
     text-align: center;
     position: absolute;
     top: 85px;
-    left: 256px;
+    left: 180px;
     animation-duration: 1s;
     transition: all 1.5s;
     cursor: pointer;
 }
 
-    .btn__heart:hover {
+    .recovery__button:hover {
         background-color: #0aacffec;
     }
 
-.btn__delete {
-    position: absolute;
+.delete__button {
+    display: inline-block;
+    margin: 0 auto;
     border: #000000;
     color: #eeeeee;
     background-color: #60b2dcec;
@@ -154,42 +68,18 @@
     font-weight: 400;
     font-family: 'Lato', sans-serif;
     text-align: center;
-    display: inline-block;
-    margin: 0 auto;
-    position: center;
+    position: absolute;
     top: 85px;
-    left: 395px;
+    left: 50px;
     animation-duration: 1s;
     transition: all 1.5s;
     cursor: pointer;
 }
 
-    .btn__delete:hover {
+    .delete__button:hover {
         background-color: #0aacffec;
     }
 
-    .btn__delete input[type=file] {
-        font-size: 100px;
-        position: center;
-        display: inline-block;
-        margin: 0 auto;
-        left: 10px;
-        top: 15px;
-        opacity: 0;
-        text-align: center;
-        cursor: pointer;
-    }
-
-upload-btn-wrapper__delete {
-    position: relative;
-    overflow: hidden;
-    display: inline-block;
-    margin: 0 auto;
-    top: 5px;
-    left: 5px;
-    width: 80px;
-    height: 52px;
-}
 
 .btn__download {
     position: absolute;
@@ -216,17 +106,7 @@ upload-btn-wrapper__delete {
         background-color: #0aacffec;
     }
 
-/*.storage__buttons {
-    padding: 8px 10px;
-    max-width: 150px;
-    border-radius: 80px;
-    font-size: 20px;
-    font-weight: 400;
-    font-family: Lato;
-    top: 60px;
-}*/
-/*    margin-bottom: 5px;
-    margin-top: 1px;*/
+
 .search__button {
     position: absolute;
     border: #000000;
