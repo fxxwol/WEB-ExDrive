@@ -61,14 +61,14 @@
             
          </script>
 
-    <div class="intro">
-    <div class="container">
-        <h1 class="intro__title">Welcome to</h1>
+ <div class="intro">
+    <div class="nothing" style="height:100px;"> </div>
+    <label class="container">
+    <div class="container_background">
+        <div class="not_welcome_up">  </div>
          <div class="imgcontainer">
                <img src="~/css/images/ExDrivePatriot.gif" alt="Avatar" class="avatar">
          </div>
-    </div>
-
     @model UploadInstance
     <form asp-controller="Storage" asp-action="SingleTempFile" enctype="multipart/form-data">
         <div class="upload-btn-wrapper_upload">
@@ -85,12 +85,15 @@
         <button class="btn_submit">Submit your choice</button>
      	</div>
     </form>
-
      <div class="upload-btn-wrapper_telegram">
         <label class="btn_telegram">
-        <a href="https://t.me/ExDriveBot" style="color:#eeeeee; font-family:Lato; font-style:normal" >Telegram</a>
+        <a href="https://t.me/ExDriveBot" style="color:#eeeeee; font-family:Lato; font-style:normal;" >Telegram</a>
         </label>
      </div>
-</div>  
+     <div class="down_a">  </div>
+     </div> 
+    </label>  
+</div>
+
     </body>
 </html>

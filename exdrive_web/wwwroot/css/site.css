@@ -16,16 +16,11 @@ body {
     box-sizing: border-box;
 }
 
-/*Container*/
 .container {
-    
     width: 100%;
-    max-width: auto;
     margin: 0 auto;
-    position: center;
 }
 
-/*Intro*/
 .intro {
     display: flex;
     flex-direction: column;
@@ -89,9 +84,9 @@ body {
     padding: 8px 15px;
 }
 
-.ccontext-menu__item1:hover {
+    .ccontext-menu__item1:hover {
         background-color: #f8f8f8;
-}
+    }
 
 .ccontext-menu__item2 {
     cursor: pointer;
@@ -204,25 +199,19 @@ div.item {
     display: inline-block;
     /* To horizontally center images and caption */
     text-align: center;
-    border: medium none;
-    border-radius: 10px;
-    border-bottom-color: #abfaff;
-    border-left-color: aqua;
-    border-right-color: aqua;
-    border-top-color: #abfaff;
     /* The width of the container also implies margin around the images. */
     width: 120px;
 }
 
-.item input[type=submit]{
-    /* To correctly align image, regardless of content height: */
-    vertical-align: top;
-    display: inline-block;
-    /* To horizontally center images and caption */
-    text-align: center;
-    /* The width of the container also implies margin around the images. */
-    width: 120px;
-}
+    div.item input[type=submit] {
+        /* To correctly align image, regardless of content height: */
+        vertical-align: top;
+        display: inline-block;
+        /* To horizontally center images and caption */
+        text-align: center;
+        /* The width of the container also implies margin around the images. */
+        width: 120px;
+    }
 
 .caption {
     /* Make the caption a block so it occupies its own line. */
@@ -235,12 +224,12 @@ div.item {
 
 
 .upload-btn-wrapper_telegram {
-    position: relative;
+    position: center;
     overflow: hidden;
-    display: inline-block;
+    display: block;
     margin: 0 auto;
     display: block;
-    top: 15px;
+    margin-top: 15px;
 }
 
 a:link {
@@ -277,11 +266,13 @@ a:active {
     animation-duration: 1s;
     transition: all 1.5s;
     cursor: pointer;
+    width: 135px;
 }
 
-.btn_telegram:hover {
-     background-color: #0aacffec;
-}
+    .btn_telegram:hover {
+        background-color: #0aacffec;
+    }
+
 /* Center the avatar image inside this container */
 .imgcontainer {
     text-align: center;
@@ -290,8 +281,16 @@ a:active {
 
 /* Avatar image */
 img.avatar {
-    width: 15%;
+    width: 38%;
     border-radius: 10%;
+}
+
+.not_welcome_up {
+    height: 5px;
+}
+
+.down_a {
+    height: 20px;
 }
 
 /*Header/
@@ -378,4 +377,13 @@ img.avatar {
     background-color: aliceblue;
     margin: auto;
     box-shadow: inherit;
+}
+
+.container_background {
+    width: 440px;
+    height: fit-content;
+    background-color: #ffffff;
+    position: center;
+    margin: auto;
+    border-radius: 16px;
 }
