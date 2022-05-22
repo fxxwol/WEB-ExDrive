@@ -20,7 +20,7 @@
 
 .buttons__rect {
     position: relative;
-    width: 1330px;
+    width: 1230px;
     height: 60px;
     background-color: #eeeeee;
     margin-top: 1px;
@@ -241,7 +241,7 @@ upload-btn-wrapper__delete {
     display: inline-block;
     margin: 0 auto;
     top: 85px;
-    left: 970px;
+    left: 875px;
 }
 
     .search__button:hover {
@@ -338,7 +338,10 @@ upload-btn-wrapper__delete {
     display: inline-block;
     margin: 0 auto;
     top: 85px;
-    left: 1080px;
+    left: 985px;
+}
+.openfile__button:hover {
+    background-color: #0aacffec;
 }
 /*.favorite__button {
     position: absolute;
@@ -370,5 +373,8 @@ upload-btn-wrapper__delete {
     display: inline-block;
     margin: 0 auto;
     top: 85px;
-    left: 1210px;
+    left: 1115px;
+}
+.trashcanstorage__button:hover {
+    background-color: #0aacffec;
 }

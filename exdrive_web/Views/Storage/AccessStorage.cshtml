@@ -68,16 +68,16 @@
     }
     @using (Html.BeginForm("Search", "Storage"))
     {
-        <input type="search" placeholder="Enter file name" value="@ViewData["GetFiles"]" name="searchString" style="width:500px; margin-left:460px; top: 95px; position:absolute;" />
+        <input type="search" placeholder="Enter file name" value="@ViewData["GetFiles"]" name="searchString" style="width:400px; margin-left:460px; top: 95px; position:absolute;" />
         <input type="submit" value="Search" class="search__button" />
     }
     @using (Html.BeginForm("ReadFile", "Storage"))
     {
-        <input type="submit" value="Open file" class="search__button" style="width:150px; margin-left:120px; margin-top: 2px" />
+        <input type="submit" value="Open file" class="openfile__button" />
     }
     @using (Html.BeginForm("Trashcan", "Trashcan"))
     {
-        <input type="submit" value="Trashcan" class="search__button" style="width:150px; margin-left:380px; margin-top: 2px" />
+        <input type="submit" value="Trashcan" class="trashcanstorage__button" />
     }
 
     <div class="storage__window">

@@ -229,7 +229,7 @@ div.item {
     display: block;
     margin: 0 auto;
     display: block;
-    margin-top: 15px;
+    margin-top: 1px;
 }
 
 a:link {
@@ -290,7 +290,7 @@ img.avatar {
 }
 
 .down_a {
-    height: 20px;
+    height: 35px;
 }
 
 /*Header/

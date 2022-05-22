@@ -14,77 +14,13 @@
     /* Styles */
     background: #150f6828;
     border-radius: 0.4em;
-    border: 1px solid #191919;
-    box-shadow: inset 0 0 2px 1px rgba(255,255,255,0.08), 0 16px 10px -8px rgba(0, 0, 0, 0.6);
-}
-
-.buttons__rect {
-    position: relative;
-    width: 1070px;
-    height: 60px;
-    background-color: #eeeeee;
-    margin-top: 1px;
-    margin-left: 5px;
-    margin-bottom: 15px;
-    border-radius: 80px;
-}
-
-
-
-
-.recovery__button {
-    display: inline-block;
-    margin: 0 auto;
-    border: #000000;
-    color: #eeeeee;
-    background-color: #60b2dcec;
-    padding: 8px 20px;
-    border-radius: 80px;
-    font-size: 20px;
-    font-weight: 400;
-    font-family: 'Lato', sans-serif;
-    text-align: center;
-    position: absolute;
-    top: 85px;
-    left: 180px;
-    animation-duration: 1s;
-    transition: all 1.5s;
-    cursor: pointer;
-}
-
-    .recovery__button:hover {
-        background-color: #0aacffec;
-    }
-
-.delete__button {
-    display: inline-block;
-    margin: 0 auto;
-    border: #000000;
-    color: #eeeeee;
-    ﻿ .storage__window
-
-{
-    font-family: 'Lato', sans-serif;
-    font-weight: 400;
-    /* Size and position */
-    min-width: 1080px;
-    min-height: 400px;
-    height: fit-content;
-    margin: 10px 10px;
-    padding: 20px;
-    overflow: hidden;
-    margin-left: 5px;
-    margin-top: 0.1px;
-    /* Styles */
-    background: #150f6828;
-    border-radius: 0.4em;
-    border: 1px solid #191919;
+    border: 3px solid #FFFFFF;
     box-shadow: inset 0 0 2px 1px rgba(255,255,255,0.08), 0 16px 10px -8px rgba(0, 0, 0, 0.6);
 }
 
 .buttons__rectangle8 {
     position: relative;
-    width: 895px;
+    width: 795px;
     height: 60px;
     background-color: #eeeeee;
     margin-top: 1px;
@@ -93,32 +29,7 @@
     border-radius: 80px;
 }
 
-
 .recovery__button {
-    display: inline-block;
-    margin: 0 auto;
-    border: #000000;
-    color: #eeeeee;
-    background-color: #60b2dcec;
-    padding: 8px 20px;
-    border-radius: 80px;
-    font-size: 20px;
-    font-weight: 400;
-    font-family: 'Lato', sans-serif;
-    text-align: center;
-    position: absolute;
-    top: 85px;
-    left: 135px;
-    animation-duration: 1s;
-    transition: all 1.5s;
-    cursor: pointer;
-}
-
-    .recovery__button:hover {
-        background-color: #0aacffec;
-    }
-
-.delete__button {
     display: inline-block;
     margin: 0 auto;
     border: #000000;
@@ -138,13 +49,13 @@
     cursor: pointer;
 }
 
-    .delete__button:hover {
+    .recovery__button:hover {
         background-color: #0aacffec;
     }
 
-
-.btn__download {
-    position: absolute;
+.delete__button {
+    display: inline-block;
+    margin: 0 auto;
     border: #000000;
     color: #eeeeee;
     background-color: #60b2dcec;
@@ -154,20 +65,17 @@
     font-weight: 400;
     font-family: 'Lato', sans-serif;
     text-align: center;
-    position: center;
+    position: absolute;
     top: 85px;
-    left: 324px;
+    left: 150px;
     animation-duration: 1s;
     transition: all 1.5s;
     cursor: pointer;
-    display: inline-block;
-    margin: 0 auto;
 }
 
-    .btn__download:hover {
+    .delete__button:hover {
         background-color: #0aacffec;
     }
-
 
 .search__button1 {
     position: absolute;
@@ -183,10 +91,9 @@
     display: inline-block;
     margin: 0 auto;
     top: 85px;
-    left: 790px;
+    left: 690px;
 }
-
-.search__button:hover {
+.search__button1:hover {
     background-color: #0aacffec;
 }
 
@@ -243,73 +150,6 @@
     margin-left: 40px;
 }
 
-    background-color: #60b2dcec;
-    padding: 8px 20px;
-    border-radius: 80px;
-    font-size: 20px;
-    font-weight: 400;
-    font-family: 'Lato', sans-serif;
-    text-align: center;
-    position: absolute;
-    top: 85px;
-    left: 50px;
-    animation-duration: 1s;
-    transition: all 1.5s;
-    cursor: pointer;
-}
-
-    .delete__button:hover {
-        background-color: #0aacffec;
-    }
-
-
-.btn__download {
-    position: absolute;
-    border: #000000;
-    color: #eeeeee;
-    background-color: #60b2dcec;
-    padding: 8px 20px;
-    border-radius: 80px;
-    font-size: 20px;
-    font-weight: 400;
-    font-family: 'Lato', sans-serif;
-    text-align: center;
-    position: center;
-    top: 85px;
-    left: 324px;
-    animation-duration: 1s;
-    transition: all 1.5s;
-    cursor: pointer;
-    display: inline-block;
-    margin: 0 auto;
-}
-
-    .btn__download:hover {
-        background-color: #0aacffec;
-    }
-
-
-.search__button {
-    position: absolute;
-    border: #000000;
-    color: #e2e2e2;
-    background-color: #60b2dcec;
-    border-radius: 80px;
-    animation-duration: 1s;
-    transition: all 1.5s;
-    margin-bottom: 5px;
-    cursor: pointer;
-    padding: 10px 20px;
-    display: inline-block;
-    margin: 0 auto;
-    top: 85px;
-    left: 970px;
-}
-
-    .search__button:hover {
-        background-color: #0aacffec;
-    }
-
 .btn-icon {
     padding-top: 0;
     padding-bottom: 0;
@@ -324,41 +164,3 @@
     border-radius: .25rem 0 0 .25rem;
 }
 
-.alert-success {
-    border: #000000;
-    color: #e2e2e2;
-    background-color: #60b2dcec;
-    padding: 10px 20px;
-    border-radius: 80px;
-    font-size: 18px;
-    font-weight: 500;
-    font-family: 'Lato', sans-serif;
-    text-align: center;
-    margin: 1px auto;
-    display: block;
-    margin: 0 auto;
-    display: block;
-    margin-bottom: 10px;
-    top: 12px;
-    animation-duration: 1s;
-    transition: all 1.5s;
-    cursor: pointer;
-    width: 850px;
-    height: 50px;
-}
-
-    .alert-success:hover {
-        background-color: #0aacffec;
-    }
-
-
-.txt {
-    display: block;
-    min-height: 500px;
-    height: fit-content;
-    text-align: left;
-    text-justify: inter-word;
-    background-color: aliceblue;
-    margin-top: 30px;
-    margin-left: 40px;
-}
