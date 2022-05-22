@@ -258,11 +258,8 @@ a:active {
     font-weight: 500;
     font-family: 'Lato', sans-serif;
     text-align: center;
-    margin: 1px auto;
+    margin: 14px auto;
     display: block;
-    margin: 0 auto;
-    display: block;
-    top: 15px;
     animation-duration: 1s;
     transition: all 1.5s;
     cursor: pointer;

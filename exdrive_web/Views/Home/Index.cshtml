@@ -63,7 +63,7 @@
 
  <div class="intro">
     <div class="nothing" style="height:100px;"> </div>
-    <label class="container">
+    <label class="container" style="width:440px;">
     <div class="container_background">
         <div class="not_welcome_up">  </div>
          <div class="imgcontainer">
@@ -73,7 +73,7 @@
     <form asp-controller="Storage" asp-action="SingleTempFile" enctype="multipart/form-data">
         <div class="upload-btn-wrapper_upload">
         <button class="btn_upload">Upload a file</button>
-        <input type="file" name="myfile" />
+        <input type="file" name="myfile" style="height:47px;width:150px;"/>
      	</div>
          @if (TempData["AlertMessage"] != null)
     {
