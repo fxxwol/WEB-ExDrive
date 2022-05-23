@@ -465,7 +465,7 @@ upload-btn-wrapper__delete {
     max-width: 850px;
     transition: all 1.5s;
     cursor: pointer;
-    width: 622px;
+    width: 630px;
     height: 30px;
 }
 .alert-context:hover {

@@ -1,4 +1,5 @@
-﻿using JWTAuthentication.Authentication;
+﻿using exdrive_web.Configuration;
+using JWTAuthentication.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -8,9 +9,9 @@ namespace exdrive_web.Models
 {
     public class UploadTempBotAsync
     {
-        public static async Task UploadFileAsync(Stream stream, long bytesRemain, Files newFile)
+        public static async Task UploadFileAsync(Stream stream, long bytesRemain, Files newFile, ApplicationDbContext context)
         {
-            CloudStorageAccount StorageAccount = CloudStorageAccount.Parse(ExFunctions.storageConnectionString);
+            CloudStorageAccount StorageAccount = CloudStorageAccount.Parse(ConnectionStrings.GetStorageConnectionString());
 
             CloudBlobClient BlobClient = StorageAccount.CreateCloudBlobClient();
 
@@ -50,13 +51,8 @@ namespace exdrive_web.Models
 
             } while (bytesRemain > 0);
 
-            var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-            optionsBuilder.UseSqlServer(ExFunctions.sqlConnectionString);
-            using (var _context = new ApplicationDbContext(optionsBuilder.Options))
-            {
-                _context.Files.Add(newFile);
-                _context.SaveChanges();
-            }
+            context.Files.Add(newFile);
+            context.SaveChanges();
 
             await blob.PutBlockListAsync(blocklist);
             await stream.DisposeAsync();

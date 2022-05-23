@@ -1,9 +1,8 @@
-﻿using JWTAuthentication.Authentication;
-using Microsoft.EntityFrameworkCore;
+﻿using exdrive_web.Configuration;
+using JWTAuthentication.Authentication;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System.Text;
-using VirusTotalNet.Results;
 
 namespace exdrive_web.Models
 {
@@ -12,7 +11,7 @@ namespace exdrive_web.Models
         public static async Task UploadFileAsync(UploadInstance formFile, Files newFile,
                                                  string userId, ApplicationDbContext applicationDbContext)
         {
-            CloudStorageAccount StorageAccount = CloudStorageAccount.Parse(ExFunctions.storageConnectionString);
+            CloudStorageAccount StorageAccount = CloudStorageAccount.Parse(ConnectionStrings.GetStorageConnectionString());
 
             CloudBlobClient BlobClient = StorageAccount.CreateCloudBlobClient();
 
@@ -81,11 +80,6 @@ namespace exdrive_web.Models
 
             } while (bytesRemain > 0);
 
-            //var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-            //optionsBuilder.UseSqlServer(ExFunctions.sqlConnectionString);
-            //using (var _context = new ApplicationDbContext(optionsBuilder.Options))
-            //{
-            //}
             applicationDbContext.Files.Add(newFile);
             applicationDbContext.SaveChanges();
 

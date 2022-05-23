@@ -1,4 +1,5 @@
-﻿using exdrive_web.Models;
+﻿using exdrive_web.Helpers;
+using exdrive_web.Models;
 
 using GroupDocs.Viewer;
 using GroupDocs.Viewer.Options;
@@ -24,10 +25,11 @@ namespace exdrive_web.Controllers
         private static bool _isDeleted = false;
         private static bool _isFavourite = false;
 
-        private static readonly string _tmpFilesPath = "C:\\Users\\Public\\tmpfiles\\";
-        private static readonly string _getLinkArchive = "C:\\Users\\Public\\getlink\\";
-        private static readonly string _readerOutputPath = "C:\\Users\\Public\\reader\\Output";
-        private static readonly string _readerInputPath = "C:\\Users\\Public\\reader\\Input";
+        private readonly string _tmpFilesPath = "C:\\Users\\Public\\tmpfiles\\";
+        private readonly string _getLinkArchive = "C:\\Users\\Public\\getlink\\";
+        private readonly string _readerOutputPath = "C:\\Users\\Public\\reader\\Output";
+        private readonly string _readerInputPath = "C:\\Users\\Public\\reader\\Input";
+        private readonly string _tempFilesContainerLink = "https://exdrivefiles.blob.core.windows.net/botfiles/";
 
         public StorageController(ApplicationDbContext applicationDbContext)
         {
@@ -131,7 +133,7 @@ namespace exdrive_web.Controllers
             if (_file.MyFile == null)
                 return RedirectToAction("Index", "Home");
 
-            string newname = Guid.NewGuid().ToString() + ExFunctions.FindFormat(_file.MyFile.FileName);
+            string newname = Guid.NewGuid().ToString() + FindFileFormat.FindFormat(_file.MyFile.FileName);
             Files files = new(newname, _file.MyFile.FileName, "*", true);
 
             try
@@ -144,7 +146,7 @@ namespace exdrive_web.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            TempData["AlertMessage"] = "https://exdrivefiles.blob.core.windows.net/botfiles/" + files.FilesId;
+            TempData["AlertMessage"] = _tempFilesContainerLink + files.FilesId;
             return RedirectToAction("Index", "Home");
         }
 
@@ -158,7 +160,7 @@ namespace exdrive_web.Controllers
             if (_userId == null || _file.MyFile == null)
                 return RedirectToAction("AccessStorage", "Storage");
 
-            string newname = Guid.NewGuid().ToString() + ExFunctions.FindFormat(_file.MyFile.FileName);
+            string newname = Guid.NewGuid().ToString() + FindFileFormat.FindFormat(_file.MyFile.FileName);
             Files files = new(newname, _file.MyFile.FileName, _userId, false);
 
             try
@@ -325,8 +327,8 @@ namespace exdrive_web.Controllers
                 System.IO.Directory.Delete(Path.Combine(_getLinkArchive, _userId), true);
 
 
-                TempData["LinkGet"] = "https://exdrivefiles.blob.core.windows.net/botfiles/" + file.FilesId;
-                //return RedirectToAction("AccessStorage", "Storage", _nameInstances);
+                TempData["LinkGet"] = _tempFilesContainerLink + file.FilesId;
+                
                 return View("Trashcan", _nameInstances);
             }
         }
@@ -389,23 +391,29 @@ namespace exdrive_web.Controllers
         }
 
         [HttpPost, DisableRequestSizeLimit]
-        public ActionResult UploadTempFileBot()
+        public async Task<ActionResult> UploadTempFileBot()
         {
             if (Request.ContentLength == 0 || Request.ContentLength == null)
-                return BadRequest("File for upload is empty");
+            {
+                HttpResponse badresponse = Response;
+                badresponse.Clear();
+                badresponse.StatusCode = 500;
+
+                return BadRequest(badresponse);
+            }
 
             Microsoft.Extensions.Primitives.StringValues vs;
             Request.Headers.TryGetValue("file-name", out vs);
             string name = vs.First();
 
-            Files file = new(Guid.NewGuid().ToString() + ExFunctions.FindFormat(name),
+            Files file = new(Guid.NewGuid().ToString() + FindFileFormat.FindFormat(name),
                 name, "*", true);
 
             Stream stream = Request.Body;
 
             try
             {
-                UploadTempBotAsync.UploadFileAsync(stream, (long)Request.ContentLength, file).Wait();
+                await UploadTempBotAsync.UploadFileAsync(stream, (long)Request.ContentLength, file, _applicationDbContext);
             }
             catch (Exception)
             {
@@ -420,7 +428,7 @@ namespace exdrive_web.Controllers
             response.Clear();
             response.StatusCode = 200;
             response.ContentType = "text/xml";
-            response.WriteAsync("https://exdrivefiles.blob.core.windows.net/botfiles/" + file.FilesId);
+            await response.WriteAsync(_tempFilesContainerLink + file.FilesId);
 
             return Ok(response);
         }

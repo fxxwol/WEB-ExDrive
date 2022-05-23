@@ -134,7 +134,7 @@
         deletebtn.addEventListener('click', function(event) {
             console.log(event);
            $.ajax({
-            url: '@Url.Action("Delete","Trashcan")'
+            url: '@Url.Action("DeletePerm","Trashcan")'
             }).done(function() {
             window.location = window.location.href;
             }); 

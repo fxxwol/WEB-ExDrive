@@ -1,5 +1,4 @@
-﻿using exdrive_web.Models;
-using JWTAuthentication.Authentication;
+﻿using JWTAuthentication.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +12,6 @@ namespace JWTAuthentication
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            DeleteTemporaryTimer botfiles = new DeleteTemporaryTimer(7,"botfiles");
-            botfiles.SetTimer();
-            DeleteTemporaryTimer trashcan = new DeleteTemporaryTimer(30, "trashcan");
-            trashcan.SetTimer();
         }
 
         public IConfiguration Configuration { get; }

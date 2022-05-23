@@ -1,4 +1,5 @@
 ﻿using Azure.Storage.Blobs;
+using exdrive_web.Configuration;
 using JWTAuthentication.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.WindowsAzure.Storage;
@@ -10,10 +11,10 @@ namespace exdrive_web.Models
     {
         public static async Task DeleteFile(string filename, string _userId)
         {
-            BlobContainerClient containerDest = new BlobContainerClient(ExFunctions.storageConnectionString, "trashcan");
-            BlobContainerClient containerSource = new BlobContainerClient(ExFunctions.storageConnectionString, _userId);
+            BlobContainerClient containerDest = new BlobContainerClient(ConnectionStrings.GetStorageConnectionString(), "trashcan");
+            BlobContainerClient containerSource = new BlobContainerClient(ConnectionStrings.GetStorageConnectionString(), _userId);
 
-            var storageAccount = CloudStorageAccount.Parse(ExFunctions.storageConnectionString);
+            var storageAccount = CloudStorageAccount.Parse(ConnectionStrings.GetStorageConnectionString());
             var blobClient = storageAccount.CreateCloudBlobClient();
 
             var sourceContainerName = _userId;
@@ -31,7 +32,7 @@ namespace exdrive_web.Models
             await memStream.FlushAsync();
 
             var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-            optionsBuilder.UseSqlServer(ExFunctions.sqlConnectionString);
+            optionsBuilder.UseSqlServer(ConnectionStrings.GetSqlConnectionString());
             using (var _context = new ApplicationDbContext(optionsBuilder.Options))
             {
                 Files? todelete = _context.Files.Find(filename);
@@ -46,10 +47,10 @@ namespace exdrive_web.Models
         }
         public static async Task FileRecovery(string filename, string _userId)
         {
-            BlobContainerClient containerDest = new BlobContainerClient(ExFunctions.storageConnectionString, _userId);
-            BlobContainerClient containerSource = new BlobContainerClient(ExFunctions.storageConnectionString, "trashcan");
+            BlobContainerClient containerDest = new BlobContainerClient(ConnectionStrings.GetStorageConnectionString(), _userId);
+            BlobContainerClient containerSource = new BlobContainerClient(ConnectionStrings.GetStorageConnectionString(), "trashcan");
 
-            var storageAccount = CloudStorageAccount.Parse(ExFunctions.storageConnectionString);
+            var storageAccount = CloudStorageAccount.Parse(ConnectionStrings.GetStorageConnectionString());
             var blobClient = storageAccount.CreateCloudBlobClient();
 
             var sourceContainerName = "trashcan";
@@ -67,7 +68,7 @@ namespace exdrive_web.Models
             await memStream.FlushAsync();
 
             var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-            optionsBuilder.UseSqlServer(ExFunctions.sqlConnectionString);
+            optionsBuilder.UseSqlServer(ConnectionStrings.GetSqlConnectionString());
             using (var _context = new ApplicationDbContext(optionsBuilder.Options))
             {
                 Files? torecover = _context.Files.Find(filename);

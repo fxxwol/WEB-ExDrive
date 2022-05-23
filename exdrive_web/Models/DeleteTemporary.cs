@@ -1,4 +1,5 @@
 ﻿using Azure.Storage.Blobs;
+using exdrive_web.Configuration;
 using JWTAuthentication.Authentication;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,11 +9,11 @@ namespace exdrive_web.Models
     {
         public static void DeleteTemporaryFiles(int days, string containerName)
         {
-            BlobContainerClient containerClient = new BlobContainerClient(ExFunctions.storageConnectionString, containerName);
+            BlobContainerClient containerClient = new BlobContainerClient(ConnectionStrings.GetStorageConnectionString(), containerName);
             IEnumerable<Azure.Storage.Blobs.Models.BlobItem> blobs = containerClient.GetBlobs().SkipWhile(x => x.Properties.LastModified >= DateTime.UtcNow.AddDays(-1 * days));
 
             var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-            optionsBuilder.UseSqlServer(ExFunctions.sqlConnectionString);
+            optionsBuilder.UseSqlServer(ConnectionStrings.GetSqlConnectionString());
             using (var _context = new ApplicationDbContext(optionsBuilder.Options))
             {
                 foreach (Azure.Storage.Blobs.Models.BlobItem blob in blobs)

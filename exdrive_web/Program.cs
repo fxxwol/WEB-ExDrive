@@ -1,15 +1,24 @@
 using Microsoft.EntityFrameworkCore;
-using JWTAuthentication.Authentication;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using exdrive_web.Models;
 using Microsoft.AspNetCore.Mvc;
+
+using JWTAuthentication.Authentication;
+
 using WebPWrecover.Services;
+
+using exdrive_web.Models;
+using exdrive_web.Configuration;
+
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("ApplicationDbContextConnection"); 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
      options.UseSqlServer(connectionString)); builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
       .AddEntityFrameworkStores<ApplicationDbContext>();
+
+var connectionStrings = ConnectionStrings.GetInstance(connectionString, 
+    builder.Configuration.GetConnectionString("StorageConnection"),
+    builder.Configuration.GetConnectionString("VirusTotalToken"));
 
 builder.Services.Configure<CookieTempDataProviderOptions>(options => {
     options.Cookie.IsEssential = true;

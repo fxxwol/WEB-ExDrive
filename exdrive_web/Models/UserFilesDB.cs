@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using exdrive_web.Configuration;
+using Microsoft.Data.SqlClient;
 
 namespace exdrive_web.Models
 {
@@ -10,7 +11,7 @@ namespace exdrive_web.Models
             string noformat;
 
             List<NameInstance> files = new List<NameInstance>();
-            using (SqlConnection con = new SqlConnection(ExFunctions.sqlConnectionString))
+            using (SqlConnection con = new SqlConnection(ConnectionStrings.GetSqlConnectionString()))
             {
                 con.Open();
                 using (SqlCommand cmd = new SqlCommand($"SELECT Name, FilesId, Favourite FROM dbo.Files WHERE HasAccess='{_userId}' AND IsTemporary='0' ORDER BY FilesId ASC", con))

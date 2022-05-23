@@ -1,4 +1,5 @@
 ﻿using Azure.Storage.Blobs;
+using exdrive_web.Configuration;
 
 namespace exdrive_web.Models
 {
@@ -13,7 +14,7 @@ namespace exdrive_web.Models
 
             try
             {
-                BlobContainerClient containerClient = new(ExFunctions.storageConnectionString, _userId);
+                BlobContainerClient containerClient = new(ConnectionStrings.GetStorageConnectionString(), _userId);
 
                 if (!containerClient.Exists())
                 {

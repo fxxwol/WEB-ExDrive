@@ -1,4 +1,5 @@
-﻿using JWTAuthentication.Authentication;
+﻿using exdrive_web.Configuration;
+using JWTAuthentication.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -11,7 +12,7 @@ namespace exdrive_web.Models
     {
         public static async Task UploadFileAsync(UploadInstance formFile, Files newFile, ApplicationDbContext applicationDbContext)
         {
-            CloudStorageAccount StorageAccount = CloudStorageAccount.Parse(ExFunctions.storageConnectionString);
+            CloudStorageAccount StorageAccount = CloudStorageAccount.Parse(ConnectionStrings.GetStorageConnectionString());
 
             CloudBlobClient BlobClient = StorageAccount.CreateCloudBlobClient();
 
@@ -87,7 +88,7 @@ namespace exdrive_web.Models
         }
         public static async Task UploadFileAsync(MemoryStream stream, Files newFile, ApplicationDbContext applicationDbContext)
         {
-            CloudStorageAccount StorageAccount = CloudStorageAccount.Parse(ExFunctions.storageConnectionString);
+            CloudStorageAccount StorageAccount = CloudStorageAccount.Parse(ConnectionStrings.GetStorageConnectionString());
 
             CloudBlobClient BlobClient = StorageAccount.CreateCloudBlobClient();
 

@@ -3,50 +3,52 @@ using Microsoft.Extensions.Options;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 
-namespace WebPWrecover.Services;
-
-public class EmailSender : IEmailSender
+namespace WebPWrecover.Services 
 {
-    private readonly ILogger _logger;
-
-    public EmailSender(IOptions<AuthMessageSenderOptions> optionsAccessor,
-                       ILogger<EmailSender> logger)
+    public class EmailSender : IEmailSender
     {
-        Options = optionsAccessor.Value;
-        _logger = logger;
-    }
+        private readonly ILogger _logger;
 
-    public AuthMessageSenderOptions Options { get; } // Set with Secret Manager.
-
-    public async Task SendEmailAsync(string toEmail, string subject, string message)
-    {
-        if (string.IsNullOrEmpty(Options.SendGridKey))
+        public EmailSender(IOptions<AuthMessageSenderOptions> optionsAccessor,
+                           ILogger<EmailSender> logger)
         {
-            throw new Exception("Null SendGridKey");
+            Options = optionsAccessor.Value;
+            _logger = logger;
         }
 
-        await Execute(Options.SendGridKey, subject, message, toEmail);
-    }
+        public AuthMessageSenderOptions Options { get; } // Set with Secret Manager.
 
-    public async Task Execute(string apiKey, string subject, string message, string toEmail)
-    {
-        var client = new SendGridClient(apiKey);
-        var msg = new SendGridMessage()
+        public async Task SendEmailAsync(string toEmail, string subject, string message)
         {
-            From = new EmailAddress("mailexdrive@gmail.com"),
-            Subject = subject,
-            PlainTextContent = message,
-            HtmlContent = message
-        };
+            if (string.IsNullOrEmpty(Options.SendGridKey))
+            {
+                throw new Exception("Null SendGridKey");
+            }
 
-        msg.AddTo(new EmailAddress(toEmail));
+            await Execute(Options.SendGridKey, subject, message, toEmail);
+        }
 
-        // Disable click tracking.
-        // See https://sendgrid.com/docs/User_Guide/Settings/tracking.html
-        msg.SetClickTracking(false, false);
-        var response = await client.SendEmailAsync(msg);
-        _logger.LogInformation(response.IsSuccessStatusCode
-                               ? $"Email to {toEmail} queued successfully!"
-                               : $"Failure Email to {toEmail}");
+        public async Task Execute(string apiKey, string subject, string message, string toEmail)
+        {
+            var client = new SendGridClient(apiKey);
+            var msg = new SendGridMessage()
+            {
+                From = new EmailAddress("mailexdrive@gmail.com"),
+                Subject = subject,
+                PlainTextContent = message,
+                HtmlContent = message
+            };
+
+            msg.AddTo(new EmailAddress(toEmail));
+
+            // Disable click tracking.
+            // See https://sendgrid.com/docs/User_Guide/Settings/tracking.html
+            msg.SetClickTracking(false, false);
+            var response = await client.SendEmailAsync(msg);
+            _logger.LogInformation(response.IsSuccessStatusCode
+                                   ? $"Email to {toEmail} queued successfully!"
+                                   : $"Failure Email to {toEmail}");
+        }
     }
+
 }

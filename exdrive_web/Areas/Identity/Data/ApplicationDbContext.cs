@@ -1,4 +1,5 @@
 ﻿using exdrive_web.Models;
+using exdrive_web.Configuration;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,11 +10,12 @@ namespace JWTAuthentication.Authentication
         public DbSet<Files> Files { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(ExFunctions.sqlConnectionString);
+            optionsBuilder.UseSqlServer(ConnectionStrings.GetSqlConnectionString());
         }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         { }
-        public ApplicationDbContext() { }
+        public ApplicationDbContext() 
+        { }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
