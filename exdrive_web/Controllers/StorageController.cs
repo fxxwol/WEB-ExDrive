@@ -153,19 +153,19 @@ namespace exdrive_web.Controllers
         [HttpPost]
         [Consumes("multipart/form-data")]
         [RequestFormLimits(MultipartBodyLengthLimit = 629145600)]
-        public async Task<IActionResult> SinglePermFile(UploadInstance _file)
+        public async Task<IActionResult> SinglePermFile(UploadInstance file)
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (_userId == null || _file.MyFile == null)
+            if (_userId == null || file.MyFile == null)
                 return RedirectToAction("AccessStorage", "Storage");
 
-            string newname = Guid.NewGuid().ToString() + FindFileFormat.FindFormat(_file.MyFile.FileName);
-            Files files = new(newname, _file.MyFile.FileName, _userId, false);
+            string newname = Guid.NewGuid().ToString() + FindFileFormat.FindFormat(file.MyFile.FileName);
+            Files files = new(newname, file.MyFile.FileName, _userId, false);
 
             try
             {
-                await UploadPermAsync.UploadFileAsync(_file, files, _userId, _applicationDbContext);
+                await UploadPermAsync.UploadFileAsync(file, files, _userId, _applicationDbContext);
             }
             catch (Exception)
             {
@@ -212,7 +212,7 @@ namespace exdrive_web.Controllers
                 foreach (var name in _nameInstances)
                 {
                     if (name.IsSelected == true)
-                        await exdrive_web.Models.Trashcan.DeleteFile(name.Id, _userId);
+                        await exdrive_web.Models.Trashcan.DeleteFile(name.Id, _userId, _applicationDbContext);
                 }
                 return RedirectToAction("AccessStorage", "Storage");
             }
@@ -220,13 +220,13 @@ namespace exdrive_web.Controllers
             // creating new list to preserve search results
             // function adds files that are not marked for deletion newsearch List
             int i = 0;
-            List<NameInstance> newsearch = new List<NameInstance>();
+            List<NameInstance> newsearch = new();
 
             foreach (var name in _searchResult)
             {
                 if (name.IsSelected == true)
                 {
-                    await exdrive_web.Models.Trashcan.DeleteFile(name.Id, _userId);
+                    await exdrive_web.Models.Trashcan.DeleteFile(name.Id, _userId, _applicationDbContext);
                 }
                 else
                     newsearch.Add(_searchResult.ElementAt(i));

@@ -7,7 +7,7 @@ namespace exdrive_web.Models
 {
     public class DeleteTemporary
     {
-        public static void DeleteTemporaryFiles(int days, string containerName)
+        public static async void DeleteTemporaryFiles(int days, string containerName)
         {
             BlobContainerClient containerClient = new BlobContainerClient(ConnectionStrings.GetStorageConnectionString(), containerName);
             IEnumerable<Azure.Storage.Blobs.Models.BlobItem> blobs = containerClient.GetBlobs().SkipWhile(x => x.Properties.LastModified >= DateTime.UtcNow.AddDays(-1 * days));
@@ -18,7 +18,7 @@ namespace exdrive_web.Models
             {
                 foreach (Azure.Storage.Blobs.Models.BlobItem blob in blobs)
                 {
-                    containerClient.DeleteBlobAsync(blob.Name).Wait();
+                    await containerClient.DeleteBlobAsync(blob.Name);
                     var todelete = _context.Files.Find(blob.Name);
                     if (todelete != null)
                         _context.Files.Remove(todelete);

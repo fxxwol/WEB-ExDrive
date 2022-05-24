@@ -214,7 +214,7 @@ namespace exdrive_web.Controllers
                 {
                     if (name.IsSelected == true)
                     {
-                        await exdrive_web.Models.Trashcan.FileRecovery(name.Id, _userId);
+                        await exdrive_web.Models.Trashcan.FileRecovery(name.Id, _userId, _applicationDbContext);
                     }
 
                 }
@@ -229,7 +229,7 @@ namespace exdrive_web.Controllers
             {
                 if (name.IsSelected == true)
                 {
-                    await exdrive_web.Models.Trashcan.FileRecovery(name.Id, _userId);
+                    await exdrive_web.Models.Trashcan.FileRecovery(name.Id, _userId, _applicationDbContext);
                 }
                 else
                 {

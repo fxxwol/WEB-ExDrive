@@ -23,7 +23,7 @@ namespace exdrive_web.Models
 
             MemoryStream ms = new MemoryStream();
             var filems = formFile.MyFile.OpenReadStream();
-            filems.CopyToAsync(ms).Wait();
+            await filems.CopyToAsync(ms);
 
             string tempname = Guid.NewGuid().ToString();
             string fullpath = Path.Combine("C:\\Users\\Public\\scanning", tempname);
@@ -31,7 +31,9 @@ namespace exdrive_web.Models
 
             filems.Position = 0;
             using (var fileStream = new FileStream(Path.Combine(fullpath, newFile.FilesId), FileMode.Create, FileAccess.Write))
-                filems.CopyToAsync(fileStream).Wait();
+            {
+                await filems.CopyToAsync(fileStream);
+            }
 
             try
             {

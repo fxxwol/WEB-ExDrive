@@ -9,15 +9,15 @@ namespace exdrive_web.Models
 {
     public class Trashcan
     {
-        public static async Task DeleteFile(string filename, string _userId)
+        public static async Task DeleteFile(string filename, string userId, ApplicationDbContext context)
         {
             BlobContainerClient containerDest = new BlobContainerClient(ConnectionStrings.GetStorageConnectionString(), "trashcan");
-            BlobContainerClient containerSource = new BlobContainerClient(ConnectionStrings.GetStorageConnectionString(), _userId);
+            BlobContainerClient containerSource = new BlobContainerClient(ConnectionStrings.GetStorageConnectionString(), userId);
 
             var storageAccount = CloudStorageAccount.Parse(ConnectionStrings.GetStorageConnectionString());
             var blobClient = storageAccount.CreateCloudBlobClient();
 
-            var sourceContainerName = _userId;
+            var sourceContainerName = userId;
 
             var sourceContainer = blobClient.GetContainerReference(sourceContainerName);
 
@@ -31,23 +31,18 @@ namespace exdrive_web.Models
             await containerSource.DeleteBlobAsync(filename);
             await memStream.FlushAsync();
 
-            var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-            optionsBuilder.UseSqlServer(ConnectionStrings.GetSqlConnectionString());
-            using (var _context = new ApplicationDbContext(optionsBuilder.Options))
+            Files? todelete = context.Files.Find(filename);
+            if (todelete != null)
             {
-                Files? todelete = _context.Files.Find(filename);
-                if (todelete != null)
-                {
-                    Files? modified = todelete;
-                    modified.IsTemporary = true;
-                    _context.Files.Update(todelete).OriginalValues.SetValues(modified);
-                }      
-                _context.SaveChanges();
+                Files? modified = todelete;
+                modified.IsTemporary = true;
+                context.Files.Update(todelete).OriginalValues.SetValues(modified);
             }
+            context.SaveChanges();
         }
-        public static async Task FileRecovery(string filename, string _userId)
+        public static async Task FileRecovery(string filename, string userId, ApplicationDbContext context)
         {
-            BlobContainerClient containerDest = new BlobContainerClient(ConnectionStrings.GetStorageConnectionString(), _userId);
+            BlobContainerClient containerDest = new BlobContainerClient(ConnectionStrings.GetStorageConnectionString(), userId);
             BlobContainerClient containerSource = new BlobContainerClient(ConnectionStrings.GetStorageConnectionString(), "trashcan");
 
             var storageAccount = CloudStorageAccount.Parse(ConnectionStrings.GetStorageConnectionString());
@@ -67,19 +62,14 @@ namespace exdrive_web.Models
             await containerSource.DeleteBlobAsync(filename);
             await memStream.FlushAsync();
 
-            var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-            optionsBuilder.UseSqlServer(ConnectionStrings.GetSqlConnectionString());
-            using (var _context = new ApplicationDbContext(optionsBuilder.Options))
+            Files? torecover = context.Files.Find(filename);
+            if (torecover != null)
             {
-                Files? torecover = _context.Files.Find(filename);
-                if (torecover != null)
-                {
-                    Files? modified = torecover;
-                    modified.IsTemporary = false;
-                    _context.Files.Update(torecover).OriginalValues.SetValues(modified);
-                }
-                _context.SaveChanges();
+                Files? modified = torecover;
+                modified.IsTemporary = false;
+                context.Files.Update(torecover).OriginalValues.SetValues(modified);
             }
+            context.SaveChanges();
         }
 
     }

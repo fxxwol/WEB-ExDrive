@@ -13,7 +13,7 @@ namespace exdrive_web.Models
             var sourceContainer = blobClient.GetContainerReference(userid);
 
             CloudBlockBlob sourceBlob = sourceContainer.GetBlockBlobReference(fileid);
-            MemoryStream memStream = new MemoryStream();
+            MemoryStream memStream = new();
             sourceBlob.DownloadToStreamAsync(memStream).Wait();
             memStream.Position = 0;
 

@@ -1,11 +1,10 @@
 ﻿using exdrive_web.Helpers;
-using exdrive_web.Models;
 
 using Xunit;
 
 namespace ExDrive.Tests
 {
-    public class ExFunctionsTests
+    public class FindFileFormatTests
     {
         [Theory]
         [InlineData("")]

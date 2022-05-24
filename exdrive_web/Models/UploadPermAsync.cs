@@ -24,7 +24,7 @@ namespace exdrive_web.Models
 
             MemoryStream ms = new MemoryStream();
             var filems = formFile.MyFile.OpenReadStream();
-            filems.CopyToAsync(ms).Wait();
+            await filems.CopyToAsync(ms);
 
             string fullpath = Path.Combine("C:\\Users\\Public\\scanning", userId);
             System.IO.Directory.CreateDirectory(fullpath);
@@ -33,7 +33,7 @@ namespace exdrive_web.Models
             using (var fileStream = new FileStream(Path.Combine(fullpath, newFile.FilesId),
                                                     FileMode.Create, FileAccess.Write))
             {
-                filems.CopyToAsync(fileStream).Wait();
+                await filems.CopyToAsync(fileStream);
             }
 
             try
