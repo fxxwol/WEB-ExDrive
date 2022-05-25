@@ -223,6 +223,31 @@ div.item {
 }
 
 
+.alert-success {
+    border: #000000;
+    color: #eeeeee;
+    background-color: #60b2dcec;
+    padding: 10px 10px;
+    border-radius: 80px;
+    font-size: 15px;
+    font-weight: 400;
+    font-family: 'Lato', sans-serif;
+    text-align: center;
+    margin: 5px auto;
+    margin-left: 321px;
+    display: block;
+    margin: 0 auto;
+    display: block;
+    top: 10px;
+    margin-bottom:5px;
+    animation-duration: 1s;
+    transition: all 1.5s;
+    cursor: pointer;
+}
+.alert-success:hover {
+    background-color: #0aacffec;
+}
+
 .upload-btn-wrapper_telegram {
     position: center;
     overflow: hidden;
