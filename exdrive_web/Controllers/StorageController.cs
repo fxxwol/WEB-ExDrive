@@ -25,14 +25,12 @@ namespace exdrive_web.Controllers
 
         private static ApplicationDbContext _applicationDbContext;
 
-        private string? _userId;
+        private static string? _userId;
         private static bool _isDeleted = false;
         private static bool _isFavourite = false;
 
         private readonly string _tmpFilesPath = "C:\\Users\\Public\\tmpfiles\\";
         private readonly string _getLinkArchive = "C:\\Users\\Public\\getlink\\";
-        private readonly string _readerOutputPath = "C:\\Users\\Public\\reader\\Output";
-        private readonly string _readerInputPath = "C:\\Users\\Public\\reader\\Input";
         private readonly string _tempFilesContainerLink = "https://exdrivefiles.blob.core.windows.net/botfiles/";
 
         public StorageController(ApplicationDbContext applicationDbContext)
@@ -109,8 +107,6 @@ namespace exdrive_web.Controllers
         }
         public ActionResult Favourite()
         {
-            _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
             foreach (var name in _nameInstances)
             {
                 if (name.IsSelected == true)
@@ -243,7 +239,6 @@ namespace exdrive_web.Controllers
         }
         public ActionResult DownloadFiles()
         {
-
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var zipName = $"archive-{DateTime.Now.ToString("yyyy_MM_dd-HH_mm_ss")}.zip";
 
@@ -267,7 +262,9 @@ namespace exdrive_web.Controllers
 
             var files = Directory.GetFiles(Path.Combine(_tmpFilesPath, _userId)).ToList();
             if (files.Count < 1)
+            {
                 return View("AccessStorage", _nameInstances);
+            }
 
             using (var memoryStream = new MemoryStream())
             {
@@ -356,23 +353,20 @@ namespace exdrive_web.Controllers
                 stream = DownloadAzureFile.DownloadFile(fileName, _userId);
                 stream.CopyTo(ms);
 
-                for (int i = name.Name.LastIndexOf('.') + 1; i < name.Name.Length; i++)
-                {
-                    type += name.Name.ElementAt(i);
-                }
+                type = FindFileFormat.FindFormat(name.Name);
         
                 switch (type)
                 {
-                    case "txt":
+                    case ".txt":
                         Response.ContentType = "text/plain";
                         HttpContext.Response.Body.Write(ms.ToArray());
                         break;
-                    case "pdf":
+                    case ".pdf":
                         Response.ContentType = "Application/pdf";
                         HttpContext.Response.Body.Write(ms.ToArray());
                         Response.CompleteAsync();
                         break;
-                    case "doc":
+                    case ".doc":
                         var word = new WordDocument(ms, Syncfusion.DocIO.FormatType.Docx);
                         var docRenderer = new DocIORenderer();
                         docRenderer.Settings.AutoTag = true;
@@ -386,12 +380,12 @@ namespace exdrive_web.Controllers
                         Response.ContentType = "Application/pdf";
                         HttpContext.Response.Body.Write(memoryStream.ToArray());
                         break;
-                    case "png":
+                    case ".png":
                         Response.ContentType = "image/png";
                         HttpContext.Response.Body.Write(ms.ToArray());
                         Response.CompleteAsync();
                         break;
-                    case "docx": 
+                    case ".docx": 
                         var wordDocument = new WordDocument(ms, Syncfusion.DocIO.FormatType.Docx);
                         var docIORenderer = new DocIORenderer();
                         docIORenderer.Settings.AutoTag = true;
@@ -404,12 +398,12 @@ namespace exdrive_web.Controllers
                         Response.ContentType = "Application/pdf";
                         HttpContext.Response.Body.Write(memStream.ToArray());
                         break;
-                    case "jpg":
+                    case ".jpg":
                         Response.ContentType = "image/jpeg";
                         HttpContext.Response.Body.Write(ms.ToArray());
                         Response.CompleteAsync();
                         break;
-                    case "jpeg":
+                    case ".jpeg":
                         Response.ContentType = "image/jpeg";
                         HttpContext.Response.Body.Write(ms.ToArray());
                         Response.CompleteAsync();
