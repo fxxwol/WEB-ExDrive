@@ -11,5 +11,15 @@ namespace JWTAuthentication.Authentication
         [Required(ErrorMessage = "Password is required")]
         public string Password { get; set; }
 
+        public RegisterModel()
+        {
+
+        }
+
+        public RegisterModel(string email, string password)
+        {
+            Email = email;
+            Password = password;
+        }
     }
 }
