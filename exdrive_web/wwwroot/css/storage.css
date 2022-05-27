@@ -471,3 +471,61 @@ upload-btn-wrapper__delete {
 .alert-context:hover {
     background-color: #0aacffec;
 }
+.rename1 {
+    background-color: #707ebf;
+    border: 3px solid aliceblue;
+    box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.1);
+    padding: 10px 0;
+    position: absolute;
+    margin-left: 700px;
+    margin-top:300px;
+    top: 0;
+    left: 0;
+    display: none;
+    width: 420px;
+    height: 180px;
+    border-radius: 16px;
+
+}
+
+.search__button_rename {
+    position: absolute;
+    border: #000000;
+    color: #e2e2e2;
+    background-color: #3235c5;
+    border-radius: 80px;
+    animation-duration: 1s;
+    transition: all 1.5s;
+    margin-bottom: 5px;
+    cursor: pointer;
+    padding: 10px 20px;
+    display: inline-block;
+    margin: 0 auto;
+    top: 110px;
+    left: 310px;
+}
+
+    .search__button_rename:hover {
+        background-color: #0aacffec;
+    }
+
+.cancel__button_rename {
+    position: absolute;
+    border: #000000;
+    color: #e2e2e2;
+    background-color: #de1414;
+    border-radius: 80px;
+    animation-duration: 1s;
+    transition: all 1.5s;
+    margin-bottom: 5px;
+    cursor: pointer;
+    padding: 10px 20px;
+    display: inline-block;
+    margin: 0 auto;
+    top: 110px;
+    left: 200px;
+}
+
+    .cancel__button_rename:hover {
+        background-color: #a71717;
+    }

@@ -85,17 +85,24 @@
             <input type="submit" value="Trashcan" class="trashcanstorage__button" />
     }
 
-    <div class="storage__window">
-        @model List<NameInstance>
+<div class="storage__window">
+    <div class="rename1">
+        Rename a file
+        <input type="search" placeholder="Enter new file name" value="@ViewData["GetFiles"]" name="searchString" style="width:400px; margin-left:3px; top: 240px; border-radius: 20px; " />
+        <input type="submit" value="Submit" class="search__button_rename" />
+        <input type="submit" value="Cancel" class="cancel__button_rename" />
+
+    </div>
+    @model List<NameInstance>
         @using (Html.BeginForm("FileClick", "Storage"))
         {
             int count = 0;
-            @foreach (var row in @Model)
+        @foreach (var row in @Model)
             {
                 if (row.Name != null && row.IsFavourite == false)
                 {
                     string type = "";
-                    @for (int i = row.Name.LastIndexOf('.') + 1; i < row.Name.Length; i++)
+        @for (int i = row.Name.LastIndexOf('.') + 1; i < row.Name.Length; i++)
                     {
                         type += row.Name.ElementAt(i);
                     }
@@ -149,17 +156,17 @@
                             imagetoview = "~/css/images/file.png";
                             break;
                     }
-                                <div class="item" title="@row.Name" value=@count style="border: medium none">
-                                    <img src="@Url.Content(imagetoview)" value=@count runat="server" style="border: medium none; width: 100px; height: 100px; border-radius: 15px;" />
-                                    <span class="caption">@row.Name</span>
-                                </div>
+        <div class="item" title="@row.Name" value=@count style="border: medium none">
+            <img src="@Url.Content(imagetoview)" value=@count runat="server" style="border: medium none; width: 100px; height: 100px; border-radius: 15px;" />
+            <span class="caption">@row.Name</span>
+        </div>
                     count++;
                 }
                 else
                 if (row.Name != null && row.IsFavourite == true)
                 {
                     string type = "";
-                    @for (int i = row.Name.LastIndexOf('.') + 1; i < row.Name.Length; i++)
+        @for (int i = row.Name.LastIndexOf('.') + 1; i < row.Name.Length; i++)
                     {
                         type += row.Name.ElementAt(i);
                     }
@@ -213,27 +220,36 @@
                             imagetoview = "~/css/images/filefavourite.png";
                             break;
                     }
-                     <div class="item" title="@row.Name" value=@count style="border: medium none">
-                    <img src="@Url.Content(imagetoview)" value=@count runat="server" style="border: medium none; width: 100px; height: 100px; border-radius: 15px;" />
-                     <span class="caption">@row.Name</span>
-                    </div>
+        <div class="item" title="@row.Name" value=@count style="border: medium none">
+            <img src="@Url.Content(imagetoview)" value=@count runat="server" style="border: medium none; width: 100px; height: 100px; border-radius: 15px;" />
+            <span class="caption">@row.Name</span>
+        </div>
                     count++;
                 }
             }
         }
 
-    </div>
+</div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script>
-
+   <script>
         const cm = document.querySelector('.ccontext-menu');
+        const rm = document.querySelector('.rename1');
+
         const deletebtn = document.querySelector('.ccontext-menu__item4');
         const linkbtn = document.querySelector('.ccontext-menu__item1');
         const favbtn = document.querySelector('.ccontext-menu__item2');
 
+        const renamebtn = document.querySelector('.ccontext-menu__item3');
+
+
+
         function showContextMenu (show = true) {
             cm.style.display = show ? 'block' : 'none';
+        }
+
+        function showRename1 (show = true) {
+            rm.style.display = show ? 'block' : 'none';
         }
 
         linkbtn.addEventListener('click', function(event) {
@@ -252,11 +268,15 @@
             });
         });
 
+        renamebtn.addEventListener('click', function(event) {
+            showRename1();
+        });
+
         deletebtn.addEventListener('click', function(event) {
            $.ajax({
             url: '@Url.Action("Delete","Storage")'
             }).done(function() {
-                window.location = window.location.href;
+            window.location = window.location.href;
             });
         });
 
@@ -294,7 +314,7 @@
         });
 
         window.addEventListener('click', () => {
-            showContextMenu(false);
+        showContextMenu(false);
         });
     </script>   
 </body>
