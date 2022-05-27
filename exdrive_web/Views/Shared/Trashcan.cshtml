@@ -22,17 +22,17 @@
 
     @using (Html.BeginForm("DeletePerm", "Trashcan"))
     {
-             <input type="submit" value="Delete" class="delete__button" />
+             <input type="submit" value="Delete" class="delete__button" title="Delete your file"/>
        
     }
     @using (Html.BeginForm("Recovery", "Trashcan"))
     {
-        <input type="submit" value="Recover" class="recovery__button" />
+        <input type="submit" value="Recover" class="recovery__button" title="Recover your file"/>
     }
     @using (Html.BeginForm("Search", "Trashcan"))
     {
         <input type="search" placeholder="Enter file name" value="@ViewData["GetFiles"]" name="searchString" style="width:400px; margin-left:270px; top: 93px; position:absolute;" />
-        <input type="submit" value="Search" class="search__button1" />
+        <input type="submit" value="Search" class="search__button1" title="Search your file"/>
     }
    
  
