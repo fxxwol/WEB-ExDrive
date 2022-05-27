@@ -1,13 +1,18 @@
 ﻿using exdrive_web.Helpers;
 using exdrive_web.Models;
 
+using GroupDocs.Viewer;
+using GroupDocs.Viewer.Options;
+
 using JWTAuthentication.Authentication;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using Syncfusion.DocIO;
 using Syncfusion.DocIO.DLS;
 using Syncfusion.DocIORenderer;
+
 using System.IO.Compression;
 using System.Security.Claims;
 
@@ -26,8 +31,8 @@ namespace exdrive_web.Controllers
 
         private readonly string _tmpFilesPath = "C:\\Users\\Public\\tmpfiles\\";
         private readonly string _getLinkArchive = "C:\\Users\\Public\\getlink\\";
-       // private readonly string _readerOutputPath = "C:\\Users\\Public\\reader\\Output";
-       // private readonly string _readerInputPath = "C:\\Users\\Public\\reader\\Input";
+        private readonly string _readerOutputPath = "C:\\Users\\Public\\reader\\Output";
+        private readonly string _readerInputPath = "C:\\Users\\Public\\reader\\Input";
         private readonly string _tempFilesContainerLink = "https://exdrivefiles.blob.core.windows.net/botfiles/";
 
         public StorageController(ApplicationDbContext applicationDbContext)
@@ -332,72 +337,15 @@ namespace exdrive_web.Controllers
             }
         }
 
-        //[HttpPost]
-        //public IActionResult ReadFile1()
-        //{
-        //    Stream stream;
-        //    FileStreamResult? fsResult = null;
-        //    _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        //    int i = -1;
-        //    foreach (var name in _nameInstances)
-        //    {
-        //        i++;
-        //        if (name.IsSelected == false)
-        //            continue;
-
-        //        stream = DownloadAzureFile.DownloadFile(_nameInstances.ElementAt(i).Id, _userId);
-
-        //        string outputDirectory = Path.Combine(_readerOutputPath, _userId);
-        //        string inputDirectory = Path.Combine(_readerInputPath, _userId);
-
-        //        System.IO.Directory.CreateDirectory(outputDirectory);
-        //        System.IO.Directory.CreateDirectory(inputDirectory);
-
-        //        string outputFilePath = Path.Combine(outputDirectory, "output " + name.Id);
-        //        using (var filestream = System.IO.File.Create(Path.Combine(inputDirectory, name.Id)))
-        //        {
-        //            stream.CopyTo(filestream);
-        //        }
-
-        //        using (Viewer viewer = new(Path.Combine(inputDirectory, name.Id)))
-        //        {
-        //            PdfViewOptions options = new PdfViewOptions(outputFilePath);
-        //            try
-        //            {
-        //                viewer.View(options);
-        //            }
-        //            catch (Exception)
-        //            {
-        //                return RedirectToAction("AccessStorage", "Storage");
-        //            }
-        //        }
-
-        //        var fileStream = new FileStream(outputFilePath, FileMode.Open, FileAccess.Read);
-
-        //        MemoryStream file = new();
-        //        fileStream.CopyTo(file);
-
-        //        file.Position = 0;
-        //        fsResult = new FileStreamResult(file, "application/pdf");
-        //        fileStream.Dispose();
-
-        //        System.IO.Directory.Delete(inputDirectory, true);
-        //        System.IO.Directory.Delete(outputDirectory, true);
-
-        //        break;
-        //    }
-        //    return fsResult;
-        //}
+        
         [HttpPost]
         public void ReadFile()
         {
             Stream stream;
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
    
-            //int i = -1;
             foreach (var name in _nameInstances)
             {
-                //i++;
                 if (name.IsSelected == false)
                     continue;
 
@@ -412,12 +360,7 @@ namespace exdrive_web.Controllers
                 {
                     type += name.Name.ElementAt(i);
                 }
-                //string inputDirectory = Path.Combine(_readerInputPath, _userId);
-                //System.IO.Directory.CreateDirectory(inputDirectory);
-
-                // string filePath = Path.Combine(inputDirectory, fileName);
-                //string fileExtension = Path.GetExtension(filePath);
-
+        
                 switch (type)
                 {
                     case "txt":
@@ -429,7 +372,7 @@ namespace exdrive_web.Controllers
                         HttpContext.Response.Body.Write(ms.ToArray());
                         Response.CompleteAsync();
                         break;
-                    case "doc":////////
+                    case "doc":
                         var word = new WordDocument(ms, Syncfusion.DocIO.FormatType.Docx);
                         var docRenderer = new DocIORenderer();
                         docRenderer.Settings.AutoTag = true;
@@ -443,24 +386,12 @@ namespace exdrive_web.Controllers
                         Response.ContentType = "Application/pdf";
                         HttpContext.Response.Body.Write(memoryStream.ToArray());
                         break;
-                    //Document doc = new Document(stream);
-                    //// You can close the stream now, it is no longer needed because the document is in memory.
-                    //stream.Close();
-
-                    //// Convert the document to PDF format and save to stream.
-                    //MemoryStream dstStream = new MemoryStream();
-                    //doc.Save(dstStream, SaveFormat.Pdf);
-
-                    //// Rewind the stream position back to zero so it is ready for the next reader.
-                    //dstStream.Position = 0;
-                    //Response.ContentType = "Application/pdf";
-                    //HttpContext.Response.Body.Write(dstStream.ToArray());
                     case "png":
                         Response.ContentType = "image/png";
                         HttpContext.Response.Body.Write(ms.ToArray());
                         Response.CompleteAsync();
                         break;
-                    case "docx": ///////
+                    case "docx": 
                         var wordDocument = new WordDocument(ms, Syncfusion.DocIO.FormatType.Docx);
                         var docIORenderer = new DocIORenderer();
                         docIORenderer.Settings.AutoTag = true;
@@ -483,29 +414,6 @@ namespace exdrive_web.Controllers
                         HttpContext.Response.Body.Write(ms.ToArray());
                         Response.CompleteAsync();
                         break;
-                    //case ".pptx":////////////
-                    //using (IPresentation pptxDoc = Presentation.Open(stream))
-                    //{
-                    //    //Initializes the ChartToImageConverter for converting charts during PowerPoint to PDF conversion
-                    //    //pptxDoc.ChartToImageConverter = new ChartToImageConverter
-                    //    //{
-                    //    //    ScalingMode = Syncfusion.OfficeChart.ScalingMode.Best
-                    //    //};
-
-                    //    //Creates an instance of the PresentationToPdfConverterSettings
-                    //    PresentationToPdfConverterSettings settings = new PresentationToPdfConverterSettings
-                    //    {
-                    //        ShowHiddenSlides = true
-                    //    };
-                    //    //Converts PowerPoint into PDF document
-                    //    PdfDocument pdf = PresentationToPdfConverter.Convert(pptxDoc, settings);
-                    //    //Saves the PDF document to response stream
-                    //    MemoryStream memory = new MemoryStream();
-                    //    pdf.Save(memory);
-                    //    memory.Position = 0;
-                    //    Response.ContentType = "Application/pdf";
-                    //    HttpContext.Response.Body.Write(memory.ToArray());
-                    //}
                     default:
                         Response.WriteAsync("Sorry but we can't open this file :(");
                         break;
