@@ -109,6 +109,7 @@ namespace ExDrive.Tests
         {
             // Arrange
             var expected = true;
+            var expectedExceptionCount = 1;
 
             var userManagerMock = MockUserManager(_users);
 
@@ -127,7 +128,7 @@ namespace ExDrive.Tests
             Assert.Equal(expected, actual);
             Assert.True(result.IsCompleted);
             Assert.False(result.Status == TaskStatus.RanToCompletion);
-            Assert.Equal(1, result.Exception.InnerExceptions.Count);
+            Assert.Equal(expectedExceptionCount, result.Exception.InnerExceptions.Count);
         }
 
         [Fact]
