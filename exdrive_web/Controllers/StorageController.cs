@@ -419,36 +419,73 @@ namespace exdrive_web.Controllers
         {
             ViewData["Rename"] = newName;
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            foreach (var name in _nameInstances)
+            
+            if (_searchResult == null)
             {
-                if (name.IsSelected == true)
+                foreach (var name in _nameInstances)
                 {
-                    Files? toRename = _applicationDbContext.Files.Find(name.Id);
-                    string type = "";
-                    if (toRename != null)
+                    if (name.IsSelected == true)
                     {
-                        for (int i = toRename.Name.LastIndexOf('.') + 1; i < toRename.Name.Length; i++)
+                        Files? toRename = _applicationDbContext.Files.Find(name.Id);
+                        string type;
+                        if (toRename != null)
                         {
-                            type += toRename.Name.ElementAt(i);
-                        }
-                        Files? modified = toRename;
-                        if (!newName.EndsWith(type))
-                        {
-                            modified.Name = newName + "." + type;
-                            _applicationDbContext.Files.Update(toRename).OriginalValues.SetValues(modified);
-                        }
-                        else
-                        {
-                            modified.Name = newName;
-                            _applicationDbContext.Files.Update(toRename).OriginalValues.SetValues(modified);
-                        }
-                    }
-                    _applicationDbContext.SaveChanges();
+                            type = FindFileFormat.FindFormat(toRename.FilesId);
 
+                            Files? modified = toRename;
+                            if (!newName.EndsWith(type))
+                            {
+                                modified.Name = newName + type;
+                                _applicationDbContext.Files.Update(toRename).OriginalValues.SetValues(modified);
+                            }
+                            else
+                            {
+                                modified.Name = newName;
+                                _applicationDbContext.Files.Update(toRename).OriginalValues.SetValues(modified);
+                            }
+
+                            _nameInstances.Find(x => x.Id == toRename.FilesId).Name = modified.Name;
+                        }
+                        _applicationDbContext.SaveChanges();
+                    }
                 }
+
+                return RedirectToAction("AccessStorage", _nameInstances);
             }
-            return RedirectToAction("AccessStorage", "Storage");
+            else
+            {
+                foreach (var name in _searchResult)
+                {
+                    if (name.IsSelected == true)
+                    {
+                        Files? toRename = _applicationDbContext.Files.Find(name.Id);
+                        string type;
+                        if (toRename != null)
+                        {
+                            type = FindFileFormat.FindFormat(toRename.FilesId);
+
+                            Files? modified = toRename;
+                            if (!newName.EndsWith(type) && newName.LastIndexOf('.') < 0)
+                            {
+                                modified.Name = newName + type;
+                                _applicationDbContext.Files.Update(toRename).OriginalValues.SetValues(modified);
+                            }
+                            else
+                            {
+                                modified.Name = newName;
+                                _applicationDbContext.Files.Update(toRename).OriginalValues.SetValues(modified);
+                            }
+
+                            _searchResult.Find(x => x.Id == toRename.FilesId).Name = modified.Name;
+                        }
+                        _applicationDbContext.SaveChanges();
+                    }
+                }
+
+                return View("AccessStorage", _searchResult);
+            }
+            
+            
         }
         [HttpPost, DisableRequestSizeLimit]
         public async Task<ActionResult> UploadTempFileBot()

@@ -93,7 +93,7 @@
         Rename a file
         <input type="search" placeholder="Enter new file name" value="@ViewData["Rename"]" name="newName"  style="width:400px; margin-left:3px; top: 240px; border-radius: 20px; " />
         <input type="submit" value="Submit" class="search__button_rename" />
-        <a class="cancel__button_rename" asp-area="" asp-controller="Storage" asp-action="AccessStorage"><b>Cancel</b></a>
+        <div class="cancel__button_rename"><b>Cancel</b></div>
     </div>
     }
     @model List<NameInstance>
@@ -244,7 +244,7 @@
         const favbtn = document.querySelector('.ccontext-menu__item2');
 
         const renamebtn = document.querySelector('.ccontext-menu__item3');
-
+        const cancelbtn = document.querySelector('.cancel__button_rename');
 
 
         function showContextMenu (show = true) {
@@ -272,7 +272,7 @@
         });
 
         renamebtn.addEventListener('click', function(event) {
-            showRename1();
+            showRename1(true);
         });
 
         deletebtn.addEventListener('click', function(event) {
@@ -281,6 +281,10 @@
             }).done(function() {
             window.location = window.location.href;
             });
+        });
+
+        cancelbtn.addEventListener('click', function(event) {
+            showRename1(false);
         });
 
         window.addEventListener('click', (e) => {
@@ -318,6 +322,7 @@
 
         window.addEventListener('click', () => {
         showContextMenu(false);
+        
         });
     </script>   
 </body>
