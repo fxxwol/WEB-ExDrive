@@ -450,7 +450,7 @@ namespace exdrive_web.Controllers
                     }
                 }
 
-                return RedirectToAction("AccessStorage", _nameInstances);
+                return View("AccessStorage", _nameInstances);
             }
             else
             {
