@@ -184,7 +184,7 @@ body::-webkit-scrollbar-thumb {
         background-color: rgba(108,183,222);
     }
 
-@supports(scrollbar-color: #FFFFFF #DFDFDF) {
+@supports(scrollbar-color: #FFFFFF #DFDFDF) /*Firefox*/ { 
     scrollbar-color: #FFFFFF rgba(108,183,222);
     scrollbar-width: auto;
 }
