@@ -1,4 +1,6 @@
-﻿using JWTAuthentication.Authentication;
+﻿#pragma warning disable CS8602
+
+using JWTAuthentication.Authentication;
 using JWTAuthentication.Controllers;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,8 +16,8 @@ namespace ExDrive.Tests
         public void Register_ValidUserCredentials_OkResult()
         {
             // Arrange
-            var expected = "Microsoft.AspNetCore.Mvc.OkObjectResult";
             var expectedCount = _users.Count + 1;
+            var expectedStatusCode = 200;
 
             var userManagerMock = MockUserManager(_users);
             userManagerMock.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
@@ -26,17 +28,14 @@ namespace ExDrive.Tests
             // Act
             var authenticateController = new AuthenticateController(userManagerMock.Object, configurationMock.Object);
 
-            var result = authenticateController.Register(new RegisterModel("email@gmail.com", "Password_"));
+            var actual = authenticateController.Register(new RegisterModel("email@gmail.com", "Password_"))
+                        .GetAwaiter().GetResult() as OkObjectResult;
 
-            var actual = result.Result.ToString();
             var actualCount = _users.Count;
 
             // Assert
-            Assert.NotNull(actual);
-            Assert.Equal(expected, actual);
-            Assert.False(result.IsFaulted);
-            Assert.True(result.IsCompleted);
-            Assert.True(result.Status == TaskStatus.RanToCompletion);
+            Assert.IsType<OkObjectResult>(actual);
+            Assert.Equal(expectedStatusCode, actual.StatusCode);
             Assert.Equal(expectedCount, actualCount);
         }
 
@@ -44,11 +43,8 @@ namespace ExDrive.Tests
         public void Register_InvalidUserCredentials_StatusCode500()
         {
             // Arrange
-            var expected = new ObjectResult(null);
+            var expected = 500;
             var expectedCount = _users.Count;
-
-            expected.StatusCode = 500;
-            expected.Value = new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." };
 
             var userManagerMock = MockUserManager(_users);
             userManagerMock.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
@@ -59,25 +55,23 @@ namespace ExDrive.Tests
             // Act
             var authenticateController = new AuthenticateController(userManagerMock.Object, configurationMock.Object);
             
-            var result = authenticateController.Register(new RegisterModel("email@gmail.com", "Password_"));
+            var actual = authenticateController.Register(new RegisterModel("email@gmail.com", "Password_"))
+                            .GetAwaiter().GetResult() as ObjectResult;
 
-            var actual = result.Result;
             var actualCount = _users.Count;
-
+            
             // Assert
             Assert.NotNull(actual);
-            Assert.Equal(expected.ToString(), actual.ToString());
-            Assert.False(result.IsFaulted);
-            Assert.True(result.IsCompleted);
-            Assert.True(result.Status == TaskStatus.RanToCompletion);
-            Assert.Equal(expectedCount, _users.Count);
+            Assert.IsType<ObjectResult>(actual);
+            Assert.Equal(expected, actual.StatusCode);
+            Assert.Equal(expectedCount, actualCount);
         }
 
         [Fact]
         public void Login_ValidUserCredentials_SuccessfulLogin()
         {
             // Arrange
-            var expected = "Microsoft.AspNetCore.Mvc.OkObjectResult";
+            var expectedStatusCode = 200;
 
             var userManagerMock = MockUserManager(_users);
 
@@ -92,28 +86,23 @@ namespace ExDrive.Tests
             // Act
             var authenticateController = new AuthenticateController(userManagerMock.Object, configurationMock.Object);
 
-            var result = authenticateController.Login(GetLoginModelExample());
-
-            var actual = result.Result.ToString();
+            var actual = authenticateController.Login(GetLoginModelExample())
+                            .GetAwaiter().GetResult() as OkObjectResult;
 
             // Assert
             Assert.NotNull(actual);
-            Assert.Equal(expected, actual);
-            Assert.False(result.IsFaulted);
-            Assert.True(result.IsCompleted);
-            Assert.True(result.Status == TaskStatus.RanToCompletion);
+            Assert.IsType<OkObjectResult>(actual);
+            Assert.Equal(expectedStatusCode, actual.StatusCode);
         }
 
         [Fact]
         public void Login_FaultedJsonWebToken_FaultedResult()
         {
             // Arrange
-            var expected = true;
-            var expectedExceptionCount = 1;
-
             var userManagerMock = MockUserManager(_users);
 
             userManagerMock.Setup(x => x.FindByNameAsync(It.IsAny<string>())).Returns(Task.FromResult(GetApplicationUserExample()));
+            userManagerMock.Setup(x => x.GetRolesAsync(It.IsAny<ApplicationUser>())).Returns(Task.FromResult(GetUserRolesExample()));
             userManagerMock.Setup(x => x.CheckPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>())).Returns(Task.FromResult(true));
 
             var configurationMock = new Mock<IConfiguration>();
@@ -121,21 +110,18 @@ namespace ExDrive.Tests
             // Act
             var authenticateController = new AuthenticateController(userManagerMock.Object, configurationMock.Object);
 
-            var result = authenticateController.Login(GetLoginModelExample());
-            var actual = result.IsFaulted;
+            var actual = authenticateController.Login(GetLoginModelExample());
 
             // Assert
-            Assert.Equal(expected, actual);
-            Assert.True(result.IsCompleted);
-            Assert.False(result.Status == TaskStatus.RanToCompletion);
-            Assert.Equal(expectedExceptionCount, result.Exception.InnerExceptions.Count);
+            Assert.NotNull(actual);
+            Assert.True(actual.IsFaulted);
         }
 
         [Fact]
         public void Login_UnregisteredUser_UnauthorizedResult()
         {
             // Arrange
-            var expected = "Microsoft.AspNetCore.Mvc.UnauthorizedResult";
+            var expectedStatusCode = 401;
 
             var userManagerMock = MockUserManager(_users);
 
@@ -146,14 +132,13 @@ namespace ExDrive.Tests
             // Act
             var authenticateController = new AuthenticateController(userManagerMock.Object, configurationMock.Object);
 
-            var result = authenticateController.Login(GetLoginModelExample());
-            var actual = result.Result.ToString();
+            var actual = authenticateController.Login(GetLoginModelExample())
+                        .GetAwaiter().GetResult() as UnauthorizedResult;
 
             // Assert
-            Assert.NotNull(result);
-            Assert.Equal(expected, actual);
-            Assert.True(result.IsCompleted);
-            Assert.True(result.Status == TaskStatus.RanToCompletion);
+            Assert.NotNull(actual);
+            Assert.IsType<UnauthorizedResult>(actual);
+            Assert.Equal(expectedStatusCode, actual.StatusCode);
         }
 
         [Fact]
@@ -231,3 +216,4 @@ namespace ExDrive.Tests
 
     }
 }
+#pragma warning restore CS8602
