@@ -1,4 +1,5 @@
 ﻿using exdrive_web.Models;
+using exdrive_web.Services;
 using JWTAuthentication.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -69,10 +70,22 @@ namespace exdrive_web.Controllers
                 {
                     if (name.IsSelected == true)
                     {
-                        Files? todelete = _applicationDbContext.Files.Find(name.Id);
+                        var todelete = _applicationDbContext.Files.Find(name.Id);
+                        
                         if (todelete != null)
                         {
                             _applicationDbContext.Remove(todelete);
+
+                            try
+                            {
+                                var deleteBlob = new DeleteAzureBlobAsync();
+
+                                deleteBlob.DeleteBlobAsync(todelete, "trashcan");
+                            }
+                            catch
+                            {
+
+                            }
                         }
                     }
                 }
@@ -112,65 +125,7 @@ namespace exdrive_web.Controllers
             _searchResult = newsearch;
             return View("Trashcan", _searchResult);
         }
-
-        //[Authorize]
-        //public IActionResult Search(string searchString)
-        //{
-        //    ViewData["GetFiles"] = searchString;
-
-        //    if (searchString == null)
-        //    {
-        //        _searchResult = null;
-
-        //        if (_isDeleted == false)
-        //            return View("Trashcan", _deleted);
-
-        //        _isDeleted = false;
-        //        return RedirectToAction("Trashcan", "Trashcan");
-        //    }
-
-        //    // checking a file's name without format first
-        //    _searchResult = _deleted.Where(x => x.NoFormat.Equals(searchString)).ToList();
-        //    if (_searchResult.Count > 0)
-        //        return View("Trashcan", _searchResult);
-
-        //    // checking a file's name with format
-        //    _searchResult = _deleted.Where(x => x.Name.Equals(searchString)).ToList();
-        //    if (_searchResult.Count > 0)
-        //        return View("Trashcan", _searchResult);
-
-        //    // if file wasn't deleted, returning old view
-        //    if (_isDeleted == false)
-        //        return View("Trashcan", _deleted);
-
-        //    // if file is deleted, generating new List
-        //    _isDeleted = false;
-        //    return RedirectToAction("Trashcan", "Trashcan");
-        //}
-        //public ActionResult DeletePerm()
-        //{
-        //    if (_deleted != null)
-        //    {
-        //        foreach (var name in _deleted)
-        //        {
-        //            if (name.IsSelected == true)
-        //            {
-        //                Files? todelete = _applicationDbContext.Files.Find(name.Id);
-        //                if (todelete != null)
-        //                {
-        //                    _deleted.Remove(name);
-
-        //                    _applicationDbContext.Remove(todelete);
-
-        //                    _applicationDbContext.SaveChanges();
-        //                }
-        //            }
-
-        //        }
-        //    }
-
-        //    return View("Trashcan", _deleted);
-        //}
+        
         [Authorize]
         public IActionResult Search(string searchString)
         {

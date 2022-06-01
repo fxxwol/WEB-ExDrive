@@ -31,7 +31,7 @@ namespace exdrive_web.Controllers
 
         private readonly string _tmpFilesPath = "C:\\Users\\Public\\tmpfiles\\";
         private readonly string _getLinkArchive = "C:\\Users\\Public\\getlink\\";
-        private readonly string _tempFilesContainerLink = "https://exdrivefiles.blob.core.windows.net/botfiles/";
+        private readonly string _tempFilesContainerLink = "https://exdrivefile.blob.core.windows.net/botfiles/";
 
         public StorageController(ApplicationDbContext applicationDbContext)
         {

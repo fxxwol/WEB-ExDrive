@@ -7,6 +7,7 @@
     <head>
         <meta chaster= "UTF-8">
         <link rel="stylesheet" href="../wwwroot/css/site.css">
+        <link href="https://css.gg/copy.css" rel="stylesheet">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,300&display=swap" rel="stylesheet">
@@ -14,7 +15,8 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
     </head>
-        <body style="overflow:hidden">
+        <body>
+        @*<body style="overflow:hidden">*@
         <header class="header">
             <div class="container">
                
@@ -76,10 +78,8 @@
          </script>
 
  <div class="intro">
-    <div class="nothing" style="height:100px;"> </div>
-    <label class="container" style="width:440px;">
+    @*<label class="container" style="width:440px;">*@
     <div class="container_background">
-        <div class="not_welcome_up">  </div>
          <div class="imgcontainer">
                <img src="~/css/images/ExDriveLogoVer2.gif" alt="Avatar" class="avatar">
          </div>
@@ -90,15 +90,14 @@
         <input type="file" name="myfile" style="height:47px;width:150px;"/>
      	</div>
          @if (TempData["AlertMessage"] != null)
-    {
-      <div class="alert alert-success" id=@TempData["AlertMessage"]>
-      <a href="@TempData["AlertMessage"]" style="color:#eeeeee;"onclick="copyToClipboard()" >@TempData["AlertMessage"]</a>
-      </div>
-      <button class="alert-success-button" title="Copy the URL" onclick="copyToClipboard()">Copy</button>
-    }
-
+                {
+                    <div class="alert alert-success" id=@TempData["AlertMessage"]>
+                    <a href="@TempData["AlertMessage"]" style="color:#eeeeee; font-size:14px;" title="Link for your file">@TempData["AlertMessage"]</a>
+                    <i class="gg-copy" style="margin-left:355px" title="Copy to clipboard" onclick="copyToClipboard()"></i>
+                    </div>
+                }
      	<div class="upload-btn-wrapper_submit"title="Submit your choice">
-        <button class="btn_submit">Submit your choice</button>
+        <button class="btn_submit" type="submit">Submit your choice</button>
      	</div>
     </form>
      <div class="upload-btn-wrapper_telegram"title="Continue with Telegram">
@@ -108,7 +107,7 @@
      </div>
      <div class="down_a">  </div>
      </div> 
-    </label>  
+    @*</label> *@ 
 </div>
     </body>
 </html>

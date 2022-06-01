@@ -236,10 +236,10 @@ div.item {
     margin: 5px auto;
     margin-left: 321px;
     display: block;
-    margin: 0 auto;
+    margin: 0 10px;
     display: block;
     top: 10px;
-    margin-bottom:5px;
+    margin-bottom: 5px;
     animation-duration: 1s;
     transition: all 1.5s;
     cursor: pointer;
@@ -253,17 +253,13 @@ div.item {
     background-color: #60b2dcec;
     padding: 8px 20px;
     border-radius: 80px;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 400;
     font-family: 'Lato', sans-serif;
     text-align: center;
-    margin: 5px auto;
-    margin-left: 321px;
     display: block;
     position:relative;
     margin: 0 auto;
-    top: 10px;
-    margin-bottom:5px;
     animation-duration: 1s;
     transition: all 1.5s;
     cursor: pointer;
@@ -430,6 +426,45 @@ img.avatar {
     height: fit-content;
     background-color: #ffffff;
     position: center;
-    margin: auto;
+    margin: 55px auto auto auto;
+
     border-radius: 16px;
 }
+
+.gg-copy {
+    box-sizing: border-box;
+    position: relative;
+    display: block;
+    transform: scale(var(--ggs,1));
+    width: 14px;
+    height: 18px;
+    border: 2px solid;
+    margin-left: -5px;
+    margin-top: -4px
+}
+
+    .gg-copy::after,
+    .gg-copy::before {
+        content: "";
+        display: block;
+        box-sizing: border-box;
+        position: absolute
+    }
+
+    .gg-copy::before {
+        background: linear-gradient( to left, currentColor 5px, transparent 0) no-repeat right top/5px 2px, linear-gradient( to left, currentColor 5px, transparent 0) no-repeat left bottom/ 2px 5px;
+        box-shadow: inset -4px -4px 0 -2px;
+        bottom: -6px;
+        right: -6px;
+        width: 14px;
+        height: 18px
+    }
+
+    .gg-copy::after {
+        width: 6px;
+        height: 2px;
+        background: currentColor;
+        left: 2px;
+        top: 2px;
+        box-shadow: 0 4px 0,0 8px 0
+    }
