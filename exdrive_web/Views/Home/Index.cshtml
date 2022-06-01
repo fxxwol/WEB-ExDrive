@@ -58,7 +58,21 @@
                     alert(data);
                 });
             });
-            
+        
+            function copyToClipboard() {
+			const str = document.querySelector('.alert-success').id;
+			const el = document.createElement('textarea');
+			el.value = str;
+			el.setAttribute('readonly', '');
+			el.style.position = 'absolute';
+			el.style.left = '-9999px';
+			document.body.appendChild(el);
+			el.select();
+			document.execCommand('copy');
+			document.body.removeChild(el);
+		}
+
+
          </script>
 
  <div class="intro">
@@ -77,10 +91,12 @@
      	</div>
          @if (TempData["AlertMessage"] != null)
     {
-      <div class="alert alert-success">
-      <a href=@TempData["AlertMessage"] style="color:#eeeeee">@TempData["AlertMessage"]</a>
+      <div class="alert alert-success" id=@TempData["AlertMessage"]>
+      <a href="@TempData["AlertMessage"]" style="color:#eeeeee;"onclick="copyToClipboard()" >@TempData["AlertMessage"]</a>
       </div>
+      <button class="alert-success-button" title="Copy the URL" onclick="copyToClipboard()">Copy</button>
     }
+
      	<div class="upload-btn-wrapper_submit"title="Submit your choice">
         <button class="btn_submit">Submit your choice</button>
      	</div>
@@ -94,6 +110,5 @@
      </div> 
     </label>  
 </div>
-
     </body>
 </html>
