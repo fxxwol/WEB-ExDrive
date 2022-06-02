@@ -1,0 +1,183 @@
+﻿@using ExDrive.Models
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta chaster="UTF-8">
+    <link rel="stylesheet" href="~/css/trashcan.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,300&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
+</head>
+<body>
+        <div class="buttons__rectangle8">
+       
+    </div>
+    <div class="ccontext-menu">
+        <div class="ccontext-menu__item1">Recover</div>
+        <div class="ccontext-menu__divider"></div>
+        <div class="ccontext-menu__item4">Delete</div>
+    </div>
+
+    @using (Html.BeginForm("DeletePerm", "Trashcan"))
+    {
+             <input type="submit" value="Delete" class="delete__button" title="Delete your file"/>
+       
+    }
+    @using (Html.BeginForm("Recovery", "Trashcan"))
+    {
+        <input type="submit" value="Recover" class="recovery__button" title="Recover your file"/>
+    }
+    @using (Html.BeginForm("Search", "Trashcan"))
+    {
+        <input type="search" placeholder="Enter file name" value="@ViewData["GetFiles"]" name="searchString" style="width:400px; margin-left:270px; top: 93px; position:absolute;" />
+        <input type="submit" value="Search" class="search__button1" title="Search your file"/>
+    }
+   
+ 
+  <div class="trashcan__window">
+        @model List<NameInstance>
+        @using (Html.BeginForm("FileClick", "Trashcan"))
+        {
+            int count = 0;
+            @foreach (var row in @Model)
+            {
+                if (row.Name != null)
+                {
+                    string type = "";
+                    @for (int i = row.Name.LastIndexOf('.') + 1; i < row.Name.Length; i++)
+                    {
+                        type += row.Name.ElementAt(i);
+                    }
+
+                    string imagetoview = "";
+                    switch (type)
+                    {
+                        case "png":
+                                imagetoview = "~/css/images/png.png";
+                            break;
+                        case "jpg":
+                                imagetoview = "~/css/images/jpg.png";
+                            break;
+                        case "pdf":
+                                imagetoview = "~/css/images/pdf.png";
+                            break;
+                        case "mp4":
+                                imagetoview = "~/css/images/mp4.png";
+                            break;
+                        case "txt":
+                                imagetoview = "~/css/images/txt.png";
+                            break;
+                        case "mp3":
+                                imagetoview = "~/css/images/mp3.png";
+                            break;
+                        case "doc":
+                                imagetoview = "~/css/images/doc.png";
+                            break;
+                        case "docx":
+                                imagetoview = "~/css/images/docx.png";
+                            break;
+                        case "xls":
+                                imagetoview = "~/css/images/xls.png";
+                            break;
+                        case "xlsx":
+                                imagetoview = "~/css/images/xlsx.png";
+                            break;
+                        case "mov":
+                                imagetoview = "~/css/images/mov.png";
+                            break;
+                        case "webm":
+                                imagetoview = "~/css/images/webm.png";
+                            break;
+                        case "zip":
+                                imagetoview = "~/css/images/zip.png";
+                            break;
+                        case "gif":
+                                imagetoview = "~/css/images/gif.png";
+                            break;
+                        default:
+                                imagetoview = "~/css/images/file.png";
+                            break;
+                    }
+
+                    <div class="item" title="@row.Name" value=@count style="border: medium none">
+                        <img src="@Url.Content(imagetoview)" value=@count runat="server" style="border: medium none; width: 100px; height: 100px; border-radius: 15px;" />
+                        <span class="caption">@row.Name</span>
+                    </div>
+
+                    count++;
+                }
+            }
+        }
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+
+        const cm = document.querySelector('.ccontext-menu');
+        const deletebtn = document.querySelector('.ccontext-menu__item4');
+        const recoverbtn = document.querySelector('.ccontext-menu__item1');
+
+        function showContextMenu (show = true) {
+            cm.style.display = show ? 'block' : 'none';
+        }
+
+        recoverbtn.addEventListener('click', function(event) {
+           $.ajax({
+            url: '@Url.Action("Recovery","Trashcan")'
+            }).done(function() {
+                window.location = window.location.href;
+            }); 
+        });
+
+        deletebtn.addEventListener('click', function(event) {
+            console.log(event);
+           $.ajax({
+            url: '@Url.Action("DeletePerm","Trashcan")'
+            }).done(function() {
+            window.location = window.location.href;
+            }); 
+        });
+
+        window.addEventListener('click', (e) => {
+            
+            let pos = e.target.getAttribute("value");
+            if (pos != null)
+            {
+                console.log(pos);
+                $.ajax({
+            url: '@Url.Action("FileClick","Trashcan")',
+            data: { afile: pos }
+            }).done(function() {
+                if (e.target.style.border == "medium none")
+                    e.target.style.border = "inset #408aff 8px";
+                else
+                    e.target.style.border = "medium none";
+            });
+            }
+        });
+
+        window.addEventListener('contextmenu', (e) => {
+
+            e.preventDefault();
+
+            showContextMenu();
+            
+            cm.style.top = e.y + cm.offsetHeight > window.innerHeight ?
+            window.innerHeight - cm.offsetHeight + "px" : e.y + "px";
+
+            cm.style.left = e.x + cm.offsetWidth > window.innerWidth ?
+            window.innerWidth - cm.offsetWidth + "px" : e.x + "px";
+
+            console.log(e.returnValue);
+        });
+
+        window.addEventListener('click', () => {
+            showContextMenu(false);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,4 +1,6 @@
-﻿using exdrive_web.Helpers;
+﻿#pragma warning disable CS8604
+
+using ExDrive.Helpers;
 
 using Xunit;
 
@@ -42,3 +44,5 @@ namespace ExDrive.Tests
         }
     }
 }
+
+#pragma warning restore CS8604

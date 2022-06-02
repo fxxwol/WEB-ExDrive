@@ -1,0 +1,114 @@
+﻿@using ExDrive.Models
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta chaster= "UTF-8">
+        <link rel="stylesheet" href="../wwwroot/css/site.css">
+        <link href="https://css.gg/copy.css" rel="stylesheet">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,300&display=swap" rel="stylesheet">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
+    </head>
+        <body>
+        @*<body style="overflow:hidden">*@
+        <header class="header">
+            <div class="container">
+               
+            </div>
+        </header>
+
+         <div class="ccontext-menu"> 
+          <div class="ccontext-menu__item1">Link</div>
+          <div class="ccontext-menu__item2">Favourite</div>
+          <div class="ccontext-menu__item3">Rename</div>
+          <div class="ccontext-menu__divider"></div>
+          <div class="ccontext-menu__item4">Delete</div>
+         </div>
+
+         <script>
+             const cm = document.querySelector('.ccontext-menu');
+
+             function showContextMenu (show = true) {
+                 cm.style.display = show ? 'block' : 'none'; 
+             }
+
+             window.addEventListener('contextmenu', (e) => {
+                 e.preventDefault();
+
+                 $(".item").click(function(e){
+                     showContextMenu();
+                 cm.style.top = e.y + cm.offsetHeight > window.innerHeight ? 
+                 window.innerHeight - cm.offsetHeight + "px" : e.y + "px";
+                 cm.style.left = e.x + cm.offsetWidth > window.innerWidth ? 
+                 window.innerWidth - cm.offsetWidth + "px" : e.x + "px";
+                 });
+             });
+
+             window.addEventListener('click', () => {
+                 showContextMenu(false);
+             });
+
+             $(".ccontext-menu__item4").click(function(e){
+                 e.preventDefault();
+                $.post("@Url.Action("Delete","Storage")", 1, function(data){
+                    alert(data);
+                });
+            });
+        
+            function copyToClipboard() {
+			const str = document.querySelector('.alert-success').id;
+			const el = document.createElement('textarea');
+			el.value = str;
+			el.setAttribute('readonly', '');
+			el.style.position = 'absolute';
+			el.style.left = '-9999px';
+			document.body.appendChild(el);
+			el.select();
+			document.execCommand('copy');
+			document.body.removeChild(el);
+		}
+
+
+         </script>
+
+ <div class="intro">
+    @*<label class="container" style="width:440px;">*@
+    <div class="container_background">
+         <div class="imgcontainer">
+               <img src="~/css/images/ExDriveLogoVer2.gif" alt="Avatar" class="avatar">
+         </div>
+    @model UploadInstance
+    <form asp-controller="Storage" asp-action="SingleTempFile" enctype="multipart/form-data">
+        <div class="upload-btn-wrapper_upload">
+        <button class="btn_upload">Upload a file</button>
+        <input type="file" name="myfile" style="height:47px;width:150px;"/>
+     	</div>
+         @if (TempData["AlertMessage"] != null)
+                {
+                    <div class="alert alert-success" id=@TempData["AlertMessage"]>
+                    <a href="@TempData["AlertMessage"]" style="color:#eeeeee; font-size:14px;" title="Link for your file">@TempData["AlertMessage"]</a>
+                    <i class="gg-copy" style="margin-left:355px" title="Copy to clipboard" onclick="copyToClipboard()"></i>
+                    </div>
+                }
+     	<div class="upload-btn-wrapper_submit"title="Submit your choice">
+        <button class="btn_submit" type="submit">Submit your choice</button>
+     	</div>
+    </form>
+     <div class="upload-btn-wrapper_telegram"title="Continue with Telegram">
+        <label class="btn_telegram">
+        <a href="https://t.me/ExDriveBot" style="color:#eeeeee; font-family:Lato; font-style:normal;" >Telegram</a>
+        </label>
+     </div>
+     <div class="down_a">  </div>
+     </div> 
+    @*</label> *@ 
+</div>
+    </body>
+</html>
