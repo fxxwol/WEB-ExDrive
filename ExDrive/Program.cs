@@ -15,8 +15,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddDefaultIdentity<ApplicationUser>
     (options => options.SignIn.RequireConfirmedAccount = true)
-      .AddEntityFrameworkStores<ApplicationDbContext>()
-      .AddDefaultTokenProviders();
+      .AddEntityFrameworkStores<ApplicationDbContext>();
 
 var connectionStrings = ConnectionStrings.GetInstance(
     connectionString,

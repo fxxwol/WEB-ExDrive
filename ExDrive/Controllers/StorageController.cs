@@ -42,6 +42,7 @@ namespace ExDrive.Controllers
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             _nameInstances = new List<NameInstance>(UserFilesDB.GetUserFilesDB(_userId));
             _searchResult = null;
+
             return View(_nameInstances);
         }
         public IActionResult Trashcan()
@@ -73,13 +74,13 @@ namespace ExDrive.Controllers
                 if (_isDeleted == false)
                     return View("AccessStorage", _searchResult);
             }
-            
+
             // checking if user files' names contain search request
             _searchResult = _nameInstances.Where(x => x.Name.Contains(searchString)).ToList();
             if (_searchResult.Count > 0)
                 return View("AccessStorage", _searchResult);
 
- 
+
             // if file wasn't deleted, returning old view
             if (_isDeleted == false)
                 return View("AccessStorage", _nameInstances);
@@ -241,26 +242,53 @@ namespace ExDrive.Controllers
 
             System.IO.Directory.CreateDirectory(Path.Combine(_tmpFilesPath, _userId));
 
-            int i = -1;
-            foreach (var name in _nameInstances)
+            if (_searchResult == null)
             {
-                i++;
-
-                if (name.IsSelected == false)
-                    continue;
-
-                using (var fileStream = new FileStream(Path.Combine(_tmpFilesPath + _userId,
-                                                                    _nameInstances.ElementAt(i).Name),
-                                                                    FileMode.Create, FileAccess.Write))
+                int i = -1;
+                foreach (var name in _nameInstances)
                 {
-                    DownloadAzureFile.DownloadFile(_nameInstances.ElementAt(i).Id, _userId).CopyTo(fileStream);
+                    i++;
+
+                    if (name.IsSelected == false)
+                        continue;
+
+                    using (var fileStream = new FileStream(Path.Combine(_tmpFilesPath + _userId,
+                                                                        _nameInstances.ElementAt(i).Name),
+                                                                        FileMode.Create, FileAccess.Write))
+                    {
+                        DownloadAzureFile.DownloadFile(_nameInstances.ElementAt(i).Id, _userId).CopyTo(fileStream);
+                    }
+                }
+            }
+            else
+            {
+                int i = -1;
+                foreach (var name in _searchResult)
+                {
+                    i++;
+
+                    if (name.IsSelected == false)
+                        continue;
+
+                    using (var fileStream = new FileStream(Path.Combine(_tmpFilesPath + _userId,
+                                                                        _searchResult.ElementAt(i).Name),
+                                                                        FileMode.Create, FileAccess.Write))
+                    {
+                        DownloadAzureFile.DownloadFile(_searchResult.ElementAt(i).Id, _userId).CopyTo(fileStream);
+                    }
                 }
             }
 
             var files = Directory.GetFiles(Path.Combine(_tmpFilesPath, _userId)).ToList();
-            if (files.Count < 1)
+
+            if (files.Count < 1 && _searchResult == null)
             {
                 return View("AccessStorage", _nameInstances);
+            }
+
+            if (files.Count < 1)
+            {
+                return View("AccessStorage", _searchResult);
             }
 
             using (var memoryStream = new MemoryStream())
@@ -280,32 +308,56 @@ namespace ExDrive.Controllers
             }
         }
 
-        public async Task<IActionResult> GetLink()
+        public async Task<string?> GetLink()
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var zipName = $"archive-{DateTime.Now.ToString("yyyy_MM_dd-HH_mm_ss")}.zip";
 
             System.IO.Directory.CreateDirectory(Path.Combine(_getLinkArchive, _userId));
 
-            int i = -1;
-            foreach (var name in _nameInstances)
+            if (_searchResult == null)
             {
-                i++;
-
-                if (name.IsSelected == false)
-                    continue;
-
-                using (var fileStream = new FileStream(Path.Combine(_getLinkArchive + _userId,
-                                                                    _nameInstances.ElementAt(i).Name),
-                                                                    FileMode.Create, FileAccess.Write))
+                int i = -1;
+                foreach (var name in _nameInstances)
                 {
-                    DownloadAzureFile.DownloadFile(_nameInstances.ElementAt(i).Id, _userId).CopyTo(fileStream);
+                    i++;
+
+                    if (name.IsSelected == false)
+                        continue;
+
+                    using (var fileStream = new FileStream(Path.Combine(_getLinkArchive + _userId,
+                                                                        _nameInstances.ElementAt(i).Name),
+                                                                        FileMode.Create, FileAccess.Write))
+                    {
+                        DownloadAzureFile.DownloadFile(_nameInstances.ElementAt(i).Id, _userId).CopyTo(fileStream);
+                    }
+                }
+            }
+            else
+            {
+                int i = -1;
+                foreach (var name in _searchResult)
+                {
+                    i++;
+
+                    if (name.IsSelected == false)
+                        continue;
+
+                    using (var fileStream = new FileStream(Path.Combine(_getLinkArchive + _userId,
+                                                                        _searchResult.ElementAt(i).Name),
+                                                                        FileMode.Create, FileAccess.Write))
+                    {
+                        DownloadAzureFile.DownloadFile(_searchResult.ElementAt(i).Id, _userId).CopyTo(fileStream);
+                    }
                 }
             }
 
             var files = Directory.GetFiles(Path.Combine(_getLinkArchive, _userId)).ToList();
+
             if (files.Count < 1)
-                return View("AccessStorage", _nameInstances);
+            {
+                return null;
+            }
 
             using (var memoryStream = new MemoryStream())
             {
@@ -324,20 +376,17 @@ namespace ExDrive.Controllers
 
                 System.IO.Directory.Delete(Path.Combine(_getLinkArchive, _userId), true);
 
-
-                TempData["LinkGet"] = _tempFilesContainerLink + file.FilesId;
-                
-                return View("Trashcan", _nameInstances);
+                return _tempFilesContainerLink + file.FilesId;
             }
         }
 
-        
+
         [HttpPost]
         public void ReadFile()
         {
             Stream stream;
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-   
+
             foreach (var name in _nameInstances)
             {
                 if (name.IsSelected == false)
@@ -351,7 +400,7 @@ namespace ExDrive.Controllers
                 stream.CopyTo(ms);
 
                 type = FindFileFormat.FindFormat(name.Name);
-        
+
                 switch (type)
                 {
                     case ".txt":
@@ -382,7 +431,7 @@ namespace ExDrive.Controllers
                         HttpContext.Response.Body.Write(ms.ToArray());
                         Response.CompleteAsync();
                         break;
-                    case ".docx": 
+                    case ".docx":
                         var wordDocument = new WordDocument(ms, Syncfusion.DocIO.FormatType.Docx);
                         var docIORenderer = new DocIORenderer();
                         docIORenderer.Settings.AutoTag = true;
@@ -416,7 +465,7 @@ namespace ExDrive.Controllers
         {
             ViewData["Rename"] = newName;
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            
+
             if (_searchResult == null)
             {
                 foreach (var name in _nameInstances)
@@ -481,8 +530,8 @@ namespace ExDrive.Controllers
 
                 return View("AccessStorage", _searchResult);
             }
-            
-            
+
+
         }
         [HttpPost, DisableRequestSizeLimit]
         public async Task<ActionResult> UploadTempFileBot()

@@ -343,6 +343,7 @@ upload-btn-wrapper__delete {
 }
 .alert-context {
     border: #000000;
+    display: none;
     color: #e2e2e2;
     background-color: #60b2dcec;
     padding: 5px 10px;
@@ -370,6 +371,7 @@ upload-btn-wrapper__delete {
 .alert-cont-button {
     border: #000000;
     color: #e2e2e2;
+    display: none;
     background-color: #60b2dcec;
     padding: 5px 10px;
     border-radius: 80px;
