@@ -9,36 +9,36 @@ using WebPWrecover.Services;
 using exdrive_web.Models;
 using exdrive_web.Configuration;
 
-
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("ApplicationDbContextConnection"); 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-     options.UseSqlServer(connectionString)); builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+     options.UseSqlServer(connectionString)); builder.Services.AddDefaultIdentity<ApplicationUser>
+    (options => options.SignIn.RequireConfirmedAccount = true)
       .AddEntityFrameworkStores<ApplicationDbContext>();
 
-var connectionStrings = ConnectionStrings.GetInstance(connectionString, 
+var connectionStrings = ConnectionStrings.GetInstance(
+    connectionString, 
     builder.Configuration.GetConnectionString("StorageConnection"),
-    builder.Configuration.GetConnectionString("VirusTotalToken"));
+    builder.Configuration.GetConnectionString("VirusTotalToken"),
+    builder.Configuration.GetConnectionString("SendGridKey"));
 
 builder.Services.Configure<CookieTempDataProviderOptions>(options => {
     options.Cookie.IsEssential = true;
 });
 
 builder.Services.AddTransient<IEmailSender, EmailSender>();
-builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration);
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+
     app.UseHsts();
 }
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
@@ -51,8 +51,9 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
 
-DeleteTemporaryTimer botfiles = new DeleteTemporaryTimer(7, "botfiles");
+var botfiles = new DeleteTemporaryTimer(7, "botfiles");
 botfiles.SetTimer();
-DeleteTemporaryTimer trashcan = new DeleteTemporaryTimer(15, "trashcan");
+var trashcan = new DeleteTemporaryTimer(15, "trashcan");
 trashcan.SetTimer();
+
 app.Run();
