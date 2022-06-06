@@ -15,6 +15,7 @@ namespace ExDrive.Services
 
             CloudBlockBlob sourceBlob = sourceContainer.GetBlockBlobReference(fileid);
             MemoryStream memStream = new();
+
             sourceBlob.DownloadToStreamAsync(memStream).Wait();
             memStream.Position = 0;
 

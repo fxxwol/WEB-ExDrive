@@ -1,8 +1,10 @@
 ﻿using ExDrive.Models;
 using ExDrive.Services;
 using ExDrive.Authentication;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using System.Security.Claims;
 
 namespace ExDrive.Controllers
@@ -48,7 +50,9 @@ namespace ExDrive.Controllers
             catch (Exception)
             {
                 if (_searchResult == null)
+                {
                     return View("Trashcan", _deleted);
+                }
 
                 return View("Trashcan", _searchResult);
             }
@@ -60,7 +64,9 @@ namespace ExDrive.Controllers
             _isDeleted = true;
 
             if (_deleted == null)
+            {
                 return View("Trashcan", _deleted);
+            }
 
             // if there was no search, files from main List are deleted
             // (user is not in search mode)
@@ -136,7 +142,9 @@ namespace ExDrive.Controllers
                 _searchResult = null;
 
                 if (_isDeleted == false)
+                {
                     return View("Trashcan", _deleted);
+                }
 
                 _isDeleted = false;
                 return RedirectToAction("Trashcan", "Trashcan");
@@ -145,11 +153,15 @@ namespace ExDrive.Controllers
             // checking if user files' names contain search request
             _searchResult = _deleted.Where(x => x.Name.Contains(searchString)).ToList();
             if (_searchResult.Count > 0)
+            {
                 return View("Trashcan", _searchResult);
+            }
 
             // if file wasn't deleted, returning old view
             if (_isDeleted == false)
+            {
                 return View("Trashcan", _deleted);
+            }
 
             // if file is deleted, generating new List
             _isDeleted = false;

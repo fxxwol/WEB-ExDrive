@@ -70,20 +70,27 @@ namespace ExDrive.Controllers
             {
                 _searchResult = _nameInstances.Where(x => x.Name.Contains(searchString) && x.IsFavourite == true).ToList();
                 if (_searchResult.Count > 0)
+                {
                     return View("AccessStorage", _searchResult);
+                }
                 if (_isDeleted == false)
+                {
                     return View("AccessStorage", _searchResult);
+                }
             }
 
             // checking if user files' names contain search request
             _searchResult = _nameInstances.Where(x => x.Name.Contains(searchString)).ToList();
             if (_searchResult.Count > 0)
+            {
                 return View("AccessStorage", _searchResult);
-
+            }
 
             // if file wasn't deleted, returning old view
             if (_isDeleted == false)
+            {
                 return View("AccessStorage", _nameInstances);
+            }
 
             // if file is deleted, generating new List
             _isDeleted = false;
@@ -95,7 +102,9 @@ namespace ExDrive.Controllers
         {
             _isFavourite = true;
             if (_searchResult != null)
+            {
                 return RedirectToAction("AccessStorage", _nameInstances);
+            }
             _searchResult = _nameInstances.Where(x => x.IsFavourite == true).ToList();
             return View("AccessStorage", _searchResult);
         }
@@ -129,7 +138,9 @@ namespace ExDrive.Controllers
         public async Task<IActionResult> SingleTempFile(UploadInstance _file)
         {
             if (_file.MyFile == null)
+            {
                 return RedirectToAction("Index", "Home");
+            }
 
             string newname = Guid.NewGuid().ToString() + FindFileFormat.FindFormat(_file.MyFile.FileName);
             Files files = new(newname, _file.MyFile.FileName, "*", true);
@@ -192,7 +203,9 @@ namespace ExDrive.Controllers
             catch (Exception)
             {
                 if (_searchResult == null)
+                {
                     return View("AccessStorage", _nameInstances);
+                }
 
                 return View("AccessStorage", _searchResult);
             }
@@ -210,7 +223,9 @@ namespace ExDrive.Controllers
                 foreach (var name in _nameInstances)
                 {
                     if (name.IsSelected == true)
+                    {
                         await ExDrive.Services.Trashcan.DeleteFile(name.Id, _userId, _applicationDbContext);
+                    }
                 }
                 return RedirectToAction("AccessStorage", "Storage");
             }
@@ -440,6 +455,7 @@ namespace ExDrive.Controllers
                         var pdfDoc = docIORenderer.ConvertToPDF(wordDocument);
                         var memStream = new MemoryStream();
                         pdfDoc.Save(memStream);
+
                         memStream.Position = 0;
                         Response.ContentType = "Application/pdf";
                         HttpContext.Response.Body.Write(memStream.ToArray());

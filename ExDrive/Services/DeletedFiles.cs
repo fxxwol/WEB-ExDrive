@@ -11,7 +11,9 @@ namespace ExDrive.Services
         {
             string name;
             string noformat;
+
             List<NameInstance> deleted = new List<NameInstance>();
+
             using (SqlConnection con = new SqlConnection(ConnectionStrings.GetSqlConnectionString()))
             {
                 con.Open();
@@ -24,7 +26,9 @@ namespace ExDrive.Services
                             noformat = "";
                             name = (string)reader["Name"];
                             for (int i = 0; i < name.LastIndexOf('.'); i++)
+                            {
                                 noformat += name.ElementAt(i);
+                            }
 
                             deleted.Add(new NameInstance(name, noformat, (string)reader["FilesId"], (bool)reader["Favourite"]));
                         }

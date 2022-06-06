@@ -1,8 +1,9 @@
 ﻿using ExDrive.Configuration;
 using ExDrive.Authentication;
-using Microsoft.EntityFrameworkCore;
+
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
+
 using System.Text;
 
 namespace ExDrive.Models
@@ -59,7 +60,9 @@ namespace ExDrive.Models
             await ms.DisposeAsync();
 
             if (blob.ExistsAsync().Result == false)
+            {
                 throw new Exception("Failed at creating the blob specified");
+            }
         }
     }
 }

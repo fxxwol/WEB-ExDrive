@@ -27,8 +27,8 @@ namespace ExDrive.Services
 
             MemoryStream memStream = new MemoryStream();
             await sourceBlob.DownloadToStreamAsync(memStream);
-            memStream.Position = 0;
 
+            memStream.Position = 0;
             await containerDest.UploadBlobAsync(filename, memStream);
             await containerSource.DeleteBlobAsync(filename);
             await memStream.FlushAsync();
@@ -58,8 +58,8 @@ namespace ExDrive.Services
 
             MemoryStream memStream = new MemoryStream();
             await sourceBlob.DownloadToStreamAsync(memStream);
-            memStream.Position = 0;
 
+            memStream.Position = 0;
             await containerDest.UploadBlobAsync(filename, memStream);
             await containerSource.DeleteBlobAsync(filename);
             await memStream.FlushAsync();

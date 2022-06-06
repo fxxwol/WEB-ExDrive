@@ -3,7 +3,6 @@
 using Azure.Storage.Blobs;
 
 using ExDrive.Authentication;
-
 using ExDrive.Configuration;
 
 namespace ExDrive.Services
