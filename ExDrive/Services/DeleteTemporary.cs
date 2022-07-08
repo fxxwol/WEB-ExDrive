@@ -9,30 +9,47 @@ namespace ExDrive.Services
 {
     public class DeleteTemporary
     {
-        public static async void DeleteTemporaryFiles(int days, string containerName)
+        public async void DeleteTemporaryFiles(int days, string containerName)
         {
-            var containerClient = new BlobContainerClient(ConnectionStrings.GetStorageConnectionString(), containerName);
-            var blobs = containerClient.GetBlobs().SkipWhile(x => x.Properties.LastModified >= DateTime.UtcNow.AddDays(-1 * days));
+            var containerClient = GetBlobContainerClient(ConnectionStrings.GetStorageConnectionString(), containerName);
 
-            var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-            optionsBuilder.UseSqlServer(ConnectionStrings.GetSqlConnectionString());
+            var blobs = GetBlobsWithAreOlderThan(containerClient, days);
 
-            using (var _context = new ApplicationDbContext(optionsBuilder.Options))
+            var optionsBuilder = GetDataBaseOptionsBuilder(ConnectionStrings.GetSqlConnectionString());
+
+            using (var dataBase = new ApplicationDbContext(optionsBuilder.Options))
             {
                 foreach (var blob in blobs)
                 {
                     await containerClient.DeleteBlobAsync(blob.Name);
 
-                    var todelete = _context.Files!.Find(blob.Name);
+                    var toDelete = dataBase.Files!.Find(blob.Name);
 
-                    if (todelete != null)
+                    if (toDelete != null)
                     {
-                        _context.Files.Remove(todelete);
+                        dataBase.Files.Remove(toDelete);
                     }
 
-                    _context.SaveChanges();
+                    dataBase.SaveChanges();
                 }
             }
+        }
+        private BlobContainerClient GetBlobContainerClient(string connectionString, string containerName)
+        {
+            return new BlobContainerClient(connectionString, containerName);
+        }
+        private DbContextOptionsBuilder<ApplicationDbContext> GetDataBaseOptionsBuilder(string connectionString)
+        {
+            return new DbContextOptionsBuilder<ApplicationDbContext>().UseSqlServer(connectionString);
+        }
+        private IEnumerable<Azure.Storage.Blobs.Models.BlobItem> GetBlobsWithAreOlderThan(BlobContainerClient containerClient,
+                                                                                        int days)
+        {
+            return containerClient.GetBlobs().SkipWhile(blob => blob.Properties.LastModified >= GetDeadlineDateTime(days));
+        }
+        private DateTime GetDeadlineDateTime(int days)
+        {
+            return DateTime.UtcNow.AddDays(-1 * days);
         }
     }
 }

@@ -24,7 +24,6 @@ namespace ExDrive.Services
                     {
                         while (reader.Read())
                         {
-
                             fileName = (string)reader["Name"];
 
                             var withoutFormat = new FindNameWithoutFormat();
