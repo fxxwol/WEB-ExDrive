@@ -12,7 +12,6 @@ using ExDrive.Helpers;
 using ExDrive.Models;
 using ExDrive.Authentication;
 using ExDrive.Services;
-using Microsoft.EntityFrameworkCore;
 
 namespace ExDrive.Controllers
 {
@@ -21,23 +20,20 @@ namespace ExDrive.Controllers
         private static List<NameInstance> _nameInstances = new();
         private static List<NameInstance>? _searchResult = new();
 
-        private IServiceScopeFactory _serviceScopeFactory;
-
         private static ApplicationDbContext _applicationDbContext = new();
 
         private static string? _userId;
         private static bool _isDeleted = false;
         private static bool _isFavourite = false;
 
-        private readonly string _tmpFilesPath = "C:\\Users\\Public\\tmpfiles\\";
-        private readonly string _getLinkArchive = "C:\\Users\\Public\\getlink\\";
-        private readonly string _tempFilesContainerLink = "https://exdrivefile.blob.core.windows.net/botfiles/";
-        private readonly string _trashcanContainerName = "trashcan";
+        private static readonly string _tmpFilesPath = "C:\\Users\\Public\\tmpfiles\\";
+        private static readonly string _getLinkArchive = "C:\\Users\\Public\\getlink\\";
+        private static readonly string _tempFilesContainerLink = "https://exdrivefile.blob.core.windows.net/botfiles/";
+        private static readonly string _trashcanContainerName = "trashcan";
 
-        public StorageController(ApplicationDbContext applicationDbContext, IServiceScopeFactory serviceScopeFactory)
+        public StorageController(ApplicationDbContext applicationDbContext)
         {
             _applicationDbContext = applicationDbContext;
-            _serviceScopeFactory = serviceScopeFactory;
         }
 
         [Authorize]
@@ -190,14 +186,11 @@ namespace ExDrive.Controllers
 
             var file = new Files(newName, _file.MyFile.FileName, _userId, false);
 
-            try
-            {
-                await UploadPermAsync.UploadFileAsync(_file, file, _userId, _applicationDbContext);
-            }
-            catch (Exception)
-            {
+            var uploadPermFile = new UploadPermAsync();
 
-            }
+            await uploadPermFile.UploadFileAsync(_file, file, _userId, _applicationDbContext);
+
+            await uploadPermFile.DisposeAsync();
 
             return RedirectToAction("AccessStorage", "Storage");
         }
@@ -292,7 +285,7 @@ namespace ExDrive.Controllers
                                                                         FileMode.Create, FileAccess.Write))
                     {
                         var downloadFile = new DownloadAzureFile();
-                        
+
                         var memoryStream = await downloadFile.DownloadFile(_nameInstances.ElementAt(i).Id, _userId);
 
                         memoryStream.Position = 0;

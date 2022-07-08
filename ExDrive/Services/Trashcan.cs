@@ -22,12 +22,15 @@ namespace ExDrive.Services
                                     userId, fileName);
 
             var memoryStream = new MemoryStream();
+            
             await sourceBlob.DownloadToStreamAsync(memoryStream);
 
             memoryStream.Position = 0;
 
             await destinationContainer.UploadBlobAsync(fileName, memoryStream);
+           
             await sourceContainer.DeleteBlobAsync(fileName);
+            
             await memoryStream.FlushAsync();
 
             var toDelete = context.Files!.Find(fileName);
@@ -54,15 +57,19 @@ namespace ExDrive.Services
                                     TrashcanContainerName, fileName);
 
             var memoryStream = new MemoryStream();
+            
             await sourceBlob.DownloadToStreamAsync(memoryStream);
 
             memoryStream.Position = 0;
 
             await destinationContainer.UploadBlobAsync(fileName, memoryStream);
+            
             await sourceContainer.DeleteBlobAsync(fileName);
+            
             await memoryStream.FlushAsync();
 
             var toRecover = context.Files!.Find(fileName);
+            
             if (toRecover != null)
             {
                 Files? modified = toRecover;

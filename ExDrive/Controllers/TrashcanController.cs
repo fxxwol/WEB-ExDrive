@@ -19,7 +19,7 @@ namespace ExDrive.Controllers
 
         private static ApplicationDbContext _applicationDbContext = new();
 
-        private readonly string _trashcanContainerName = "trashcan";
+        private static readonly string _trashcanContainerName = "trashcan";
 
         public TrashcanController(ApplicationDbContext applicationDbContext)
         {
