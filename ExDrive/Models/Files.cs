@@ -20,7 +20,18 @@ namespace ExDrive.Models
         }
         public Files()
         {
+            FilesId = String.Empty;
+            Name = String.Empty;
+            HasAccess = "*";
+            IsTemporary = true;
+        }
 
+        public Files(ref Files file)
+        {
+            FilesId = file.FilesId;
+            Name = file.Name;
+            HasAccess = file.HasAccess;
+            IsTemporary = file.IsTemporary;
         }
     }
 }

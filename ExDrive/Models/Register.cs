@@ -13,7 +13,8 @@ namespace ExDrive.Authentication
 
         public RegisterModel()
         {
-
+            Email = String.Empty;
+            Password = String.Empty;
         }
 
         public RegisterModel(string email, string password)

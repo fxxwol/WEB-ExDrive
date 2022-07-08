@@ -52,7 +52,7 @@ namespace ExDrive.Models
 
             } while (bytesRemain > 0);
 
-            context.Files.Add(newFile);
+            context.Files!.Add(newFile);
             context.SaveChanges();
 
             await blob.PutBlockListAsync(blocklist);

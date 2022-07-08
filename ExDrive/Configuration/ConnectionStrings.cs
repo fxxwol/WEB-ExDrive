@@ -2,7 +2,7 @@
 {
     public class ConnectionStrings
     {
-        private static ConnectionStrings _instance = null;
+        private static ConnectionStrings? _instance = null;
 
         private static Object _mutex = new Object();
 

@@ -2,20 +2,21 @@
 {
     public class FindFileFormat
     {
-        public static string FindFormat(string fileName)
+        public string FindFormat(string fileName)
         {
             if (string.IsNullOrWhiteSpace(fileName) ||
                 fileName.LastIndexOf('.') < 0 ||
                 fileName.LastIndexOf('.') == fileName.Length - 1)
             {
-                return "";
+                return String.Empty;
             }
 
-            string format = "";
+            var format = String.Empty;
 
-            for (int i = fileName.LastIndexOf('.'); i < fileName.Length; i++)
+            for (var characterPosition = fileName.LastIndexOf('.'); 
+                characterPosition < fileName.Length; characterPosition++)
             {
-                format += fileName.ElementAt(i);
+                format += fileName.ElementAt(characterPosition);
             }
 
             return format;

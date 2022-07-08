@@ -4,28 +4,28 @@ namespace ExDrive.Services
 {
     public class DeleteTemporaryTimer
     {
-        int days;
-        string containerName;
-
-        public static System.Timers.Timer aTimer;
-        static double interval24hours = 60 * 60 * 24 * 1000;
-
-        public DeleteTemporaryTimer(int days, string containerName)
-        {
-            this.days = days;
-            this.containerName = containerName;
-        }
-
         public void SetTimer()
         {
-            aTimer = new System.Timers.Timer(interval24hours * days);
-            aTimer.Elapsed += new ElapsedEventHandler(checkForTime_Elapsed);
-            aTimer.AutoReset = true;
-            aTimer.Enabled = true;
+            Timer = new System.Timers.Timer(interval24hours * Days);
+
+            Timer.Elapsed += new ElapsedEventHandler(checkForTimeElapsed);
+
+            Timer.AutoReset = true;
+
+            Timer.Enabled = true;
         }
-        private void checkForTime_Elapsed(object sender, ElapsedEventArgs e)
+        private void checkForTimeElapsed(object? sender, ElapsedEventArgs e)
         {
-              DeleteTemporary.DeleteTemporaryFiles(days, containerName);
+              DeleteTemporary.DeleteTemporaryFiles(Days, ContainerName);
         }
+        public DeleteTemporaryTimer(int days, string containerName)
+        {
+            Days = days;
+            ContainerName = containerName;
+        }
+        private int Days { get; set; }
+        private string ContainerName { get; set; }
+        private System.Timers.Timer? Timer { get; set; }
+        private readonly double interval24hours = 60 * 60 * 24 * 1000;
     }
 }

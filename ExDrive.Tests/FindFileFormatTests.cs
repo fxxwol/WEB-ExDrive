@@ -20,7 +20,8 @@ namespace ExDrive.Tests
             string expected = "";
 
             // Act
-            string actual = FindFileFormat.FindFormat(fileName);
+            var findFormat = new FindFileFormat();
+            string actual = findFormat.FindFormat(fileName);
 
             // Assert
             Assert.Equal(expected, actual);
@@ -36,7 +37,8 @@ namespace ExDrive.Tests
             // Arrange
 
             // Act
-            string actual = FindFileFormat.FindFormat(fileName);
+            var findFormat = new FindFileFormat();
+            string actual = findFormat.FindFormat(fileName);
 
             // Assert
             Assert.False(String.IsNullOrEmpty(actual));

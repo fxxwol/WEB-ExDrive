@@ -9,5 +9,10 @@ namespace ExDrive.Authentication
 
         [Required(ErrorMessage = "Password is required")]
         public string Password { get; set; }
+        public LoginModel()
+        {
+            Email = String.Empty;
+            Password = String.Empty;
+        }
     }
 }

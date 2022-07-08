@@ -2,6 +2,6 @@
 {
     public class UploadInstance
     {
-        public IFormFile MyFile { get; set; }
+        public IFormFile? MyFile { get; set; }
     }
 }

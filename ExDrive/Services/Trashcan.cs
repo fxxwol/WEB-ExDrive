@@ -11,68 +11,90 @@ namespace ExDrive.Services
 {
     public class Trashcan
     {
-        public static async Task DeleteFile(string filename, string userId, ApplicationDbContext context)
+        public async Task DeleteFile(string fileName, string userId, ApplicationDbContext context)
         {
-            BlobContainerClient containerDest = new BlobContainerClient(ConnectionStrings.GetStorageConnectionString(), "trashcan");
-            BlobContainerClient containerSource = new BlobContainerClient(ConnectionStrings.GetStorageConnectionString(), userId);
+            var destinationContainer = new BlobContainerClient(ConnectionStrings.GetStorageConnectionString(),
+                                    TrashcanContainerName);
+            var sourceContainer = new BlobContainerClient(ConnectionStrings.GetStorageConnectionString(),
+                                    userId);
 
-            var storageAccount = CloudStorageAccount.Parse(ConnectionStrings.GetStorageConnectionString());
-            var blobClient = storageAccount.CreateCloudBlobClient();
+            var sourceBlob = GetCloudBlockBlobReference(ConnectionStrings.GetStorageConnectionString(),
+                                    userId, fileName);
 
-            var sourceContainerName = userId;
+            var memoryStream = new MemoryStream();
+            await sourceBlob.DownloadToStreamAsync(memoryStream);
 
-            var sourceContainer = blobClient.GetContainerReference(sourceContainerName);
+            memoryStream.Position = 0;
 
-            CloudBlockBlob sourceBlob = sourceContainer.GetBlockBlobReference(filename);
+            await destinationContainer.UploadBlobAsync(fileName, memoryStream);
+            await sourceContainer.DeleteBlobAsync(fileName);
+            await memoryStream.FlushAsync();
 
-            MemoryStream memStream = new MemoryStream();
-            await sourceBlob.DownloadToStreamAsync(memStream);
+            var toDelete = context.Files!.Find(fileName);
 
-            memStream.Position = 0;
-            await containerDest.UploadBlobAsync(filename, memStream);
-            await containerSource.DeleteBlobAsync(filename);
-            await memStream.FlushAsync();
-
-            Files? todelete = context.Files.Find(filename);
-            if (todelete != null)
+            if (toDelete != null)
             {
-                Files? modified = todelete;
+                Files? modified = toDelete;
+
                 modified.IsTemporary = true;
-                context.Files.Update(todelete).OriginalValues.SetValues(modified);
+
+                context.Files.Update(toDelete).OriginalValues.SetValues(modified);
             }
+
             context.SaveChanges();
         }
-        public static async Task FileRecovery(string filename, string userId, ApplicationDbContext context)
+        public async Task RecoverFile(string fileName, string userId, ApplicationDbContext context)
         {
-            BlobContainerClient containerDest = new BlobContainerClient(ConnectionStrings.GetStorageConnectionString(), userId);
-            BlobContainerClient containerSource = new BlobContainerClient(ConnectionStrings.GetStorageConnectionString(), "trashcan");
+            var destinationContainer = GetBlobContainerClient(ConnectionStrings.GetStorageConnectionString(),
+                                    userId);
+            var sourceContainer = GetBlobContainerClient(ConnectionStrings.GetStorageConnectionString(),
+                                    TrashcanContainerName);
 
-            var storageAccount = CloudStorageAccount.Parse(ConnectionStrings.GetStorageConnectionString());
+            var sourceBlob = GetCloudBlockBlobReference(ConnectionStrings.GetStorageConnectionString(),
+                                    TrashcanContainerName, fileName);
+
+            var memoryStream = new MemoryStream();
+            await sourceBlob.DownloadToStreamAsync(memoryStream);
+
+            memoryStream.Position = 0;
+
+            await destinationContainer.UploadBlobAsync(fileName, memoryStream);
+            await sourceContainer.DeleteBlobAsync(fileName);
+            await memoryStream.FlushAsync();
+
+            var toRecover = context.Files!.Find(fileName);
+            if (toRecover != null)
+            {
+                Files? modified = toRecover;
+
+                modified.IsTemporary = false;
+
+                context.Files.Update(toRecover).OriginalValues.SetValues(modified);
+            }
+
+            context.SaveChanges();
+        }
+
+        private BlobContainerClient GetBlobContainerClient(string connectionString, string containerName)
+        {
+            return new BlobContainerClient(connectionString, containerName);
+        }
+
+        private CloudBlockBlob GetCloudBlockBlobReference(string connectionString, string containerName, string blobName)
+        {
+            var storageAccount = CloudStorageAccount.Parse(connectionString);
+
             var blobClient = storageAccount.CreateCloudBlobClient();
 
-            var sourceContainerName = "trashcan";
+            var sourceContainer = blobClient.GetContainerReference(containerName);
 
-            var sourceContainer = blobClient.GetContainerReference(sourceContainerName);
-
-            CloudBlockBlob sourceBlob = sourceContainer.GetBlockBlobReference(filename);
-
-            MemoryStream memStream = new MemoryStream();
-            await sourceBlob.DownloadToStreamAsync(memStream);
-
-            memStream.Position = 0;
-            await containerDest.UploadBlobAsync(filename, memStream);
-            await containerSource.DeleteBlobAsync(filename);
-            await memStream.FlushAsync();
-
-            Files? torecover = context.Files.Find(filename);
-            if (torecover != null)
-            {
-                Files? modified = torecover;
-                modified.IsTemporary = false;
-                context.Files.Update(torecover).OriginalValues.SetValues(modified);
-            }
-            context.SaveChanges();
+            return sourceContainer.GetBlockBlobReference(blobName);
         }
 
+        public Trashcan(string trashcanContainerName)
+        {
+            TrashcanContainerName = trashcanContainerName;
+        }
+        private string TrashcanContainerName { get; set; }
     }
 }

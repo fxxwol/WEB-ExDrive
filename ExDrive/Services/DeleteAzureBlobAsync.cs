@@ -12,8 +12,8 @@ namespace ExDrive.Services
         {
             if (file == null)
             {
-                throw new ArgumentNullException("Could not delete a blob from " + containerName);
-            }    
+                throw new ArgumentNullException($"Could not delete a blob from " + containerName);
+            }
 
             var containerClient = new BlobContainerClient(ConnectionStrings.GetStorageConnectionString(), containerName);
 

@@ -25,7 +25,7 @@ namespace ExDrive.Services
             HashSet<string> blocklist = new HashSet<string>();
 
             MemoryStream ms = new MemoryStream();
-            var filems = formFile.MyFile.OpenReadStream();
+            var filems = formFile.MyFile!.OpenReadStream();
             await filems.CopyToAsync(ms);
 
             string tempname = Guid.NewGuid().ToString();
@@ -81,7 +81,7 @@ namespace ExDrive.Services
 
             } while (bytesRemain > 0);
 
-            applicationDbContext.Files.Add(newFile);
+            applicationDbContext.Files!.Add(newFile);
 
             applicationDbContext.SaveChanges();
 
@@ -132,7 +132,7 @@ namespace ExDrive.Services
 
             } while (bytesRemain > 0);
 
-            applicationDbContext.Files.Add(newFile);
+            applicationDbContext.Files!.Add(newFile);
 
             applicationDbContext.SaveChanges();
 

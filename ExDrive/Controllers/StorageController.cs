@@ -17,10 +17,10 @@ namespace ExDrive.Controllers
 {
     public class StorageController : Controller
     {
-        private static List<NameInstance> _nameInstances = new List<NameInstance>();
-        private static List<NameInstance>? _searchResult = new List<NameInstance>();
+        private static List<NameInstance> _nameInstances = new();
+        private static List<NameInstance>? _searchResult = new();
 
-        private static ApplicationDbContext _applicationDbContext;
+        private static ApplicationDbContext _applicationDbContext = new();
 
         private static string? _userId;
         private static bool _isDeleted = false;
@@ -29,6 +29,7 @@ namespace ExDrive.Controllers
         private readonly string _tmpFilesPath = "C:\\Users\\Public\\tmpfiles\\";
         private readonly string _getLinkArchive = "C:\\Users\\Public\\getlink\\";
         private readonly string _tempFilesContainerLink = "https://exdrivefile.blob.core.windows.net/botfiles/";
+        private readonly string _trashcanContainerName = "trashcan";
 
         public StorageController(ApplicationDbContext applicationDbContext)
         {
@@ -55,12 +56,19 @@ namespace ExDrive.Controllers
         {
             ViewData["GetFiles"] = searchString;
 
+            if (searchString == null && _searchResult != null)
+            {
+                return View("AccessStorage", _searchResult);
+            }
+
             if (searchString == null)
             {
                 _searchResult = null;
 
                 if (_isDeleted == false)
+                {
                     return View("AccessStorage", _nameInstances);
+                }
 
                 _isDeleted = false;
                 return RedirectToAction("AccessStorage", "Storage");
@@ -118,7 +126,7 @@ namespace ExDrive.Controllers
             {
                 if (name.IsSelected == true)
                 {
-                    Files? favourite = _applicationDbContext.Files.Find(name.Id);
+                    Files? favourite = _applicationDbContext.Files!.Find(name.Id);
                     if (favourite != null)
                     {
                         Files? modified = favourite;
@@ -142,12 +150,15 @@ namespace ExDrive.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            string newname = Guid.NewGuid().ToString() + FindFileFormat.FindFormat(_file.MyFile.FileName);
-            Files files = new(newname, _file.MyFile.FileName, "*", true);
+            var findFormat = new FindFileFormat();
+
+            var newName = Guid.NewGuid().ToString() + findFormat.FindFormat(_file.MyFile.FileName);
+
+            var file = new Files(newName, _file.MyFile.FileName, "*", true);
 
             try
             {
-                await UploadTempAsync.UploadFileAsync(_file, files, _applicationDbContext);
+                await UploadTempAsync.UploadFileAsync(_file, file, _applicationDbContext);
             }
             catch (Exception)
             {
@@ -155,26 +166,29 @@ namespace ExDrive.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            TempData["AlertMessage"] = _tempFilesContainerLink + files.FilesId;
+            TempData["AlertMessage"] = _tempFilesContainerLink + file.FilesId;
             return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]
         [Consumes("multipart/form-data")]
         [RequestFormLimits(MultipartBodyLengthLimit = 629145600)]
-        public async Task<IActionResult> SinglePermFile(UploadInstance file)
+        public async Task<IActionResult> SinglePermFile(UploadInstance _file)
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (_userId == null || file.MyFile == null)
+            if (_userId == null || _file.MyFile == null)
                 return RedirectToAction("AccessStorage", "Storage");
 
-            string newname = Guid.NewGuid().ToString() + FindFileFormat.FindFormat(file.MyFile.FileName);
-            Files files = new(newname, file.MyFile.FileName, _userId, false);
+            var findFormat = new FindFileFormat();
+
+            var newName = Guid.NewGuid().ToString() + findFormat.FindFormat(_file.MyFile.FileName);
+
+            var file = new Files(newName, _file.MyFile.FileName, _userId, false);
 
             try
             {
-                await UploadPermAsync.UploadFileAsync(file, files, _userId, _applicationDbContext);
+                await UploadPermAsync.UploadFileAsync(_file, file, _userId, _applicationDbContext);
             }
             catch (Exception)
             {
@@ -187,7 +201,7 @@ namespace ExDrive.Controllers
         {
             try
             {
-                int position = Int32.Parse(afile);
+                var position = Int32.Parse(afile);
 
                 // if there was no search, file from main List is selected
                 // (user is not in search mode)
@@ -224,7 +238,8 @@ namespace ExDrive.Controllers
                 {
                     if (name.IsSelected == true)
                     {
-                        await ExDrive.Services.Trashcan.DeleteFile(name.Id, _userId, _applicationDbContext);
+                        var trashcan = new Trashcan(_trashcanContainerName);
+                        await trashcan.DeleteFile(name.Id, _userId, _applicationDbContext);
                     }
                 }
                 return RedirectToAction("AccessStorage", "Storage");
@@ -233,21 +248,22 @@ namespace ExDrive.Controllers
             // creating new list to preserve search results
             // function adds files that are not marked for deletion newsearch List
             int i = 0;
-            List<NameInstance> newsearch = new();
+            List<NameInstance> newSearch = new();
 
             foreach (var name in _searchResult)
             {
                 if (name.IsSelected == true)
                 {
-                    await ExDrive.Services.Trashcan.DeleteFile(name.Id, _userId, _applicationDbContext);
+                    var trashcan = new Trashcan(_trashcanContainerName);
+                    await trashcan.DeleteFile(name.Id, _userId, _applicationDbContext);
                 }
                 else
-                    newsearch.Add(_searchResult.ElementAt(i));
+                    newSearch.Add(_searchResult.ElementAt(i));
 
                 i++;
             }
 
-            _searchResult = newsearch;
+            _searchResult = newSearch;
             return View("AccessStorage", _searchResult);
         }
         public ActionResult DownloadFiles()
@@ -385,7 +401,7 @@ namespace ExDrive.Controllers
                     });
                 }
 
-                Files file = new(Guid.NewGuid().ToString() + ".zip", _userId + zipName, "*", true);
+                var file = new Files(Guid.NewGuid().ToString() + ".zip", _userId + zipName, "*", true);
 
                 await UploadTempAsync.UploadFileAsync(memoryStream, file, _applicationDbContext);
 
@@ -407,71 +423,99 @@ namespace ExDrive.Controllers
                 if (name.IsSelected == false)
                     continue;
 
-                string fileName = name.Id;
-                string type = "";
+                var fileName = name.Id;
 
-                MemoryStream ms = new();
+                var findFormat = new FindFileFormat();
+
+                var type = findFormat.FindFormat(name.Name);
+
+                var memoryStream = new MemoryStream();
+
                 stream = DownloadAzureFile.DownloadFile(fileName, _userId);
-                stream.CopyTo(ms);
-
-                type = FindFileFormat.FindFormat(name.Name);
+                stream.CopyTo(memoryStream);
 
                 switch (type)
                 {
                     case ".txt":
                         Response.ContentType = "text/plain";
-                        HttpContext.Response.Body.Write(ms.ToArray());
+                        HttpContext.Response.Body.Write(memoryStream.ToArray());
+
+                        Response.CompleteAsync();
+
                         break;
                     case ".pdf":
                         Response.ContentType = "Application/pdf";
-                        HttpContext.Response.Body.Write(ms.ToArray());
+                        HttpContext.Response.Body.Write(memoryStream.ToArray());
+
                         Response.CompleteAsync();
+
                         break;
                     case ".doc":
-                        var word = new WordDocument(ms, Syncfusion.DocIO.FormatType.Docx);
+                        var docDocument = new WordDocument(memoryStream, FormatType.Docx);
                         var docRenderer = new DocIORenderer();
+
                         docRenderer.Settings.AutoTag = true;
                         docRenderer.Settings.PreserveFormFields = true;
                         docRenderer.Settings.ExportBookmarks = ExportBookmarkType.Headings;
-                        var pdfDocument = docRenderer.ConvertToPDF(word);
-                        var memoryStream = new MemoryStream();
-                        pdfDocument.Save(memoryStream);
 
-                        memoryStream.Position = 0;
+                        var pdfDocDocument = docRenderer.ConvertToPDF(docDocument);
+                        var docMemoryStream = new MemoryStream();
+
+                        pdfDocDocument.Save(docMemoryStream);
+
                         Response.ContentType = "Application/pdf";
-                        HttpContext.Response.Body.Write(memoryStream.ToArray());
+
+                        docMemoryStream.Position = 0;
+                        HttpContext.Response.Body.Write(docMemoryStream.ToArray());
+
+                        Response.CompleteAsync();
+
                         break;
                     case ".png":
                         Response.ContentType = "image/png";
-                        HttpContext.Response.Body.Write(ms.ToArray());
+                        HttpContext.Response.Body.Write(memoryStream.ToArray());
+
                         Response.CompleteAsync();
+
                         break;
                     case ".docx":
-                        var wordDocument = new WordDocument(ms, Syncfusion.DocIO.FormatType.Docx);
-                        var docIORenderer = new DocIORenderer();
-                        docIORenderer.Settings.AutoTag = true;
-                        docIORenderer.Settings.PreserveFormFields = true;
-                        docIORenderer.Settings.ExportBookmarks = ExportBookmarkType.Headings;
-                        var pdfDoc = docIORenderer.ConvertToPDF(wordDocument);
-                        var memStream = new MemoryStream();
-                        pdfDoc.Save(memStream);
+                        var docxDocument = new WordDocument(memoryStream, FormatType.Docx);
+                        var docxRenderer = new DocIORenderer();
 
-                        memStream.Position = 0;
+                        docxRenderer.Settings.AutoTag = true;
+                        docxRenderer.Settings.PreserveFormFields = true;
+                        docxRenderer.Settings.ExportBookmarks = ExportBookmarkType.Headings;
+
+                        var pdfDocxDocument = docxRenderer.ConvertToPDF(docxDocument);
+                        var docxMemoryStream = new MemoryStream();
+
+                        pdfDocxDocument.Save(docxMemoryStream);
+
                         Response.ContentType = "Application/pdf";
-                        HttpContext.Response.Body.Write(memStream.ToArray());
+
+                        docxMemoryStream.Position = 0;
+                        HttpContext.Response.Body.Write(docxMemoryStream.ToArray());
+
+                        Response.CompleteAsync();
+
                         break;
                     case ".jpg":
                         Response.ContentType = "image/jpeg";
-                        HttpContext.Response.Body.Write(ms.ToArray());
+                        HttpContext.Response.Body.Write(memoryStream.ToArray());
+
                         Response.CompleteAsync();
+
                         break;
                     case ".jpeg":
                         Response.ContentType = "image/jpeg";
-                        HttpContext.Response.Body.Write(ms.ToArray());
+                        HttpContext.Response.Body.Write(memoryStream.ToArray());
+
                         Response.CompleteAsync();
+
                         break;
                     default:
                         Response.WriteAsync("Sorry but we can't open this file :(");
+
                         break;
                 }
                 break;
@@ -488,26 +532,24 @@ namespace ExDrive.Controllers
                 {
                     if (name.IsSelected == true)
                     {
-                        Files? toRename = _applicationDbContext.Files.Find(name.Id);
-                        string type;
-                        if (toRename != null)
-                        {
-                            type = FindFileFormat.FindFormat(toRename.FilesId);
+                        var toRename = _applicationDbContext.Files!.Find(name.Id);
 
-                            Files? modified = toRename;
-                            if (!newName.EndsWith(type))
-                            {
-                                modified.Name = newName + type;
-                                _applicationDbContext.Files.Update(toRename).OriginalValues.SetValues(modified);
-                            }
-                            else
-                            {
-                                modified.Name = newName;
-                                _applicationDbContext.Files.Update(toRename).OriginalValues.SetValues(modified);
-                            }
+                        if (toRename == null)
+                            continue;
 
-                            _nameInstances.Find(x => x.Id == toRename.FilesId).Name = modified.Name;
-                        }
+                        var fileFormat = new FindFileFormat();
+                        var type = fileFormat.FindFormat(toRename.FilesId);
+
+                        Files? modified = toRename;
+
+                        newName = newName.Replace('.', '_');
+
+                        modified.Name = newName + type;
+
+                        _applicationDbContext.Files.Update(toRename).OriginalValues.SetValues(modified);
+
+                        _nameInstances.Find(file => file.Id == toRename.FilesId)!.Name = modified.Name;
+
                         _applicationDbContext.SaveChanges();
                     }
                 }
@@ -520,35 +562,32 @@ namespace ExDrive.Controllers
                 {
                     if (name.IsSelected == true)
                     {
-                        Files? toRename = _applicationDbContext.Files.Find(name.Id);
-                        string type;
-                        if (toRename != null)
-                        {
-                            type = FindFileFormat.FindFormat(toRename.FilesId);
+                        var toRename = _applicationDbContext.Files!.Find(name.Id);
 
-                            Files? modified = toRename;
-                            if (!newName.EndsWith(type) && newName.LastIndexOf('.') < 0)
-                            {
-                                modified.Name = newName + type;
-                                _applicationDbContext.Files.Update(toRename).OriginalValues.SetValues(modified);
-                            }
-                            else
-                            {
-                                modified.Name = newName;
-                                _applicationDbContext.Files.Update(toRename).OriginalValues.SetValues(modified);
-                            }
+                        if (toRename == null)
+                            continue;
 
-                            _searchResult.Find(x => x.Id == toRename.FilesId).Name = modified.Name;
-                        }
+                        var fileFormat = new FindFileFormat();
+                        var type = fileFormat.FindFormat(toRename.FilesId);
+
+                        Files? modified = toRename;
+
+                        newName = newName.Replace('.', '_');
+
+                        modified.Name = newName + type;
+
+                        _applicationDbContext.Files.Update(toRename).OriginalValues.SetValues(modified);
+
+                        _searchResult.Find(file => file.Id == toRename.FilesId)!.Name = modified.Name;
+
                         _applicationDbContext.SaveChanges();
                     }
                 }
 
                 return View("AccessStorage", _searchResult);
             }
-
-
         }
+
         [HttpPost, DisableRequestSizeLimit]
         public async Task<ActionResult> UploadTempFileBot()
         {
@@ -565,7 +604,8 @@ namespace ExDrive.Controllers
             Request.Headers.TryGetValue("file-name", out vs);
             string name = vs.First();
 
-            Files file = new(Guid.NewGuid().ToString() + FindFileFormat.FindFormat(name),
+            var fileFormat = new FindFileFormat();
+            var file = new Files(Guid.NewGuid().ToString() + fileFormat.FindFormat(name),
                 name, "*", true);
 
             Stream stream = Request.Body;

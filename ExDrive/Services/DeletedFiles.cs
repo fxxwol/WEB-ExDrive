@@ -2,6 +2,7 @@
 
 using ExDrive.Configuration;
 using ExDrive.Models;
+using ExDrive.Helpers;
 
 namespace ExDrive.Services
 {
@@ -9,28 +10,28 @@ namespace ExDrive.Services
     {
         public static List<NameInstance> GetDeletedFilesDB(string _userId)
         {
-            string name;
-            string noformat;
+            string fileName;
+            string fileNameWithoutFormat;
 
-            List<NameInstance> deleted = new List<NameInstance>();
+            var deleted = new List<NameInstance>();
 
-            using (SqlConnection con = new SqlConnection(ConnectionStrings.GetSqlConnectionString()))
+            using (SqlConnection sqlConnection = new SqlConnection(ConnectionStrings.GetSqlConnectionString()))
             {
-                con.Open();
-                using (SqlCommand cmd = new SqlCommand($"SELECT Name, FilesId, Favourite FROM dbo.Files WHERE HasAccess='{_userId}' AND IsTemporary=1 ORDER BY FilesId ASC", con))
+                sqlConnection.Open();
+                using (SqlCommand sqlCommand = new SqlCommand($"SELECT Name, FilesId, Favourite FROM dbo.Files WHERE HasAccess='{_userId}' AND IsTemporary=1 ORDER BY FilesId ASC", sqlConnection))
                 {
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = sqlCommand.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            noformat = "";
-                            name = (string)reader["Name"];
-                            for (int i = 0; i < name.LastIndexOf('.'); i++)
-                            {
-                                noformat += name.ElementAt(i);
-                            }
 
-                            deleted.Add(new NameInstance(name, noformat, (string)reader["FilesId"], (bool)reader["Favourite"]));
+                            fileName = (string)reader["Name"];
+
+                            var withoutFormat = new FindNameWithoutFormat();
+                            fileNameWithoutFormat = withoutFormat.FindWithoutFormat(fileName);
+
+                            deleted.Add(new NameInstance(fileName, fileNameWithoutFormat,
+                                        (string)reader["FilesId"], (bool)reader["Favourite"]));
                         }
                     }
                 }

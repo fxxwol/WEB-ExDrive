@@ -14,10 +14,12 @@ namespace ExDrive.Controllers
         private string? _userId;
         private static bool _isDeleted = false;
 
-        private static List<NameInstance>? _deleted = new List<NameInstance>();
-        private static List<NameInstance>? _searchResult = new List<NameInstance>();
+        private static List<NameInstance>? _deleted = new();
+        private static List<NameInstance>? _searchResult = new();
 
-        private static ApplicationDbContext _applicationDbContext;
+        private static ApplicationDbContext _applicationDbContext = new();
+
+        private readonly string _trashcanContainerName = "trashcan";
 
         public TrashcanController(ApplicationDbContext applicationDbContext)
         {
@@ -40,7 +42,7 @@ namespace ExDrive.Controllers
                 // (user is not in search mode)
                 if (_searchResult == null)
                 {
-                    _deleted.ElementAt(position).IsSelected ^= true;
+                    _deleted!.ElementAt(position).IsSelected ^= true;
                     return View("Trashcan", _deleted);
                 }
 
@@ -76,7 +78,7 @@ namespace ExDrive.Controllers
                 {
                     if (name.IsSelected == true)
                     {
-                        var todelete = _applicationDbContext.Files.Find(name.Id);
+                        var todelete = _applicationDbContext.Files!.Find(name.Id);
                         
                         if (todelete != null)
                         {
@@ -86,7 +88,7 @@ namespace ExDrive.Controllers
                             {
                                 var deleteBlob = new DeleteAzureBlobAsync();
 
-                                deleteBlob.DeleteBlobAsync(todelete, "trashcan");
+                                deleteBlob.DeleteBlobAsync(todelete, _trashcanContainerName);
                             }
                             catch
                             {
@@ -109,7 +111,7 @@ namespace ExDrive.Controllers
             {
                 if (name.IsSelected == true)
                 {
-                    Files? todelete = _applicationDbContext.Files.Find(name.Id);
+                    Files? todelete = _applicationDbContext.Files!.Find(name.Id);
                     if (todelete != null)
                     {
                         _deleted.Remove(name);
@@ -137,6 +139,11 @@ namespace ExDrive.Controllers
         {
             ViewData["GetFiles"] = searchString;
 
+            if (searchString == null && _searchResult != null)
+            {
+                return View("Trashcan", _searchResult);
+            }
+
             if (searchString == null)
             {
                 _searchResult = null;
@@ -151,7 +158,7 @@ namespace ExDrive.Controllers
             }
 
             // checking if user files' names contain search request
-            _searchResult = _deleted.Where(x => x.Name.Contains(searchString)).ToList();
+            _searchResult = _deleted!.Where(x => x.Name.Contains(searchString)).ToList();
             if (_searchResult.Count > 0)
             {
                 return View("Trashcan", _searchResult);
@@ -172,41 +179,38 @@ namespace ExDrive.Controllers
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // if there was no search, files from main List are deleted
-            // (user is not in search mode)
-
             if (_searchResult == null && _deleted != null)
             {
                 foreach (var name in _deleted)
                 {
                     if (name.IsSelected == true)
                     {
-                        await ExDrive.Services.Trashcan.FileRecovery(name.Id, _userId, _applicationDbContext);
+                        var trashcan = new Trashcan(_trashcanContainerName);
+                        await trashcan.RecoverFile(name.Id, _userId, _applicationDbContext);
                     }
-
                 }
+
                 return RedirectToAction("Trashcan", "Trashcan");
             }
-            // creating new list to preserve search results
-            // function adds files that are not marked for deletion newsearch List
-            int i = 0;
-            List<NameInstance> newsearch = new List<NameInstance>();
 
-            foreach (var name in _searchResult)
+             var newSearch = new List<NameInstance>();
+
+            for (var elementPosition = 0; elementPosition < _searchResult!.Count; elementPosition++)
             {
+                var name = _searchResult[elementPosition];
+
                 if (name.IsSelected == true)
                 {
-                    await ExDrive.Services.Trashcan.FileRecovery(name.Id, _userId, _applicationDbContext);
+                    var trashcan = new Trashcan(_trashcanContainerName);
+                    await trashcan.RecoverFile(name.Id, _userId, _applicationDbContext);
                 }
                 else
                 {
-                    newsearch.Add(_searchResult.ElementAt(i));
+                    newSearch.Add(_searchResult.ElementAt(elementPosition));
                 }
-
-                i++;
             }
 
-            _searchResult = newsearch;
+            _searchResult = newSearch;
 
             return View("Trashcan", _searchResult);
         }

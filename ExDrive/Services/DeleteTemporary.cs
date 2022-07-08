@@ -23,7 +23,7 @@ namespace ExDrive.Services
                 {
                     await containerClient.DeleteBlobAsync(blob.Name);
 
-                    var todelete = _context.Files.Find(blob.Name);
+                    var todelete = _context.Files!.Find(blob.Name);
 
                     if (todelete != null)
                     {
