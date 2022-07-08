@@ -9,7 +9,7 @@ namespace ExDrive.Services
 {
     public abstract class UploadFileAsync : IAsyncDisposable
     {
-        abstract protected Task<CloudBlockBlob> CreateNewBlob(Files newFile, string userId);
+        abstract protected Task<CloudBlockBlob> CreateNewBlob(Files newFile, string containerName);
 
         protected async Task UploadBlobBlock(Files file, string name, long bytesRemain, long prevLastByte = 0)
         {
@@ -42,8 +42,7 @@ namespace ExDrive.Services
 
             await blob.PutBlockListAsync(blocklist);
         }
-
-
+        
         protected async Task CreateFile(string name)
         {
             Directory.CreateDirectory(FullPath);
@@ -65,7 +64,7 @@ namespace ExDrive.Services
 
             if (scanResult == ScanResult.VirusFound)
             {
-                throw new Exception("File is infected");
+                throw new Exception("File may be malicious");
             }
         }
 

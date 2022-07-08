@@ -45,13 +45,13 @@ namespace ExDrive.Services
         //        Directory.Delete(FullPath, true);
         //}
 
-        protected override async Task<CloudBlockBlob> CreateNewBlob(Files newFile, string userId)
+        protected override async Task<CloudBlockBlob> CreateNewBlob(Files newFile, string containerName)
         {
             CloudStorageAccount StorageAccount = CloudStorageAccount.Parse(ConnectionStrings.GetStorageConnectionString());
 
             CloudBlobClient BlobClient = StorageAccount.CreateCloudBlobClient();
 
-            CloudBlobContainer Container = BlobClient.GetContainerReference(userId);
+            CloudBlobContainer Container = BlobClient.GetContainerReference(containerName);
             
             await Container.CreateIfNotExistsAsync(BlobContainerPublicAccessType.Off,
                                                    new BlobRequestOptions(), new OperationContext());

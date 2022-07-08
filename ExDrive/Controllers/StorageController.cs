@@ -156,14 +156,20 @@ namespace ExDrive.Controllers
 
             var file = new Files(newName, _file.MyFile.FileName, "*", true);
 
+            var uploadTempAsync = new UploadTempAsync();
+
             try
             {
-                await UploadTempAsync.UploadFileAsync(_file, file, _applicationDbContext);
+                await uploadTempAsync.UploadFileAsync(_file, file, Guid.NewGuid().ToString(), _applicationDbContext);
             }
             catch (Exception)
             {
                 TempData["AlertMessage"] = "Failed to upload: file may contain viruses";
                 return RedirectToAction("Index", "Home");
+            }
+            finally
+            {
+                await uploadTempAsync.DisposeAsync();
             }
 
             TempData["AlertMessage"] = _tempFilesContainerLink + file.FilesId;
@@ -280,8 +286,26 @@ namespace ExDrive.Controllers
                     if (name.IsSelected == false)
                         continue;
 
+                    var downloadedFiles = Directory.GetFiles(Path.Combine(_tmpFilesPath, _userId)).ToList();
+
+                    var fileName = String.Empty;
+
+                    var currentName = Path.Combine(_tmpFilesPath + _userId, _nameInstances.ElementAt(i).Name);
+
+                    if (downloadedFiles.Contains(currentName))
+                    {
+                        var findFormat = new FindFileFormat();
+
+                        fileName = _nameInstances.ElementAt(i).NoFormat + $"({i})" + 
+                            findFormat.FindFormat(_nameInstances.ElementAt(i).Name);
+                    }
+                    else
+                    {
+                        fileName = _nameInstances.ElementAt(i).Name;
+                    }
+
                     using (var fileStream = new FileStream(Path.Combine(_tmpFilesPath + _userId,
-                                                                        _nameInstances.ElementAt(i).Name),
+                                                                        fileName),
                                                                         FileMode.Create, FileAccess.Write))
                     {
                         var downloadFile = new DownloadAzureFile();
@@ -306,8 +330,24 @@ namespace ExDrive.Controllers
                     if (name.IsSelected == false)
                         continue;
 
+                    var downloadedFiles = Directory.GetFiles(Path.Combine(_tmpFilesPath, _userId)).ToList();
+
+                    var fileName = String.Empty;
+
+                    if (downloadedFiles.Contains(Path.Combine(_tmpFilesPath + _userId, _searchResult.ElementAt(i).Name)))
+                    {
+                        var findFormat = new FindFileFormat();
+
+                        fileName = _searchResult.ElementAt(i).NoFormat + $"({i})" +
+                            findFormat.FindFormat(_searchResult.ElementAt(i).Name);
+                    }
+                    else
+                    {
+                        fileName = _searchResult.ElementAt(i).Name;
+                    }
+
                     using (var fileStream = new FileStream(Path.Combine(_tmpFilesPath + _userId,
-                                                                        _searchResult.ElementAt(i).Name),
+                                                                        fileName),
                                                                         FileMode.Create, FileAccess.Write))
                     {
                         var downloadFile = new DownloadAzureFile();
@@ -369,8 +409,26 @@ namespace ExDrive.Controllers
                     if (name.IsSelected == false)
                         continue;
 
+                    var downloadedFiles = Directory.GetFiles(Path.Combine(_getLinkArchive, _userId)).ToList();
+
+                    var fileName = String.Empty;
+
+                    var currentName = Path.Combine(_getLinkArchive + _userId, _nameInstances.ElementAt(i).Name);
+
+                    if (downloadedFiles.Contains(currentName))
+                    {
+                        var findFormat = new FindFileFormat();
+
+                        fileName = _nameInstances.ElementAt(i).NoFormat + $"({i})" +
+                            findFormat.FindFormat(_nameInstances.ElementAt(i).Name);
+                    }
+                    else
+                    {
+                        fileName = _nameInstances.ElementAt(i).Name;
+                    }
+
                     using (var fileStream = new FileStream(Path.Combine(_getLinkArchive + _userId,
-                                                                        _nameInstances.ElementAt(i).Name),
+                                                                        fileName),
                                                                         FileMode.Create, FileAccess.Write))
                     {
                         var downloadFile = new DownloadAzureFile();
@@ -395,8 +453,26 @@ namespace ExDrive.Controllers
                     if (name.IsSelected == false)
                         continue;
 
+                    var downloadedFiles = Directory.GetFiles(Path.Combine(_getLinkArchive, _userId)).ToList();
+
+                    var fileName = String.Empty;
+
+                    var currentName = Path.Combine(_getLinkArchive + _userId, _searchResult.ElementAt(i).Name);
+
+                    if (downloadedFiles.Contains(currentName))
+                    {
+                        var findFormat = new FindFileFormat();
+
+                        fileName = _searchResult.ElementAt(i).NoFormat + $"({i})" +
+                            findFormat.FindFormat(_searchResult.ElementAt(i).Name);
+                    }
+                    else
+                    {
+                        fileName = _searchResult.ElementAt(i).Name;
+                    }
+
                     using (var fileStream = new FileStream(Path.Combine(_getLinkArchive + _userId,
-                                                                        _searchResult.ElementAt(i).Name),
+                                                                        fileName),
                                                                         FileMode.Create, FileAccess.Write))
                     {
                         var downloadFile = new DownloadAzureFile();
@@ -432,14 +508,17 @@ namespace ExDrive.Controllers
 
                 var file = new Files(Guid.NewGuid().ToString() + ".zip", _userId + zipName, "*", true);
 
-                await UploadTempAsync.UploadFileAsync(memoryStream, file, _applicationDbContext);
+                var uploadTempAsync = new UploadTempAsync();
+
+                await uploadTempAsync.UploadFileAsync(memoryStream, file, _applicationDbContext);
+
+                await uploadTempAsync.DisposeAsync();
 
                 Directory.Delete(Path.Combine(_getLinkArchive, _userId), true);
 
                 return _tempFilesContainerLink + file.FilesId;
             }
         }
-
 
         [HttpPost]
         public async void ReadFile()
