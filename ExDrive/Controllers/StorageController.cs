@@ -12,6 +12,7 @@ using ExDrive.Helpers;
 using ExDrive.Models;
 using ExDrive.Authentication;
 using ExDrive.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace ExDrive.Controllers
 {
@@ -19,6 +20,8 @@ namespace ExDrive.Controllers
     {
         private static List<NameInstance> _nameInstances = new();
         private static List<NameInstance>? _searchResult = new();
+
+        private IServiceScopeFactory _serviceScopeFactory;
 
         private static ApplicationDbContext _applicationDbContext = new();
 
@@ -31,9 +34,10 @@ namespace ExDrive.Controllers
         private readonly string _tempFilesContainerLink = "https://exdrivefile.blob.core.windows.net/botfiles/";
         private readonly string _trashcanContainerName = "trashcan";
 
-        public StorageController(ApplicationDbContext applicationDbContext)
+        public StorageController(ApplicationDbContext applicationDbContext, IServiceScopeFactory serviceScopeFactory)
         {
             _applicationDbContext = applicationDbContext;
+            _serviceScopeFactory = serviceScopeFactory;
         }
 
         [Authorize]
@@ -266,7 +270,7 @@ namespace ExDrive.Controllers
             _searchResult = newSearch;
             return View("AccessStorage", _searchResult);
         }
-        public ActionResult DownloadFiles()
+        public async Task<ActionResult> DownloadFiles()
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var zipName = $"archive-{DateTime.Now.ToString("yyyy_MM_dd-HH_mm_ss")}.zip";
@@ -287,7 +291,15 @@ namespace ExDrive.Controllers
                                                                         _nameInstances.ElementAt(i).Name),
                                                                         FileMode.Create, FileAccess.Write))
                     {
-                        DownloadAzureFile.DownloadFile(_nameInstances.ElementAt(i).Id, _userId).CopyTo(fileStream);
+                        var downloadFile = new DownloadAzureFile();
+                        
+                        var memoryStream = await downloadFile.DownloadFile(_nameInstances.ElementAt(i).Id, _userId);
+
+                        memoryStream.Position = 0;
+
+                        await memoryStream.CopyToAsync(fileStream);
+
+                        await memoryStream.FlushAsync();
                     }
                 }
             }
@@ -305,7 +317,15 @@ namespace ExDrive.Controllers
                                                                         _searchResult.ElementAt(i).Name),
                                                                         FileMode.Create, FileAccess.Write))
                     {
-                        DownloadAzureFile.DownloadFile(_searchResult.ElementAt(i).Id, _userId).CopyTo(fileStream);
+                        var downloadFile = new DownloadAzureFile();
+
+                        var memoryStream = await downloadFile.DownloadFile(_searchResult.ElementAt(i).Id, _userId);
+
+                        memoryStream.Position = 0;
+
+                        await memoryStream.CopyToAsync(fileStream);
+
+                        await memoryStream.FlushAsync();
                     }
                 }
             }
@@ -333,7 +353,7 @@ namespace ExDrive.Controllers
                     });
                 }
 
-                System.IO.Directory.Delete(Path.Combine(_tmpFilesPath, _userId), true);
+                Directory.Delete(Path.Combine(_tmpFilesPath, _userId), true);
 
                 return File(memoryStream.ToArray(), "application/zip", zipName);
             }
@@ -344,7 +364,7 @@ namespace ExDrive.Controllers
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var zipName = $"archive-{DateTime.Now.ToString("yyyy_MM_dd-HH_mm_ss")}.zip";
 
-            System.IO.Directory.CreateDirectory(Path.Combine(_getLinkArchive, _userId));
+            Directory.CreateDirectory(Path.Combine(_getLinkArchive, _userId));
 
             if (_searchResult == null)
             {
@@ -360,7 +380,15 @@ namespace ExDrive.Controllers
                                                                         _nameInstances.ElementAt(i).Name),
                                                                         FileMode.Create, FileAccess.Write))
                     {
-                        DownloadAzureFile.DownloadFile(_nameInstances.ElementAt(i).Id, _userId).CopyTo(fileStream);
+                        var downloadFile = new DownloadAzureFile();
+
+                        var memoryStream = await downloadFile.DownloadFile(_nameInstances.ElementAt(i).Id, _userId);
+
+                        memoryStream.Position = 0;
+
+                        await memoryStream.CopyToAsync(fileStream);
+
+                        await memoryStream.FlushAsync();
                     }
                 }
             }
@@ -378,7 +406,15 @@ namespace ExDrive.Controllers
                                                                         _searchResult.ElementAt(i).Name),
                                                                         FileMode.Create, FileAccess.Write))
                     {
-                        DownloadAzureFile.DownloadFile(_searchResult.ElementAt(i).Id, _userId).CopyTo(fileStream);
+                        var downloadFile = new DownloadAzureFile();
+
+                        var memoryStream = await downloadFile.DownloadFile(_searchResult.ElementAt(i).Id, _userId);
+
+                        memoryStream.Position = 0;
+
+                        await memoryStream.CopyToAsync(fileStream);
+
+                        await memoryStream.FlushAsync();
                     }
                 }
             }
@@ -405,7 +441,7 @@ namespace ExDrive.Controllers
 
                 await UploadTempAsync.UploadFileAsync(memoryStream, file, _applicationDbContext);
 
-                System.IO.Directory.Delete(Path.Combine(_getLinkArchive, _userId), true);
+                Directory.Delete(Path.Combine(_getLinkArchive, _userId), true);
 
                 return _tempFilesContainerLink + file.FilesId;
             }
@@ -413,7 +449,7 @@ namespace ExDrive.Controllers
 
 
         [HttpPost]
-        public void ReadFile()
+        public async void ReadFile()
         {
             Stream stream;
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -431,23 +467,24 @@ namespace ExDrive.Controllers
 
                 var memoryStream = new MemoryStream();
 
-                stream = DownloadAzureFile.DownloadFile(fileName, _userId);
-                stream.CopyTo(memoryStream);
+                var downloadFile = new DownloadAzureFile();
+
+                stream = downloadFile.DownloadFile(fileName, _userId).Result;
+
+                await stream.CopyToAsync(memoryStream);
+
+                await stream.FlushAsync();
 
                 switch (type)
                 {
                     case ".txt":
                         Response.ContentType = "text/plain";
-                        HttpContext.Response.Body.Write(memoryStream.ToArray());
-
-                        Response.CompleteAsync();
+                        await HttpContext.Response.Body.WriteAsync(memoryStream.ToArray());
 
                         break;
                     case ".pdf":
                         Response.ContentType = "Application/pdf";
-                        HttpContext.Response.Body.Write(memoryStream.ToArray());
-
-                        Response.CompleteAsync();
+                        await Response.Body.WriteAsync(memoryStream.ToArray());
 
                         break;
                     case ".doc":
@@ -466,16 +503,12 @@ namespace ExDrive.Controllers
                         Response.ContentType = "Application/pdf";
 
                         docMemoryStream.Position = 0;
-                        HttpContext.Response.Body.Write(docMemoryStream.ToArray());
-
-                        Response.CompleteAsync();
+                        await HttpContext.Response.Body.WriteAsync(docMemoryStream.ToArray());
 
                         break;
                     case ".png":
                         Response.ContentType = "image/png";
-                        HttpContext.Response.Body.Write(memoryStream.ToArray());
-
-                        Response.CompleteAsync();
+                        await HttpContext.Response.Body.WriteAsync(memoryStream.ToArray());
 
                         break;
                     case ".docx":
@@ -494,30 +527,25 @@ namespace ExDrive.Controllers
                         Response.ContentType = "Application/pdf";
 
                         docxMemoryStream.Position = 0;
-                        HttpContext.Response.Body.Write(docxMemoryStream.ToArray());
-
-                        Response.CompleteAsync();
+                        await HttpContext.Response.Body.WriteAsync(docxMemoryStream.ToArray());
 
                         break;
                     case ".jpg":
                         Response.ContentType = "image/jpeg";
-                        HttpContext.Response.Body.Write(memoryStream.ToArray());
-
-                        Response.CompleteAsync();
+                        await HttpContext.Response.Body.WriteAsync(memoryStream.ToArray());
 
                         break;
                     case ".jpeg":
                         Response.ContentType = "image/jpeg";
-                        HttpContext.Response.Body.Write(memoryStream.ToArray());
-
-                        Response.CompleteAsync();
+                        await HttpContext.Response.Body.WriteAsync(memoryStream.ToArray());
 
                         break;
                     default:
-                        Response.WriteAsync("Sorry but we can't open this file :(");
+                        await Response.WriteAsync("Sorry but we can't open this file :(");
 
                         break;
                 }
+
                 break;
             }
         }

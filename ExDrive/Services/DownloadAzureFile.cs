@@ -7,19 +7,28 @@ namespace ExDrive.Services
 {
     public class DownloadAzureFile
     {
-        public static Stream DownloadFile(string fileid, string userid)
+        public async Task<Stream> DownloadFile(string fileId, string userId)
         {
-            var storageAccount = CloudStorageAccount.Parse(ConnectionStrings.GetStorageConnectionString());
+            var sourceBlob = GetContainerReference(ConnectionStrings.GetStorageConnectionString(),
+                                        fileId, userId);
+
+            var memorySteam = new MemoryStream();
+
+            await sourceBlob.DownloadToStreamAsync(memorySteam);
+
+            memorySteam.Position = 0;
+
+            return memorySteam;
+        }
+        private CloudBlockBlob GetContainerReference(string connectionString, string fileId, string containerName)
+        {
+            var storageAccount = CloudStorageAccount.Parse(connectionString);
+
             var blobClient = storageAccount.CreateCloudBlobClient();
-            var sourceContainer = blobClient.GetContainerReference(userid);
 
-            CloudBlockBlob sourceBlob = sourceContainer.GetBlockBlobReference(fileid);
-            MemoryStream memStream = new();
+            var sourceContainer = blobClient.GetContainerReference(containerName);
 
-            sourceBlob.DownloadToStreamAsync(memStream).Wait();
-            memStream.Position = 0;
-
-            return memStream;
+            return sourceContainer.GetBlockBlobReference(fileId);
         }
     }
 }
