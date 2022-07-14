@@ -5,7 +5,7 @@ using ExDrive.Configuration;
 
 namespace ExDrive.Services
 {
-    public class DownloadAzureFile
+    public class DownloadAzureFileAsync
     {
         public async Task<Stream> DownloadFile(string fileId, string userId)
         {

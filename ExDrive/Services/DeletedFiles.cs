@@ -8,12 +8,12 @@ namespace ExDrive.Services
 {
     public class DeletedFiles
     {
-        public static List<NameInstance> GetDeletedFilesDB(string _userId)
+        public List<UserFile> GetDeletedFiles(string _userId)
         {
             string fileName;
             string fileNameWithoutFormat;
 
-            var deleted = new List<NameInstance>();
+            var deleted = new List<UserFile>();
 
             using (SqlConnection sqlConnection = new SqlConnection(ConnectionStrings.GetSqlConnectionString()))
             {
@@ -29,7 +29,7 @@ namespace ExDrive.Services
                             var withoutFormat = new FindNameWithoutFormat();
                             fileNameWithoutFormat = withoutFormat.FindWithoutFormat(fileName);
 
-                            deleted.Add(new NameInstance(fileName, fileNameWithoutFormat,
+                            deleted.Add(new UserFile(fileName, fileNameWithoutFormat,
                                         (string)reader["FilesId"], (bool)reader["Favourite"]));
                         }
                     }

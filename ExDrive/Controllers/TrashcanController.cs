@@ -14,8 +14,8 @@ namespace ExDrive.Controllers
         private string? _userId;
         private static bool _isDeleted = false;
 
-        private static List<NameInstance>? _deleted = new();
-        private static List<NameInstance>? _searchResult = new();
+        private static List<UserFile>? _deleted = new();
+        private static List<UserFile>? _searchResult = new();
 
         private static ApplicationDbContext _applicationDbContext = new();
 
@@ -28,7 +28,10 @@ namespace ExDrive.Controllers
         public IActionResult Trashcan()
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            _deleted = new List<NameInstance>(DeletedFiles.GetDeletedFilesDB(_userId));
+
+            var deletedFiles = new DeletedFiles();
+            _deleted = new List<UserFile>(deletedFiles.GetDeletedFiles(_userId));
+
             _searchResult = null;
             return View(_deleted);
         }
@@ -86,7 +89,7 @@ namespace ExDrive.Controllers
 
                             try
                             {
-                                var deleteBlob = new DeleteAzureBlobAsync();
+                                var deleteBlob = new DeleteAzureFileAsync();
 
                                 deleteBlob.DeleteBlobAsync(todelete, _trashcanContainerName);
                             }
@@ -105,7 +108,7 @@ namespace ExDrive.Controllers
             // creating new list to preserve search results
             // function adds files that are not marked for deletion newsearch List
             int i = 0;
-            List<NameInstance> newsearch = new List<NameInstance>();
+            List<UserFile> newsearch = new List<UserFile>();
 
             foreach (var name in _searchResult)
             {
@@ -186,14 +189,14 @@ namespace ExDrive.Controllers
                     if (name.IsSelected == true)
                     {
                         var trashcan = new Trashcan(_trashcanContainerName);
-                        await trashcan.RecoverFile(name.Id, _userId, _applicationDbContext);
+                        await trashcan.RecoverFileAsync(name.Id, _userId, _applicationDbContext);
                     }
                 }
 
                 return RedirectToAction("Trashcan", "Trashcan");
             }
 
-             var newSearch = new List<NameInstance>();
+             var newSearch = new List<UserFile>();
 
             for (var elementPosition = 0; elementPosition < _searchResult!.Count; elementPosition++)
             {
@@ -202,7 +205,7 @@ namespace ExDrive.Controllers
                 if (name.IsSelected == true)
                 {
                     var trashcan = new Trashcan(_trashcanContainerName);
-                    await trashcan.RecoverFile(name.Id, _userId, _applicationDbContext);
+                    await trashcan.RecoverFileAsync(name.Id, _userId, _applicationDbContext);
                 }
                 else
                 {

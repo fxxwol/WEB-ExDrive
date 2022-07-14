@@ -11,7 +11,7 @@ namespace ExDrive.Services
 {
     public class Trashcan
     {
-        public async Task DeleteFile(string fileName, string userId, ApplicationDbContext context)
+        public async Task DeleteFileAsync(string fileName, string userId, ApplicationDbContext context)
         {
             var destinationContainer = new BlobContainerClient(ConnectionStrings.GetStorageConnectionString(),
                                     TrashcanContainerName);
@@ -46,7 +46,8 @@ namespace ExDrive.Services
 
             context.SaveChanges();
         }
-        public async Task RecoverFile(string fileName, string userId, ApplicationDbContext context)
+
+        public async Task RecoverFileAsync(string fileName, string userId, ApplicationDbContext context)
         {
             var destinationContainer = GetBlobContainerClient(ConnectionStrings.GetStorageConnectionString(),
                                     userId);

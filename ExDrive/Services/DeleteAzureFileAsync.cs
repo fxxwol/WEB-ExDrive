@@ -6,7 +6,7 @@ using ExDrive.Models;
 
 namespace ExDrive.Services
 {
-    public class DeleteAzureBlobAsync
+    public class DeleteAzureFileAsync
     {
         public async void DeleteBlobAsync(Files? file, string containerName)
         {

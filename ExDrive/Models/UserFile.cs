@@ -1,6 +1,6 @@
 ﻿namespace ExDrive.Models
 {
-    public class NameInstance
+    public class UserFile
     {
         public string Name { get; set; }
         public string NoFormat { get; set; }
@@ -8,7 +8,7 @@
         public bool IsSelected { get; set; }
         public bool IsFavourite { get; set; }
 
-        public NameInstance(string name, string noformat, string id, bool fav)
+        public UserFile(string name, string noformat, string id, bool fav)
         {
             Name = name;
             NoFormat = noformat;

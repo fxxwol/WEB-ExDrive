@@ -17,34 +17,18 @@ namespace ExDrive.Controllers
 {
     public class StorageController : Controller
     {
-        private static List<NameInstance> _nameInstances = new();
-        private static List<NameInstance>? _searchResult = new();
-
-        private static ApplicationDbContext _applicationDbContext = new();
-
-        private static string? _userId;
-        private static bool _isDeleted = false;
-        private static bool _isFavourite = false;
-
-        private static readonly string _tmpFilesPath = "C:\\Users\\Public\\tmpfiles\\";
-        private static readonly string _getLinkArchive = "C:\\Users\\Public\\getlink\\";
-        private static readonly string _tempFilesContainerLink = "https://exdrivefile.blob.core.windows.net/botfiles/";
-        private static readonly string _trashcanContainerName = "trashcan";
-
-        public StorageController(ApplicationDbContext applicationDbContext)
-        {
-            _applicationDbContext = applicationDbContext;
-        }
-
         [Authorize]
         public IActionResult AccessStorage()
         {
             _isFavourite = false;
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            _nameInstances = new List<NameInstance>(UserFilesDB.GetUserFilesDB(_userId));
+
+            var getUserFiles = new UserFilesDB();
+            _userFiles = new List<UserFile>(getUserFiles.GetUserFilesDB(_userId));
+
             _searchResult = null;
 
-            return View(_nameInstances);
+            return View(_userFiles);
         }
         public IActionResult Trashcan()
         {
@@ -67,7 +51,7 @@ namespace ExDrive.Controllers
 
                 if (_isDeleted == false)
                 {
-                    return View("AccessStorage", _nameInstances);
+                    return View("AccessStorage", _userFiles);
                 }
 
                 _isDeleted = false;
@@ -76,7 +60,7 @@ namespace ExDrive.Controllers
 
             if (_isFavourite == true)
             {
-                _searchResult = _nameInstances.Where(x => x.Name.Contains(searchString) && x.IsFavourite == true).ToList();
+                _searchResult = _userFiles.Where(file => file.Name.Contains(searchString) && file.IsFavourite == true).ToList();
                 if (_searchResult.Count > 0)
                 {
                     return View("AccessStorage", _searchResult);
@@ -87,20 +71,17 @@ namespace ExDrive.Controllers
                 }
             }
 
-            // checking if user files' names contain search request
-            _searchResult = _nameInstances.Where(x => x.Name.Contains(searchString)).ToList();
+            _searchResult = _userFiles.Where(file => file.Name.Contains(searchString)).ToList();
             if (_searchResult.Count > 0)
             {
                 return View("AccessStorage", _searchResult);
             }
 
-            // if file wasn't deleted, returning old view
             if (_isDeleted == false)
             {
-                return View("AccessStorage", _nameInstances);
+                return View("AccessStorage", _userFiles);
             }
 
-            // if file is deleted, generating new List
             _isDeleted = false;
             return RedirectToAction("AccessStorage", "Storage");
         }
@@ -109,20 +90,25 @@ namespace ExDrive.Controllers
         public IActionResult FilterFav()
         {
             _isFavourite = true;
+
             if (_searchResult != null)
             {
-                return RedirectToAction("AccessStorage", _nameInstances);
+                return RedirectToAction("AccessStorage", _userFiles);
             }
-            _searchResult = _nameInstances.Where(x => x.IsFavourite == true).ToList();
+
+            _searchResult = _userFiles.Where(file => file.IsFavourite == true).ToList();
+
             return View("AccessStorage", _searchResult);
         }
         public IActionResult SingleFile()
         {
             return View(new UploadInstance());
         }
+
+        [Authorize]
         public ActionResult Favourite()
         {
-            foreach (var name in _nameInstances)
+            foreach (var name in _userFiles)
             {
                 if (name.IsSelected == true)
                 {
@@ -165,6 +151,9 @@ namespace ExDrive.Controllers
             catch (Exception)
             {
                 TempData["AlertMessage"] = "Failed to upload: file may contain viruses";
+
+                await uploadTempAsync.DisposeAsync();
+
                 return RedirectToAction("Index", "Home");
             }
             finally
@@ -177,6 +166,7 @@ namespace ExDrive.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         [Consumes("multipart/form-data")]
         [RequestFormLimits(MultipartBodyLengthLimit = 629145600)]
         public async Task<IActionResult> SinglePermFile(UploadInstance _file)
@@ -210,8 +200,8 @@ namespace ExDrive.Controllers
                 // (user is not in search mode)
                 if (_searchResult == null)
                 {
-                    _nameInstances.ElementAt(position).IsSelected ^= true;
-                    return View("AccessStorage", _nameInstances);
+                    _userFiles.ElementAt(position).IsSelected ^= true;
+                    return View("AccessStorage", _userFiles);
                 }
 
                 _searchResult.ElementAt(position).IsSelected ^= true;
@@ -221,7 +211,7 @@ namespace ExDrive.Controllers
             {
                 if (_searchResult == null)
                 {
-                    return View("AccessStorage", _nameInstances);
+                    return View("AccessStorage", _userFiles);
                 }
 
                 return View("AccessStorage", _searchResult);
@@ -237,12 +227,12 @@ namespace ExDrive.Controllers
             // (user is not in search mode)
             if (_searchResult == null)
             {
-                foreach (var name in _nameInstances)
+                foreach (var name in _userFiles)
                 {
                     if (name.IsSelected == true)
                     {
                         var trashcan = new Trashcan(_trashcanContainerName);
-                        await trashcan.DeleteFile(name.Id, _userId, _applicationDbContext);
+                        await trashcan.DeleteFileAsync(name.Id, _userId, _applicationDbContext);
                     }
                 }
                 return RedirectToAction("AccessStorage", "Storage");
@@ -251,14 +241,14 @@ namespace ExDrive.Controllers
             // creating new list to preserve search results
             // function adds files that are not marked for deletion newsearch List
             int i = 0;
-            List<NameInstance> newSearch = new();
+            List<UserFile> newSearch = new();
 
             foreach (var name in _searchResult)
             {
                 if (name.IsSelected == true)
                 {
                     var trashcan = new Trashcan(_trashcanContainerName);
-                    await trashcan.DeleteFile(name.Id, _userId, _applicationDbContext);
+                    await trashcan.DeleteFileAsync(name.Id, _userId, _applicationDbContext);
                 }
                 else
                     newSearch.Add(_searchResult.ElementAt(i));
@@ -269,17 +259,19 @@ namespace ExDrive.Controllers
             _searchResult = newSearch;
             return View("AccessStorage", _searchResult);
         }
+
+        [Authorize]
         public async Task<ActionResult> DownloadFiles()
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var zipName = $"archive-{DateTime.Now.ToString("yyyy_MM_dd-HH_mm_ss")}.zip";
 
-            System.IO.Directory.CreateDirectory(Path.Combine(_tmpFilesPath, _userId));
+            Directory.CreateDirectory(Path.Combine(_tmpFilesPath, _userId));
 
             if (_searchResult == null)
             {
                 int i = -1;
-                foreach (var name in _nameInstances)
+                foreach (var name in _userFiles)
                 {
                     i++;
 
@@ -290,27 +282,27 @@ namespace ExDrive.Controllers
 
                     var fileName = String.Empty;
 
-                    var currentName = Path.Combine(_tmpFilesPath + _userId, _nameInstances.ElementAt(i).Name);
+                    var currentName = Path.Combine(_tmpFilesPath + _userId, _userFiles.ElementAt(i).Name);
 
                     if (downloadedFiles.Contains(currentName))
                     {
                         var findFormat = new FindFileFormat();
 
-                        fileName = _nameInstances.ElementAt(i).NoFormat + $"({i})" + 
-                            findFormat.FindFormat(_nameInstances.ElementAt(i).Name);
+                        fileName = _userFiles.ElementAt(i).NoFormat + $"({i})" + 
+                            findFormat.FindFormat(_userFiles.ElementAt(i).Name);
                     }
                     else
                     {
-                        fileName = _nameInstances.ElementAt(i).Name;
+                        fileName = _userFiles.ElementAt(i).Name;
                     }
 
                     using (var fileStream = new FileStream(Path.Combine(_tmpFilesPath + _userId,
                                                                         fileName),
                                                                         FileMode.Create, FileAccess.Write))
                     {
-                        var downloadFile = new DownloadAzureFile();
+                        var downloadFile = new DownloadAzureFileAsync();
 
-                        var memoryStream = await downloadFile.DownloadFile(_nameInstances.ElementAt(i).Id, _userId);
+                        var memoryStream = await downloadFile.DownloadFile(_userFiles.ElementAt(i).Id, _userId);
 
                         memoryStream.Position = 0;
 
@@ -350,7 +342,7 @@ namespace ExDrive.Controllers
                                                                         fileName),
                                                                         FileMode.Create, FileAccess.Write))
                     {
-                        var downloadFile = new DownloadAzureFile();
+                        var downloadFile = new DownloadAzureFileAsync();
 
                         var memoryStream = await downloadFile.DownloadFile(_searchResult.ElementAt(i).Id, _userId);
 
@@ -367,7 +359,7 @@ namespace ExDrive.Controllers
 
             if (files.Count < 1 && _searchResult == null)
             {
-                return View("AccessStorage", _nameInstances);
+                return View("AccessStorage", _userFiles);
             }
 
             if (files.Count < 1)
@@ -392,6 +384,7 @@ namespace ExDrive.Controllers
             }
         }
 
+        [Authorize]
         public async Task<string?> GetLink()
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -402,7 +395,7 @@ namespace ExDrive.Controllers
             if (_searchResult == null)
             {
                 int i = -1;
-                foreach (var name in _nameInstances)
+                foreach (var name in _userFiles)
                 {
                     i++;
 
@@ -413,27 +406,27 @@ namespace ExDrive.Controllers
 
                     var fileName = String.Empty;
 
-                    var currentName = Path.Combine(_getLinkArchive + _userId, _nameInstances.ElementAt(i).Name);
+                    var currentName = Path.Combine(_getLinkArchive + _userId, _userFiles.ElementAt(i).Name);
 
                     if (downloadedFiles.Contains(currentName))
                     {
                         var findFormat = new FindFileFormat();
 
-                        fileName = _nameInstances.ElementAt(i).NoFormat + $"({i})" +
-                            findFormat.FindFormat(_nameInstances.ElementAt(i).Name);
+                        fileName = _userFiles.ElementAt(i).NoFormat + $"({i})" +
+                            findFormat.FindFormat(_userFiles.ElementAt(i).Name);
                     }
                     else
                     {
-                        fileName = _nameInstances.ElementAt(i).Name;
+                        fileName = _userFiles.ElementAt(i).Name;
                     }
 
                     using (var fileStream = new FileStream(Path.Combine(_getLinkArchive + _userId,
                                                                         fileName),
                                                                         FileMode.Create, FileAccess.Write))
                     {
-                        var downloadFile = new DownloadAzureFile();
+                        var downloadFile = new DownloadAzureFileAsync();
 
-                        var memoryStream = await downloadFile.DownloadFile(_nameInstances.ElementAt(i).Id, _userId);
+                        var memoryStream = await downloadFile.DownloadFile(_userFiles.ElementAt(i).Id, _userId);
 
                         memoryStream.Position = 0;
 
@@ -475,7 +468,7 @@ namespace ExDrive.Controllers
                                                                         fileName),
                                                                         FileMode.Create, FileAccess.Write))
                     {
-                        var downloadFile = new DownloadAzureFile();
+                        var downloadFile = new DownloadAzureFileAsync();
 
                         var memoryStream = await downloadFile.DownloadFile(_searchResult.ElementAt(i).Id, _userId);
 
@@ -521,12 +514,13 @@ namespace ExDrive.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async void ReadFile()
         {
             Stream stream;
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            foreach (var name in _nameInstances)
+            foreach (var name in _userFiles)
             {
                 if (name.IsSelected == false)
                     continue;
@@ -539,7 +533,7 @@ namespace ExDrive.Controllers
 
                 var memoryStream = new MemoryStream();
 
-                var downloadFile = new DownloadAzureFile();
+                var downloadFile = new DownloadAzureFileAsync();
 
                 stream = downloadFile.DownloadFile(fileName, _userId).Result;
 
@@ -621,6 +615,8 @@ namespace ExDrive.Controllers
                 break;
             }
         }
+
+        [Authorize]
         public ActionResult Rename(string newName)
         {
             ViewData["Rename"] = newName;
@@ -628,7 +624,7 @@ namespace ExDrive.Controllers
 
             if (_searchResult == null)
             {
-                foreach (var name in _nameInstances)
+                foreach (var name in _userFiles)
                 {
                     if (name.IsSelected == true)
                     {
@@ -648,13 +644,13 @@ namespace ExDrive.Controllers
 
                         _applicationDbContext.Files.Update(toRename).OriginalValues.SetValues(modified);
 
-                        _nameInstances.Find(file => file.Id == toRename.FilesId)!.Name = modified.Name;
+                        _userFiles.Find(file => file.Id == toRename.FilesId)!.Name = modified.Name;
 
                         _applicationDbContext.SaveChanges();
                     }
                 }
 
-                return View("AccessStorage", _nameInstances);
+                return View("AccessStorage", _userFiles);
             }
             else
             {
@@ -712,7 +708,10 @@ namespace ExDrive.Controllers
 
             try
             {
-                await UploadTempBotAsync.UploadFileAsync(stream, (long)Request.ContentLength, file, _applicationDbContext);
+                var uploadTempBotFile = new UploadTempBotAsync();
+
+                await uploadTempBotFile.UploadFileAsync(stream, (long)Request.ContentLength, Guid.NewGuid().ToString(), 
+                                            file, _applicationDbContext);
             }
             catch (Exception)
             {
@@ -731,5 +730,23 @@ namespace ExDrive.Controllers
 
             return Ok(response);
         }
+        public StorageController(ApplicationDbContext applicationDbContext)
+        {
+            _applicationDbContext = applicationDbContext;
+        }
+
+        private static List<UserFile> _userFiles = new();
+        private static List<UserFile>? _searchResult = new();
+
+        private static ApplicationDbContext _applicationDbContext = new();
+
+        private static string? _userId;
+        private static bool _isDeleted = false;
+        private static bool _isFavourite = false;
+
+        private static readonly string _tmpFilesPath = "C:\\Users\\Public\\tmpfiles\\";
+        private static readonly string _getLinkArchive = "C:\\Users\\Public\\getlink\\";
+        private static readonly string _tempFilesContainerLink = "https://exdrivefile.blob.core.windows.net/botfiles/";
+        private static readonly string _trashcanContainerName = "trashcan";
     }
 }

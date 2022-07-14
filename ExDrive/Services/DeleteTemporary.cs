@@ -17,20 +17,20 @@ namespace ExDrive.Services
 
             var optionsBuilder = GetDataBaseOptionsBuilder(ConnectionStrings.GetSqlConnectionString());
 
-            using (var dataBase = new ApplicationDbContext(optionsBuilder.Options))
+            using (var database = new ApplicationDbContext(optionsBuilder.Options))
             {
                 foreach (var blob in blobs)
                 {
                     await containerClient.DeleteBlobAsync(blob.Name);
 
-                    var toDelete = dataBase.Files!.Find(blob.Name);
+                    var toDelete = database.Files!.Find(blob.Name);
 
                     if (toDelete != null)
                     {
-                        dataBase.Files.Remove(toDelete);
+                        database.Files.Remove(toDelete);
                     }
 
-                    dataBase.SaveChanges();
+                    database.SaveChanges();
                 }
             }
         }

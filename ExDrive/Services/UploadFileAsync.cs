@@ -41,6 +41,11 @@ namespace ExDrive.Services
             } while (bytesRemain > 0);
 
             await blob.PutBlockListAsync(blocklist);
+
+            if (blob.ExistsAsync().Result == false)
+            {
+                throw new Exception("Failed at creating the blob specified");
+            }
         }
         
         protected async Task CreateFile(string name)

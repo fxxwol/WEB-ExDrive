@@ -5,12 +5,12 @@ namespace ExDrive.Models
 {
     public class UserFilesDB
     {
-        public static List<NameInstance> GetUserFilesDB(string _userId)
+        public List<UserFile> GetUserFilesDB(string _userId)
         {
             string name;
             string noformat;
 
-            List<NameInstance> files = new List<NameInstance>();
+            List<UserFile> files = new List<UserFile>();
             using (SqlConnection con = new SqlConnection(ConnectionStrings.GetSqlConnectionString()))
             {
                 con.Open();
@@ -28,7 +28,7 @@ namespace ExDrive.Models
                                 noformat += name.ElementAt(i);
                             }
 
-                            files.Add(new NameInstance(name, noformat, (string)reader["FilesId"], (bool)reader["Favourite"]));
+                            files.Add(new UserFile(name, noformat, (string)reader["FilesId"], (bool)reader["Favourite"]));
                         }
                     }
                 }
