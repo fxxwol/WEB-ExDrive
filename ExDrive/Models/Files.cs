@@ -11,13 +11,15 @@ namespace ExDrive.Models
         [Required]
         public bool IsTemporary { get; set; }
         public bool Favourite { get; set; }
-        public Files(string id, string name, string access, bool istemporary)
+
+        public Files(string id, string name, string access = "*", bool istemporary = true)
         {
             FilesId = id;
             Name = name;
             HasAccess = access;
             IsTemporary = istemporary;
         }
+
         public Files()
         {
             FilesId = String.Empty;

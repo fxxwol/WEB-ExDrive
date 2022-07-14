@@ -1,4 +1,5 @@
 ﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 
 using ExDrive.Configuration;
 
@@ -6,11 +7,11 @@ namespace ExDrive.Models
 {
     public class UserFilesSA
     {
-        public static IEnumerable<Azure.Storage.Blobs.Models.BlobItem> GetUserFilesSA(string _userId)
+        public static IEnumerable<BlobItem> GetUserFilesSA(string _userId)
         {
             if (string.IsNullOrWhiteSpace(_userId))
             {
-                return Enumerable.Empty<Azure.Storage.Blobs.Models.BlobItem>();
+                return Enumerable.Empty<BlobItem>();
             }
 
             try
@@ -22,7 +23,7 @@ namespace ExDrive.Models
                     throw new Exception();
                 }
 
-                IEnumerable<Azure.Storage.Blobs.Models.BlobItem> blobs = containerClient.GetBlobs();
+                IEnumerable<BlobItem> blobs = containerClient.GetBlobs();
 
                 if (blobs == null)
                 {
@@ -34,7 +35,7 @@ namespace ExDrive.Models
             }
             catch (Exception)
             {
-                return Enumerable.Empty<Azure.Storage.Blobs.Models.BlobItem>();
+                return Enumerable.Empty<BlobItem>();
             }
         }
     }

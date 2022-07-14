@@ -33,7 +33,7 @@ namespace ExDrive.Services
                 return;
             }
             
-            await AddFileToDatabaseAsync(applicationDbContext, newFile);   
+            await AddFileToDatabaseAsync(applicationDbContext, newFile);
         }
 
         protected override async Task<CloudBlockBlob> CreateNewBlobAsync(Files newFile, string containerName)
