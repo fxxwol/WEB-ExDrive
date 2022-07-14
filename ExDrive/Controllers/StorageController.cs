@@ -61,6 +61,7 @@ namespace ExDrive.Controllers
             if (_isFavourite == true)
             {
                 _searchResult = _userFiles.Where(file => file.Name.Contains(searchString) && file.IsFavourite == true).ToList();
+
                 if (_searchResult.Count > 0)
                 {
                     return View("AccessStorage", _searchResult);
@@ -72,6 +73,7 @@ namespace ExDrive.Controllers
             }
 
             _searchResult = _userFiles.Where(file => file.Name.Contains(searchString)).ToList();
+
             if (_searchResult.Count > 0)
             {
                 return View("AccessStorage", _searchResult);
@@ -123,6 +125,7 @@ namespace ExDrive.Controllers
 
                 }
             }
+
             return RedirectToAction("AccessStorage", "Storage");
         }
 
@@ -136,29 +139,31 @@ namespace ExDrive.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
+            // Needs refactoring
             var findFormat = new FindFileFormat();
 
             var newName = Guid.NewGuid().ToString() + findFormat.FindFormat(_file.MyFile.FileName);
+            //
 
             var file = new Files(newName, _file.MyFile.FileName, "*", true);
 
-            var uploadTempAsync = new UploadTempFile();
+            var uploadTempFile = new UploadTempFile();
 
             try
             {
-                await uploadTempAsync.UploadFileAsync(_file, file, Guid.NewGuid().ToString(), _applicationDbContext);
+                await uploadTempFile.UploadFileAsync(_file, file, Guid.NewGuid().ToString(), _applicationDbContext);
             }
             catch (Exception)
             {
                 TempData["AlertMessage"] = "Failed to upload: file may contain viruses";
 
-                await uploadTempAsync.DisposeAsync();
+                await uploadTempFile.DisposeAsync();
 
                 return RedirectToAction("Index", "Home");
             }
             finally
             {
-                await uploadTempAsync.DisposeAsync();
+                await uploadTempFile.DisposeAsync();
             }
 
             TempData["AlertMessage"] = _tempFilesContainerLink + file.FilesId;
@@ -176,9 +181,11 @@ namespace ExDrive.Controllers
             if (_userId == null || _file.MyFile == null)
                 return RedirectToAction("AccessStorage", "Storage");
 
+            // Needs refactoring
             var findFormat = new FindFileFormat();
 
             var newName = Guid.NewGuid().ToString() + findFormat.FindFormat(_file.MyFile.FileName);
+            //
 
             var file = new Files(newName, _file.MyFile.FileName, _userId, false);
 
@@ -196,15 +203,15 @@ namespace ExDrive.Controllers
             {
                 var position = Int32.Parse(afile);
 
-                // if there was no search, file from main List is selected
-                // (user is not in search mode)
                 if (_searchResult == null)
                 {
                     _userFiles.ElementAt(position).IsSelected ^= true;
+
                     return View("AccessStorage", _userFiles);
                 }
 
                 _searchResult.ElementAt(position).IsSelected ^= true;
+
                 return View("AccessStorage", _searchResult);
             }
             catch (Exception)
@@ -223,8 +230,6 @@ namespace ExDrive.Controllers
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             _isDeleted = true;
 
-            // if there was no search, files from main List are deleted
-            // (user is not in search mode)
             if (_searchResult == null)
             {
                 foreach (var name in _userFiles)
@@ -238,8 +243,7 @@ namespace ExDrive.Controllers
                 return RedirectToAction("AccessStorage", "Storage");
             }
 
-            // creating new list to preserve search results
-            // function adds files that are not marked for deletion newsearch List
+            // Needs refactoring
             int i = 0;
             List<UserFile> newSearch = new();
 
@@ -255,6 +259,7 @@ namespace ExDrive.Controllers
 
                 i++;
             }
+            //
 
             _searchResult = newSearch;
             return View("AccessStorage", _searchResult);
@@ -268,6 +273,7 @@ namespace ExDrive.Controllers
 
             Directory.CreateDirectory(Path.Combine(_tmpFilesPath, _userId));
 
+            // Needs refactoring
             if (_searchResult == null)
             {
                 int i = -1;
@@ -354,6 +360,7 @@ namespace ExDrive.Controllers
                     }
                 }
             }
+            //
 
             var files = Directory.GetFiles(Path.Combine(_tmpFilesPath, _userId)).ToList();
 
@@ -367,6 +374,7 @@ namespace ExDrive.Controllers
                 return View("AccessStorage", _searchResult);
             }
 
+            // Needs refactoring
             using (var memoryStream = new MemoryStream())
             {
                 using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
@@ -382,6 +390,7 @@ namespace ExDrive.Controllers
 
                 return File(memoryStream.ToArray(), "application/zip", zipName);
             }
+            //
         }
 
         [Authorize]
@@ -392,6 +401,7 @@ namespace ExDrive.Controllers
 
             Directory.CreateDirectory(Path.Combine(_getLinkArchive, _userId));
 
+            // Needs refactoring
             if (_searchResult == null)
             {
                 int i = -1;
@@ -480,6 +490,7 @@ namespace ExDrive.Controllers
                     }
                 }
             }
+            //
 
             var files = Directory.GetFiles(Path.Combine(_getLinkArchive, _userId)).ToList();
 
@@ -488,6 +499,7 @@ namespace ExDrive.Controllers
                 return null;
             }
 
+            // Needs refactoring
             using (var memoryStream = new MemoryStream())
             {
                 using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
@@ -511,6 +523,7 @@ namespace ExDrive.Controllers
 
                 return _tempFilesContainerLink + file.FilesId;
             }
+            //
         }
 
         [HttpPost]
@@ -520,6 +533,7 @@ namespace ExDrive.Controllers
             Stream stream;
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            // Needs refactoring
             foreach (var name in _userFiles)
             {
                 if (name.IsSelected == false)
@@ -611,6 +625,7 @@ namespace ExDrive.Controllers
 
                         break;
                 }
+                //
 
                 break;
             }
@@ -622,6 +637,7 @@ namespace ExDrive.Controllers
             ViewData["Rename"] = newName;
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            // Needs refactoring
             if (_searchResult == null)
             {
                 foreach (var name in _userFiles)
@@ -682,8 +698,10 @@ namespace ExDrive.Controllers
 
                 return View("AccessStorage", _searchResult);
             }
+            //
         }
 
+        // Needs refactoring
         [HttpPost, DisableRequestSizeLimit]
         public async Task<ActionResult> UploadTempFileBot()
         {

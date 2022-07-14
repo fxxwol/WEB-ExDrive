@@ -3,6 +3,7 @@ using Microsoft.Data.SqlClient;
 
 namespace ExDrive.Models
 {
+    // Needs refactoring
     public class UserFilesDB
     {
         public List<UserFile> GetUserFilesDB(string _userId)

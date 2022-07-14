@@ -6,6 +6,7 @@ using ExDrive.Helpers;
 
 namespace ExDrive.Services
 {
+    // Needs refactoring
     public class DeletedFiles
     {
         public List<UserFile> GetDeletedFiles(string _userId)

@@ -41,8 +41,6 @@ namespace ExDrive.Controllers
             {
                 int position = Int32.Parse(afile);
 
-                // if there was no search, file from main List is selected
-                // (user is not in search mode)
                 if (_searchResult == null)
                 {
                     _deleted!.ElementAt(position).IsSelected ^= true;
@@ -73,8 +71,7 @@ namespace ExDrive.Controllers
                 return View("Trashcan", _deleted);
             }
 
-            // if there was no search, files from main List are deleted
-            // (user is not in search mode)
+            // Needs refactoring
             if (_searchResult == null)
             {
                 foreach (var name in _deleted)
@@ -104,9 +101,9 @@ namespace ExDrive.Controllers
 
                 return RedirectToAction("Trashcan", "Trashcan");
             }
+            //
 
-            // creating new list to preserve search results
-            // function adds files that are not marked for deletion newsearch List
+            // Needs refactoring
             int i = 0;
             List<UserFile> newsearch = new List<UserFile>();
 
@@ -130,13 +127,15 @@ namespace ExDrive.Controllers
 
                 i++;
             }
+            //
 
             _applicationDbContext.SaveChanges();
 
             _searchResult = newsearch;
             return View("Trashcan", _searchResult);
         }
-        
+
+        // Needs refactoring
         [Authorize]
         public IActionResult Search(string searchString)
         {
@@ -157,27 +156,28 @@ namespace ExDrive.Controllers
                 }
 
                 _isDeleted = false;
+
                 return RedirectToAction("Trashcan", "Trashcan");
             }
 
-            // checking if user files' names contain search request
             _searchResult = _deleted!.Where(x => x.Name.Contains(searchString)).ToList();
+
             if (_searchResult.Count > 0)
             {
                 return View("Trashcan", _searchResult);
             }
 
-            // if file wasn't deleted, returning old view
             if (_isDeleted == false)
             {
                 return View("Trashcan", _deleted);
             }
 
-            // if file is deleted, generating new List
             _isDeleted = false;
+
             return RedirectToAction("Trashcan", "Trashcan");
         }
-      
+
+        // Needs refactoring
         public async Task<ActionResult> Recovery()
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
