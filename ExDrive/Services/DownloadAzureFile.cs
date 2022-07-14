@@ -5,9 +5,9 @@ using ExDrive.Configuration;
 
 namespace ExDrive.Services
 {
-    public class DownloadAzureFileAsync
+    public class DownloadAzureFile
     {
-        public async Task<Stream> DownloadFile(string fileId, string userId)
+        public async Task<Stream> DownloadFileAsync(string fileId, string userId)
         {
             var sourceBlob = GetContainerReference(ConnectionStrings.GetStorageConnectionString(),
                                         fileId, userId);

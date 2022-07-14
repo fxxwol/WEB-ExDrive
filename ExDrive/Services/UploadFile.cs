@@ -7,13 +7,13 @@ using System.Text;
 
 namespace ExDrive.Services
 {
-    public abstract class UploadFileAsync : IAsyncDisposable
+    public abstract class UploadFile : IAsyncDisposable
     {
-        abstract protected Task<CloudBlockBlob> CreateNewBlob(Files newFile, string containerName);
+        abstract protected Task<CloudBlockBlob> CreateNewBlobAsync(Files newFile, string containerName);
 
-        protected async Task UploadBlobBlock(Files file, string name, long bytesRemain, long prevLastByte = 0)
+        protected async Task UploadBlobBlockAsync(Files file, string name, long bytesRemain, long prevLastByte = 0)
         {
-            var blob = await CreateNewBlob(file, name);
+            var blob = await CreateNewBlobAsync(file, name);
 
             MemoryStream.Position = 0;
 
@@ -48,7 +48,7 @@ namespace ExDrive.Services
             }
         }
         
-        protected async Task CreateFile(string name)
+        protected async Task CreateFileAsync(string name)
         {
             Directory.CreateDirectory(FullPath);
 
@@ -73,7 +73,7 @@ namespace ExDrive.Services
             }
         }
 
-        protected async Task AddFileToDatabase(ApplicationDbContext applicationDbContext, Files file)
+        protected async Task AddFileToDatabaseAsync(ApplicationDbContext applicationDbContext, Files file)
         {
             await applicationDbContext.Files!.AddAsync(file);
 

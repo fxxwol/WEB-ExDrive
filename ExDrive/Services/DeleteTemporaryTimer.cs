@@ -17,7 +17,7 @@ namespace ExDrive.Services
         private void checkForTimeElapsed(object? sender, ElapsedEventArgs e)
         {
             var deleteTemporary = new DeleteTemporary();
-            deleteTemporary.DeleteTemporaryFiles(Days, ContainerName);
+            deleteTemporary.DeleteTemporaryFilesAsync(Days, ContainerName);
         }
         public DeleteTemporaryTimer(int days, string containerName)
         {

@@ -9,7 +9,7 @@ using System.Text;
 
 namespace ExDrive.Models
 {
-    public class UploadTempBotAsync : UploadFileAsync
+    public class UploadTempBotFile : UploadFile
     {
         public async Task UploadFileAsync(Stream stream, long bytesRemain, string tempName,
                                                 Files newFile, ApplicationDbContext applicationDbContext)
@@ -18,13 +18,13 @@ namespace ExDrive.Models
 
             FullPath = Path.Combine(_scanningPath, tempName);
 
-            await CreateFile(newFile.FilesId);
+            await CreateFileAsync(newFile.FilesId);
 
             try
             {
                 ScanFileForViruses(Path.Combine(FullPath, newFile.FilesId));
 
-                await UploadBlobBlock(newFile, _tempFileContainer, bytesRemain);
+                await UploadBlobBlockAsync(newFile, _tempFileContainer, bytesRemain);
             }
             catch (Exception)
             {
@@ -33,10 +33,10 @@ namespace ExDrive.Models
 
             await stream.DisposeAsync();
 
-            await AddFileToDatabase(applicationDbContext, newFile);
+            await AddFileToDatabaseAsync(applicationDbContext, newFile);
         }
 
-        protected override Task<CloudBlockBlob> CreateNewBlob(Files newFile, string containerName)
+        protected override Task<CloudBlockBlob> CreateNewBlobAsync(Files newFile, string containerName)
         {
             CloudStorageAccount StorageAccount = CloudStorageAccount.Parse(ConnectionStrings.GetStorageConnectionString());
 

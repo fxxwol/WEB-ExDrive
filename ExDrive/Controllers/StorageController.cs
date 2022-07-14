@@ -142,7 +142,7 @@ namespace ExDrive.Controllers
 
             var file = new Files(newName, _file.MyFile.FileName, "*", true);
 
-            var uploadTempAsync = new UploadTempAsync();
+            var uploadTempAsync = new UploadTempFile();
 
             try
             {
@@ -182,7 +182,7 @@ namespace ExDrive.Controllers
 
             var file = new Files(newName, _file.MyFile.FileName, _userId, false);
 
-            var uploadPermFile = new UploadPermAsync();
+            var uploadPermFile = new UploadPermFile();
 
             await uploadPermFile.UploadFileAsync(_file, file, _userId, _applicationDbContext);
 
@@ -300,9 +300,9 @@ namespace ExDrive.Controllers
                                                                         fileName),
                                                                         FileMode.Create, FileAccess.Write))
                     {
-                        var downloadFile = new DownloadAzureFileAsync();
+                        var downloadFile = new DownloadAzureFile();
 
-                        var memoryStream = await downloadFile.DownloadFile(_userFiles.ElementAt(i).Id, _userId);
+                        var memoryStream = await downloadFile.DownloadFileAsync(_userFiles.ElementAt(i).Id, _userId);
 
                         memoryStream.Position = 0;
 
@@ -342,9 +342,9 @@ namespace ExDrive.Controllers
                                                                         fileName),
                                                                         FileMode.Create, FileAccess.Write))
                     {
-                        var downloadFile = new DownloadAzureFileAsync();
+                        var downloadFile = new DownloadAzureFile();
 
-                        var memoryStream = await downloadFile.DownloadFile(_searchResult.ElementAt(i).Id, _userId);
+                        var memoryStream = await downloadFile.DownloadFileAsync(_searchResult.ElementAt(i).Id, _userId);
 
                         memoryStream.Position = 0;
 
@@ -424,9 +424,9 @@ namespace ExDrive.Controllers
                                                                         fileName),
                                                                         FileMode.Create, FileAccess.Write))
                     {
-                        var downloadFile = new DownloadAzureFileAsync();
+                        var downloadFile = new DownloadAzureFile();
 
-                        var memoryStream = await downloadFile.DownloadFile(_userFiles.ElementAt(i).Id, _userId);
+                        var memoryStream = await downloadFile.DownloadFileAsync(_userFiles.ElementAt(i).Id, _userId);
 
                         memoryStream.Position = 0;
 
@@ -468,9 +468,9 @@ namespace ExDrive.Controllers
                                                                         fileName),
                                                                         FileMode.Create, FileAccess.Write))
                     {
-                        var downloadFile = new DownloadAzureFileAsync();
+                        var downloadFile = new DownloadAzureFile();
 
-                        var memoryStream = await downloadFile.DownloadFile(_searchResult.ElementAt(i).Id, _userId);
+                        var memoryStream = await downloadFile.DownloadFileAsync(_searchResult.ElementAt(i).Id, _userId);
 
                         memoryStream.Position = 0;
 
@@ -501,7 +501,7 @@ namespace ExDrive.Controllers
 
                 var file = new Files(Guid.NewGuid().ToString() + ".zip", _userId + zipName, "*", true);
 
-                var uploadTempAsync = new UploadTempAsync();
+                var uploadTempAsync = new UploadTempFile();
 
                 await uploadTempAsync.UploadFileAsync(memoryStream, file, _applicationDbContext);
 
@@ -533,9 +533,9 @@ namespace ExDrive.Controllers
 
                 var memoryStream = new MemoryStream();
 
-                var downloadFile = new DownloadAzureFileAsync();
+                var downloadFile = new DownloadAzureFile();
 
-                stream = downloadFile.DownloadFile(fileName, _userId).Result;
+                stream = downloadFile.DownloadFileAsync(fileName, _userId).Result;
 
                 await stream.CopyToAsync(memoryStream);
 
@@ -708,7 +708,7 @@ namespace ExDrive.Controllers
 
             try
             {
-                var uploadTempBotFile = new UploadTempBotAsync();
+                var uploadTempBotFile = new UploadTempBotFile();
 
                 await uploadTempBotFile.UploadFileAsync(stream, (long)Request.ContentLength, Guid.NewGuid().ToString(), 
                                             file, _applicationDbContext);

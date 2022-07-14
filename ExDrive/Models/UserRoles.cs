@@ -1,5 +1,4 @@
-﻿//namespace ExDrive.Models
-    namespace ExDrive.Authentication
+﻿namespace ExDrive.Authentication
 {
     public static class UserRoles
     {

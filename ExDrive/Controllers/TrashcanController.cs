@@ -89,7 +89,7 @@ namespace ExDrive.Controllers
 
                             try
                             {
-                                var deleteBlob = new DeleteAzureFileAsync();
+                                var deleteBlob = new DeleteAzureFile();
 
                                 deleteBlob.DeleteBlobAsync(todelete, _trashcanContainerName);
                             }

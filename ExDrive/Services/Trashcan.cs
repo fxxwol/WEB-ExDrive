@@ -13,38 +13,17 @@ namespace ExDrive.Services
     {
         public async Task DeleteFileAsync(string fileName, string userId, ApplicationDbContext context)
         {
-            var destinationContainer = new BlobContainerClient(ConnectionStrings.GetStorageConnectionString(),
+            var destinationContainer = GetBlobContainerClient(ConnectionStrings.GetStorageConnectionString(),
                                     TrashcanContainerName);
-            var sourceContainer = new BlobContainerClient(ConnectionStrings.GetStorageConnectionString(),
+            var sourceContainer = GetBlobContainerClient(ConnectionStrings.GetStorageConnectionString(),
                                     userId);
 
             var sourceBlob = GetCloudBlockBlobReference(ConnectionStrings.GetStorageConnectionString(),
                                     userId, fileName);
 
-            var memoryStream = new MemoryStream();
-            
-            await sourceBlob.DownloadToStreamAsync(memoryStream);
+            await MoveBlobAsync(destinationContainer, sourceContainer, sourceBlob);
 
-            memoryStream.Position = 0;
-
-            await destinationContainer.UploadBlobAsync(fileName, memoryStream);
-           
-            await sourceContainer.DeleteBlobAsync(fileName);
-            
-            await memoryStream.FlushAsync();
-
-            var toDelete = context.Files!.Find(fileName);
-
-            if (toDelete != null)
-            {
-                Files? modified = toDelete;
-
-                modified.IsTemporary = true;
-
-                context.Files.Update(toDelete).OriginalValues.SetValues(modified);
-            }
-
-            context.SaveChanges();
+            await MarkAsDeletedAsync(fileName, context);
         }
 
         public async Task RecoverFileAsync(string fileName, string userId, ApplicationDbContext context)
@@ -55,32 +34,11 @@ namespace ExDrive.Services
                                     TrashcanContainerName);
 
             var sourceBlob = GetCloudBlockBlobReference(ConnectionStrings.GetStorageConnectionString(),
-                                    TrashcanContainerName, fileName);
+                                                    TrashcanContainerName, fileName);
 
-            var memoryStream = new MemoryStream();
-            
-            await sourceBlob.DownloadToStreamAsync(memoryStream);
+            await MoveBlobAsync(destinationContainer, sourceContainer, sourceBlob);
 
-            memoryStream.Position = 0;
-
-            await destinationContainer.UploadBlobAsync(fileName, memoryStream);
-            
-            await sourceContainer.DeleteBlobAsync(fileName);
-            
-            await memoryStream.FlushAsync();
-
-            var toRecover = context.Files!.Find(fileName);
-            
-            if (toRecover != null)
-            {
-                Files? modified = toRecover;
-
-                modified.IsTemporary = false;
-
-                context.Files.Update(toRecover).OriginalValues.SetValues(modified);
-            }
-
-            context.SaveChanges();
+            await MarkAsRecoveredAsync(fileName, context);
         }
 
         private BlobContainerClient GetBlobContainerClient(string connectionString, string containerName)
@@ -97,6 +55,54 @@ namespace ExDrive.Services
             var sourceContainer = blobClient.GetContainerReference(containerName);
 
             return sourceContainer.GetBlockBlobReference(blobName);
+        }
+
+        private async Task MoveBlobAsync(BlobContainerClient destinationContainer, BlobContainerClient sourceContainer,
+                                                CloudBlockBlob sourceBlob)
+        {
+            var memoryStream = new MemoryStream();
+
+            await sourceBlob.DownloadToStreamAsync(memoryStream);
+
+            memoryStream.Position = 0;
+
+            await destinationContainer.UploadBlobAsync(sourceBlob.Name, memoryStream);
+
+            await sourceContainer.DeleteBlobAsync(sourceBlob.Name);
+
+            await memoryStream.FlushAsync();
+        }
+
+        private async Task MarkAsRecoveredAsync(string fileName, ApplicationDbContext applicationDbContext)
+        {
+            var toRecover = await applicationDbContext.Files!.FindAsync(fileName);
+
+            if (toRecover != null)
+            {
+                Files? modified = toRecover;
+
+                modified.IsTemporary = false;
+
+                applicationDbContext.Files.Update(toRecover).OriginalValues.SetValues(modified);
+                
+                await applicationDbContext.SaveChangesAsync();
+            }
+        }
+
+        private async Task MarkAsDeletedAsync(string fileName, ApplicationDbContext applicationDbContext)
+        {
+            var toDelete = await applicationDbContext.Files!.FindAsync(fileName);
+
+            if (toDelete != null)
+            {
+                Files? modified = toDelete;
+
+                modified.IsTemporary = true;
+
+                applicationDbContext.Files.Update(toDelete).OriginalValues.SetValues(modified);
+                
+                await applicationDbContext.SaveChangesAsync();
+            }
         }
 
         public Trashcan(string trashcanContainerName)

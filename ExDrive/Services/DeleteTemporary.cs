@@ -9,7 +9,7 @@ namespace ExDrive.Services
 {
     public class DeleteTemporary
     {
-        public async void DeleteTemporaryFiles(int days, string containerName)
+        public async void DeleteTemporaryFilesAsync(int days, string containerName)
         {
             var containerClient = GetBlobContainerClient(ConnectionStrings.GetStorageConnectionString(), containerName);
 

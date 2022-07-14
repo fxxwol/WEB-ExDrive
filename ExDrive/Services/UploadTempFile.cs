@@ -9,7 +9,7 @@ using ExDrive.Models;
 
 namespace ExDrive.Services
 {
-    public class UploadTempAsync : UploadFileAsync
+    public class UploadTempFile : UploadFile
     {
         public async Task UploadFileAsync(UploadInstance formFile, Files newFile,
                                                  string tempName, ApplicationDbContext applicationDbContext)
@@ -18,20 +18,20 @@ namespace ExDrive.Services
 
             FullPath = Path.Combine(_scanningPath, tempName);
 
-            await CreateFile(newFile.FilesId);
+            await CreateFileAsync(newFile.FilesId);
 
             try
             {
                 ScanFileForViruses(Path.Combine(FullPath, newFile.FilesId));
 
-                await UploadBlobBlock(newFile, _tempFileContainer, formFile.MyFile.Length);
+                await UploadBlobBlockAsync(newFile, _tempFileContainer, formFile.MyFile.Length);
             }
             catch (Exception)
             {
                 throw;
             }
 
-            await AddFileToDatabase(applicationDbContext, newFile);
+            await AddFileToDatabaseAsync(applicationDbContext, newFile);
         }
 
         public async Task UploadFileAsync(MemoryStream stream, Files newFile,
@@ -43,7 +43,7 @@ namespace ExDrive.Services
             {
                 stream.Position = 0;
 
-                await UploadBlobBlock(newFile, _tempFileContainer, stream.Length);
+                await UploadBlobBlockAsync(newFile, _tempFileContainer, stream.Length);
             }
             catch (Exception)
             {
@@ -52,10 +52,10 @@ namespace ExDrive.Services
 
             await stream.DisposeAsync();
 
-            await AddFileToDatabase(applicationDbContext, newFile);
+            await AddFileToDatabaseAsync(applicationDbContext, newFile);
         }
 
-        protected override Task<CloudBlockBlob> CreateNewBlob(Files newFile, string containerName)
+        protected override Task<CloudBlockBlob> CreateNewBlobAsync(Files newFile, string containerName)
         {
             CloudStorageAccount StorageAccount = CloudStorageAccount.Parse(ConnectionStrings.GetStorageConnectionString());
 
