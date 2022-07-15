@@ -54,7 +54,7 @@ namespace ExDrive.Controllers
                     return RedirectToAction("AccessStorage", "Storage");
             }
         }
-        
+
         [Authorize]
         public IActionResult ViewFavourite()
         {
@@ -93,31 +93,25 @@ namespace ExDrive.Controllers
         [HttpPost]
         [Consumes("multipart/form-data")]
         [RequestFormLimits(MultipartBodyLengthLimit = 629145600)]
-        public async Task<IActionResult> SingleTempFile(UploadInstance receivedFile)
+        public async Task<IActionResult> SingleTempFileHandler(UploadInstance receivedFile)
         {
             if (receivedFile.MyFile == null)
             {
                 return RedirectToAction("Index", "Home");
             }
 
-            var newName = GetUniqueName(receivedFile.MyFile.FileName);
-
-            var file = new Files(newName, receivedFile.MyFile.FileName);
-
-            var uploadTempFile = new UploadTempFile();
+            var uploadHandler = new UploadTempFile();
 
             try
             {
-                await uploadTempFile.UploadFileAsync(receivedFile, file, Guid.NewGuid().ToString(), _applicationDbContext);
-
-                TempData["AlertMessage"] = _tempFilesContainerLink + file.FilesId;
+                TempData["AlertMessage"] = await SingleTempFile(receivedFile, uploadHandler);
             }
-            catch (Exception)
+            catch
             {
                 TempData["AlertMessage"] = "Failed to upload: file may contain viruses";
             }
 
-            await uploadTempFile.DisposeAsync();
+            await uploadHandler.DisposeAsync();
 
             return RedirectToAction("Index", "Home");
         }
@@ -126,7 +120,7 @@ namespace ExDrive.Controllers
         [Authorize]
         [Consumes("multipart/form-data")]
         [RequestFormLimits(MultipartBodyLengthLimit = 629145600)]
-        public async Task<IActionResult> SinglePermFile(UploadInstance receivedFile)
+        public async Task<IActionResult> SinglePermFileHandler(UploadInstance receivedFile)
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -135,18 +129,15 @@ namespace ExDrive.Controllers
                 return RedirectToAction("AccessStorage", "Storage");
             }
 
-            var newName = GetUniqueName(receivedFile.MyFile.FileName);
+            var uploadHandler = new UploadPermFile();
 
-            var file = new Files(newName, receivedFile.MyFile.FileName, _userId, false);
+            await SinglePermFile(receivedFile, uploadHandler);
 
-            var uploadPermFile = new UploadPermFile();
-
-            await uploadPermFile.UploadFileAsync(receivedFile, file, _userId, _applicationDbContext);
-
-            await uploadPermFile.DisposeAsync();
+            await uploadHandler.DisposeAsync();
 
             return RedirectToAction("AccessStorage", "Storage");
         }
+
         public ActionResult FileClick(string afile)
         {
             try
@@ -776,6 +767,26 @@ namespace ExDrive.Controllers
 
                 await _applicationDbContext.SaveChangesAsync();
             }
+        }
+        
+        private async Task<string> SingleTempFile(UploadInstance receivedFile, UploadTempFile uploadHandler)
+        {
+            var newName = GetUniqueName(receivedFile.MyFile!.FileName);
+
+            var file = new Files(newName, receivedFile.MyFile.FileName);
+
+            await uploadHandler.UploadFileAsync(receivedFile, file, Guid.NewGuid().ToString(), _applicationDbContext);
+
+            return _tempFilesContainerLink + file.FilesId;
+        }
+
+        private async Task SinglePermFile(UploadInstance receivedFile, UploadPermFile uploadHandler)
+        {
+            var newName = GetUniqueName(receivedFile.MyFile!.FileName);
+
+            var file = new Files(newName, receivedFile.MyFile.FileName, _userId!, false);
+
+            await uploadHandler.UploadFileAsync(receivedFile, file, _userId!, _applicationDbContext);
         }
 
         private void FilterFavourite()
