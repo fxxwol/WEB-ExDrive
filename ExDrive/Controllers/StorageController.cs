@@ -34,6 +34,14 @@ namespace ExDrive.Controllers
         {
             return View();
         }
+        //enum SearchRedirect
+        //{
+        //    ShowSearchResult,
+        //    ShowUserFiles,
+        //    RedirectToStorage
+        //}
+
+        //public IActionResult SearchRedirectHandler
 
         [Authorize]
         public IActionResult Search(string searchString)
@@ -44,7 +52,7 @@ namespace ExDrive.Controllers
             {
                 return View("AccessStorage", _searchResult);
             }
-
+        
             if (searchString == null)
             {
                 if (_hasDeletionOccured == true)
@@ -57,16 +65,9 @@ namespace ExDrive.Controllers
                 return View("AccessStorage", _userFiles);
             }
 
-            if (_isUserViewingFavourite == true)
-            {
-                _searchResult = _userFiles.Where(file => file.Name.Contains(searchString) && file.IsFavourite == true).ToList();
-            }
-            else
-            {
-                _searchResult = _userFiles.Where(file => file.Name.Contains(searchString)).ToList();
-            }
+            FilterSearch(searchString);
 
-            if (_searchResult.Count > 0)
+            if (_searchResult!.Count > 0)
             {
                 return View("AccessStorage", _searchResult);
             }
@@ -88,6 +89,18 @@ namespace ExDrive.Controllers
             return View("AccessStorage", _userFiles);
         }
 
+        private void FilterSearch(string searchString)
+        {
+            if (_isUserViewingFavourite == true)
+            {
+                _searchResult = _userFiles.Where(file => file.Name.Contains(searchString) && file.IsFavourite == true).ToList();
+            }
+            else
+            {
+                _searchResult = _userFiles.Where(file => file.Name.Contains(searchString)).ToList();
+            }
+        }
+
         [Authorize]
         public IActionResult ViewFavourite()
         {
@@ -95,7 +108,7 @@ namespace ExDrive.Controllers
 
             if (_searchResult != null)
             {
-                return RedirectToAction("AccessStorage", _userFiles);
+                return View("AccessStorage", _userFiles);
             }
 
             _searchResult = _userFiles.Where(file => file.IsFavourite == true).ToList();
@@ -151,19 +164,15 @@ namespace ExDrive.Controllers
             try
             {
                 await uploadTempFile.UploadFileAsync(receivedFile, file, Guid.NewGuid().ToString(), _applicationDbContext);
+
+                TempData["AlertMessage"] = _tempFilesContainerLink + file.FilesId;
             }
             catch (Exception)
             {
                 TempData["AlertMessage"] = "Failed to upload: file may contain viruses";
-
-                return RedirectToAction("Index", "Home");
-            }
-            finally
-            {
-                await uploadTempFile.DisposeAsync();
             }
 
-            TempData["AlertMessage"] = _tempFilesContainerLink + file.FilesId;
+            await uploadTempFile.DisposeAsync();
 
             return RedirectToAction("Index", "Home");
         }
@@ -223,7 +232,7 @@ namespace ExDrive.Controllers
         public async Task<ActionResult> Delete()
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            
+
             _hasDeletionOccured = true;
 
             if (_searchResult == null)
