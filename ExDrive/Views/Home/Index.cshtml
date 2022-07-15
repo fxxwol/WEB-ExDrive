@@ -17,65 +17,34 @@
         <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
     </head>
         <body>
-        @*<body style="overflow:hidden">*@
         <header class="header">
             <div class="container">
                
             </div>
         </header>
 
-         <div class="ccontext-menu"> 
-          <div class="ccontext-menu__item1">Link</div>
-          <div class="ccontext-menu__item2">Favourite</div>
-          <div class="ccontext-menu__item3">Rename</div>
-          <div class="ccontext-menu__divider"></div>
-          <div class="ccontext-menu__item4">Delete</div>
-         </div>
-
          <script>
-             const cm = document.querySelector('.ccontext-menu');
-
-             function showContextMenu (show = true) {
-                 cm.style.display = show ? 'block' : 'none'; 
-             }
-
              window.addEventListener('contextmenu', (e) => {
                  e.preventDefault();
-
-                 $(".item").click(function(e){
-                     showContextMenu();
-                 cm.style.top = e.y + cm.offsetHeight > window.innerHeight ? 
-                 window.innerHeight - cm.offsetHeight + "px" : e.y + "px";
-                 cm.style.left = e.x + cm.offsetWidth > window.innerWidth ? 
-                 window.innerWidth - cm.offsetWidth + "px" : e.x + "px";
-                 });
              });
-
-             window.addEventListener('click', () => {
-                 showContextMenu(false);
-             });
-
-             $(".ccontext-menu__item4").click(function(e){
-                 e.preventDefault();
-                $.post("@Url.Action("Delete","Storage")", 1, function(data){
-                    alert(data);
-                });
-            });
         
-            function copyToClipboard() {
-			const str = document.querySelector('.alert-success').id;
-			const el = document.createElement('textarea');
-			el.value = str;
-			el.setAttribute('readonly', '');
-			el.style.position = 'absolute';
-			el.style.left = '-9999px';
-			document.body.appendChild(el);
-			el.select();
-			document.execCommand('copy');
-			document.body.removeChild(el);
-		}
-
-
+             function copyToClipboard() {
+			    const str = document.querySelector('.alert-success').id;
+			    const el = document.createElement('textarea');
+			    
+                el.value = str;
+			    el.setAttribute('readonly', '');
+			    
+                el.style.position = 'absolute';
+			    el.style.left = '-9999px';
+			   
+                document.body.appendChild(el);
+			    
+                el.select();
+			    
+                document.execCommand('copy');
+			    document.body.removeChild(el);
+		     }
          </script>
 
  <div class="intro">
@@ -105,7 +74,7 @@
         <a href="https://t.me/ExDriveBot" style="color:#eeeeee; font-family:Lato; font-style:normal;" >Telegram</a>
         </label>
      </div>
-     <div class="down_a">  </div>
+        <div class="telegram-button-margin"></div>
      </div> 
 </div>
     </body>

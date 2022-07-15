@@ -122,9 +122,7 @@ namespace ExDrive.Controllers
         [RequestFormLimits(MultipartBodyLengthLimit = 629145600)]
         public async Task<IActionResult> SinglePermFileHandler(UploadInstance receivedFile)
         {
-            _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (_userId == null || receivedFile.MyFile == null)
+            if (String.IsNullOrEmpty(_userId) || receivedFile.MyFile == null)
             {
                 return RedirectToAction("AccessStorage", "Storage");
             }
@@ -138,58 +136,34 @@ namespace ExDrive.Controllers
             return RedirectToAction("AccessStorage", "Storage");
         }
 
-        public ActionResult FileClick(string afile)
+        [Authorize]
+        public ActionResult FileClickHandler(string afile)
         {
-            try
+            var position = Int32.Parse(afile);
+
+            if (_searchResult == null)
             {
-                var position = Int32.Parse(afile);
+                FileClick(position, _userFiles);
 
-                if (_searchResult == null)
-                {
-                    _userFiles.ElementAt(position).IsSelected ^= true;
-
-                    return View("AccessStorage", _userFiles);
-                }
-
-                _searchResult.ElementAt(position).IsSelected ^= true;
-
-                return View("AccessStorage", _searchResult);
+                return View("AccessStorage", _userFiles);
             }
-            catch (Exception)
+            else
             {
-                if (_searchResult == null)
-                {
-                    return View("AccessStorage", _userFiles);
-                }
+                FileClick(position, _searchResult);
 
                 return View("AccessStorage", _searchResult);
             }
         }
 
-        public async Task<ActionResult> Delete()
+        private async Task DeleteWithPreservation(List<UserFile> files)
         {
-            _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
             _hasDeletionOccured = true;
 
-            if (_searchResult == null)
+            var preservedResult = new List<UserFile>();
+
+            for (var position = 0; position < files.Count; position++)
             {
-                foreach (var file in _userFiles)
-                {
-                    if (file.IsSelected == true)
-                    {
-                        await new Trashcan(_trashcanContainerName).DeleteFileAsync(file.Id, _userId, _applicationDbContext);
-                    }
-                }
-
-                return RedirectToAction("AccessStorage", "Storage");
-            }
-
-            var preservedSearchResult = new List<UserFile>();
-
-            for (var position = 0; position < _searchResult.Count; position++)
-            {
-                var file = _searchResult[position];
+                var file = files[position];
 
                 if (file.IsSelected == true)
                 {
@@ -197,19 +171,48 @@ namespace ExDrive.Controllers
                 }
                 else
                 {
-                    preservedSearchResult.Add(_searchResult.ElementAt(position));
+                    preservedResult.Add(files.ElementAt(position));
                 }
             }
 
-            _searchResult = preservedSearchResult;
+            files = preservedResult;
+        }
 
-            return View("AccessStorage", _searchResult);
+        private async Task DeleteWithoutPreservation(List<UserFile> files)
+        {
+            _hasDeletionOccured = true;
+
+            for (var position = 0; position < files.Count; position++)
+            {
+                var file = files[position];
+
+                if (file.IsSelected == true)
+                {
+                    await new Trashcan(_trashcanContainerName).DeleteFileAsync(file.Id, _userId, _applicationDbContext);
+                }
+            }
+        }
+
+        [Authorize]
+        public async Task<IActionResult> DeleteHandler()
+        {
+            if (_searchResult == null)
+            {
+                await DeleteWithoutPreservation(_userFiles);
+
+                return RedirectToAction("AccessStorage", "Storage");
+            }
+            else
+            {
+                await DeleteWithPreservation(_searchResult);
+
+                return View("AccessStorage", _searchResult);
+            }
         }
 
         [Authorize]
         public async Task<ActionResult> DownloadFiles()
         {
-            _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var zipName = $"archive-{DateTime.Now.ToString("yyyy_MM_dd-HH_mm_ss")}.zip";
 
             Directory.CreateDirectory(Path.Combine(_tmpFilesPath, _userId));
@@ -603,6 +606,8 @@ namespace ExDrive.Controllers
 
                         _userFiles.Find(file => file.Id == toRename.FilesId)!.Name = modified.Name;
 
+                        _userFiles.Find(file => file.Id == toRename.FilesId)!.IsSelected = false;
+
                         _applicationDbContext.SaveChanges();
                     }
                 }
@@ -632,6 +637,8 @@ namespace ExDrive.Controllers
                         _applicationDbContext.Files.Update(toRename).OriginalValues.SetValues(modified);
 
                         _searchResult.Find(file => file.Id == toRename.FilesId)!.Name = modified.Name;
+
+                        _searchResult.Find(file => file.Id == toRename.FilesId)!.IsSelected = false;
 
                         _applicationDbContext.SaveChanges();
                     }
@@ -768,7 +775,7 @@ namespace ExDrive.Controllers
                 await _applicationDbContext.SaveChangesAsync();
             }
         }
-        
+
         private async Task<string> SingleTempFile(UploadInstance receivedFile, UploadTempFile uploadHandler)
         {
             var newName = GetUniqueName(receivedFile.MyFile!.FileName);
@@ -787,6 +794,11 @@ namespace ExDrive.Controllers
             var file = new Files(newName, receivedFile.MyFile.FileName, _userId!, false);
 
             await uploadHandler.UploadFileAsync(receivedFile, file, _userId!, _applicationDbContext);
+        }
+
+        private void FileClick(int position, List<UserFile> files)
+        {
+            files.ElementAt(position).IsSelected ^= true;
         }
 
         private void FilterFavourite()
@@ -816,7 +828,7 @@ namespace ExDrive.Controllers
 
         private static ApplicationDbContext _applicationDbContext = new();
 
-        private static string? _userId;
+        private static string _userId = String.Empty;
         private static bool _hasDeletionOccured = false;
         private static bool _isUserViewingFavourite = false;
 

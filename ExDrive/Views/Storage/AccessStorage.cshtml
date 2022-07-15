@@ -46,7 +46,7 @@
 			</svg>
 		</button>
 	}
-	@using (Html.BeginForm("Delete", "Storage"))
+	@using (Html.BeginForm("DeleteHandler", "Storage"))
 	{
 		<button class="btn__delete" type="submit" value="delete" title="Delete your file">
 			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
@@ -90,7 +90,7 @@
 			</div>
 		}
 		@model List<UserFile>
-		@using (Html.BeginForm("FileClick", "Storage"))
+		@using (Html.BeginForm("FileClickHandler", "Storage"))
 		{
 			int count = 0;
 			@foreach (var row in @Model)
@@ -288,7 +288,7 @@
 
 			deletebtn.addEventListener('click', function(event) {
 			   $.ajax({
-				url: '@Url.Action("Delete","Storage")'
+				url: '@Url.Action("DeleteHandler","Storage")'
 				}).done(function() {
 				window.location = window.location.href;
 				});
@@ -301,11 +301,10 @@
 			window.addEventListener('click', (e) => {
 
 				let pos = e.target.getAttribute("value");
-				if (pos != null)
+				if (pos != null && pos != 'Submit' && pos < @Model.Count)
 				{
-					console.log(pos);
 					$.ajax({
-				url: '@Url.Action("FileClick","Storage")',
+				url: '@Url.Action("FileClickHandler","Storage")',
 				data: { afile: pos }
 				}).done(function() {
 					if (e.target.style.border == "medium none")
