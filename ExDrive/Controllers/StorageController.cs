@@ -213,7 +213,6 @@ namespace ExDrive.Controllers
         [Authorize]
         public async Task<ActionResult> DownloadFilesHandler()
         {
-
             string path = Path.Combine(_tmpFilesPath, _userId);
 
             if (_searchResult == null)
@@ -237,144 +236,57 @@ namespace ExDrive.Controllers
                 return View("AccessStorage", _searchResult);
             }
 
-            var result = CreateArchive(files, path);
+            using (var result = CreateArchive(files, path))
+            {
+                Directory.Delete(path, true);
 
-            Directory.Delete(path, true);
-
-            return result;
-        } 
+                return File(result.ToArray(), "application/zip",
+                            $"archive-{DateTime.Now.ToString("yyyy_MM_dd-HH_mm_ss")}.zip");
+            }
+        }
 
         [Authorize]
-        public async Task<string?> GetLink()
+        public async Task<string?> GetLinkHandler()
         {
-            _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var zipName = $"archive-{DateTime.Now.ToString("yyyy_MM_dd-HH_mm_ss")}.zip";
+            string path = Path.Combine(_getLinkArchive, _userId);
 
-            Directory.CreateDirectory(Path.Combine(_getLinkArchive, _userId));
-
-            // Needs refactoring
             if (_searchResult == null)
             {
-                int i = -1;
-                foreach (var name in _userFiles)
-                {
-                    i++;
-
-                    if (name.IsSelected == false)
-                        continue;
-
-                    var downloadedFiles = Directory.GetFiles(Path.Combine(_getLinkArchive, _userId)).ToList();
-
-                    var fileName = String.Empty;
-
-                    var currentName = Path.Combine(_getLinkArchive + _userId, _userFiles.ElementAt(i).Name);
-
-                    if (downloadedFiles.Contains(currentName))
-                    {
-                        var findFormat = new FindFileFormat();
-
-                        fileName = _userFiles.ElementAt(i).NoFormat + $"({i})" +
-                            findFormat.FindFormat(_userFiles.ElementAt(i).Name);
-                    }
-                    else
-                    {
-                        fileName = _userFiles.ElementAt(i).Name;
-                    }
-
-                    using (var fileStream = new FileStream(Path.Combine(_getLinkArchive + _userId,
-                                                                        fileName),
-                                                                        FileMode.Create, FileAccess.Write))
-                    {
-                        var downloadFile = new DownloadAzureFile();
-
-                        var memoryStream = await downloadFile.DownloadFileAsync(_userFiles.ElementAt(i).Id, _userId);
-
-                        memoryStream.Position = 0;
-
-                        await memoryStream.CopyToAsync(fileStream);
-
-                        await memoryStream.FlushAsync();
-                    }
-                }
+                await DownloadFilesToFolder(_userFiles, path);
             }
             else
             {
-                int i = -1;
-                foreach (var name in _searchResult)
-                {
-                    i++;
-
-                    if (name.IsSelected == false)
-                        continue;
-
-                    var downloadedFiles = Directory.GetFiles(Path.Combine(_getLinkArchive, _userId)).ToList();
-
-                    var fileName = String.Empty;
-
-                    var currentName = Path.Combine(_getLinkArchive + _userId, _searchResult.ElementAt(i).Name);
-
-                    if (downloadedFiles.Contains(currentName))
-                    {
-                        var findFormat = new FindFileFormat();
-
-                        fileName = _searchResult.ElementAt(i).NoFormat + $"({i})" +
-                            findFormat.FindFormat(_searchResult.ElementAt(i).Name);
-                    }
-                    else
-                    {
-                        fileName = _searchResult.ElementAt(i).Name;
-                    }
-
-                    using (var fileStream = new FileStream(Path.Combine(_getLinkArchive + _userId,
-                                                                        fileName),
-                                                                        FileMode.Create, FileAccess.Write))
-                    {
-                        var downloadFile = new DownloadAzureFile();
-
-                        var memoryStream = await downloadFile.DownloadFileAsync(_searchResult.ElementAt(i).Id, _userId);
-
-                        memoryStream.Position = 0;
-
-                        await memoryStream.CopyToAsync(fileStream);
-
-                        await memoryStream.FlushAsync();
-                    }
-                }
+                await DownloadFilesToFolder(_searchResult, path);
             }
-            //
 
-            var files = Directory.GetFiles(Path.Combine(_getLinkArchive, _userId)).ToList();
+            var files = Directory.GetFiles(path).ToList();
 
             if (files.Count < 1)
             {
                 return null;
             }
 
-            // Needs refactoring
-            using (var memoryStream = new MemoryStream())
+            var zipName = $"archive-{DateTime.Now.ToString("yyyy_MM_dd-HH_mm_ss")}.zip";
+
+            using (var result = CreateArchive(files, path))
             {
-                using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+                Directory.Delete(path, true);
+
+                var uploadHandler = new UploadTempFile();
+
+                try
                 {
-                    files.ForEach(file =>
-                    {
-                        archive.CreateEntryFromFile(file, file.Replace(Path.Combine(_getLinkArchive + _userId)
-                                                                       + "\\", string.Empty));
-                    });
+                    return await SingleTempFile(result, zipName, uploadHandler);
                 }
-
-                var file = new Files(Guid.NewGuid().ToString() + ".zip", _userId + zipName, "*", true);
-
-                var uploadTempAsync = new UploadTempFile();
-
-                await uploadTempAsync.UploadFileAsync(memoryStream, file, _applicationDbContext);
-
-                await uploadTempAsync.DisposeAsync();
-
-                Directory.Delete(Path.Combine(_getLinkArchive, _userId), true);
-
-                return _tempFilesContainerLink + file.FilesId;
+                catch
+                {
+                    return "File may be malicious";
+                }
+                finally
+                {
+                    await uploadHandler.DisposeAsync();
+                }
             }
-            //
         }
 
         [HttpPost]
@@ -694,6 +606,17 @@ namespace ExDrive.Controllers
             return _tempFilesContainerLink + file.FilesId;
         }
 
+        private async Task<string> SingleTempFile(MemoryStream memoryStream, string fileName, UploadTempFile uploadHandler)
+        {
+            var newName = GetUniqueName(fileName);
+
+            var file = new Files(newName, fileName);
+
+            await uploadHandler.UploadFileAsync(memoryStream, file, _applicationDbContext);
+
+            return _tempFilesContainerLink + file.FilesId;
+        }
+
         private async Task SinglePermFile(UploadInstance receivedFile, UploadPermFile uploadHandler)
         {
             var newName = GetUniqueName(receivedFile.MyFile!.FileName);
@@ -732,22 +655,19 @@ namespace ExDrive.Controllers
             }
         }
 
-        private ActionResult CreateArchive(List<string> files, string path)
+        private MemoryStream CreateArchive(List<string> files, string path)
         {
-            var zipName = $"archive-{DateTime.Now.ToString("yyyy_MM_dd-HH_mm_ss")}.zip";
+            var memoryStream = new MemoryStream();
 
-            using (var memoryStream = new MemoryStream())
+            using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
             {
-                using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+                files.ForEach(file =>
                 {
-                    files.ForEach(file =>
-                    {
-                        archive.CreateEntryFromFile(file, file.Replace(path + "\\", string.Empty));
-                    });
-                }
-
-                return File(memoryStream.ToArray(), "application/zip", zipName);
+                    archive.CreateEntryFromFile(file, file.Replace(path + "\\", string.Empty));
+                });
             }
+
+            return memoryStream;
         }
 
         private string GetFileName(UserFile file, string path, int position)

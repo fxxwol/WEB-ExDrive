@@ -261,7 +261,7 @@
 
 			linkbtn.addEventListener('click', function(event) {
 			   $.ajax({
-				url: '@Url.Action("GetLink","Storage")'
+				url: '@Url.Action("GetLinkHandler","Storage")'
 				}).done(function(e) {
 					if (e != null)
 					{
