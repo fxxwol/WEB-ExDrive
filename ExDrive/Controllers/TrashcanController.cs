@@ -9,6 +9,7 @@ using System.Security.Claims;
 
 namespace ExDrive.Controllers
 {
+    [Authorize]
     public class TrashcanController : Controller
     {
         private string? _userId;

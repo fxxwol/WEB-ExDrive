@@ -175,7 +175,7 @@ namespace ExDrive.Controllers
                 }
             }
 
-            files = preservedResult;
+            _searchResult = preservedResult;
         }
 
         private async Task DeleteWithoutPreservation(List<UserFile> files)
