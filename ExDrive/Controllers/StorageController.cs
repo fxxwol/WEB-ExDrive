@@ -210,59 +210,8 @@ namespace ExDrive.Controllers
             }
         }
 
-        // path = tempPath + _userId
-        private async Task DownloadFilesToFolder(List<UserFile> files, string path)
-        {
-            Directory.CreateDirectory(path);
-
-            for (var position = 0; position < files.Count; position++)
-            {
-                var file = files[position];
-
-                if (file.IsSelected == false)
-                    continue;
-
-                await DownloadFileToFolder(file.Id, GetFileName(file, path, position), path);
-            }
-        }
-
-        private async Task DownloadFileToFolder(string fileId, string fileName, string path)
-        {
-            using (var fileStream = new FileStream(Path.Combine(path, fileName),
-                                                          FileMode.Create, FileAccess.Write))
-            {
-                var downloadFile = new DownloadAzureFile();
-
-                var memoryStream = await downloadFile.DownloadFileAsync(fileId, _userId);
-
-                memoryStream.Position = 0;
-
-                await memoryStream.CopyToAsync(fileStream);
-
-                await memoryStream.FlushAsync();
-            }
-        }
-
-        private string GetFileName(UserFile file, string path, int position)
-        {
-            var downloadedFiles = Directory.GetFiles(path).ToList();
-
-            var currentName = Path.Combine(path, file.Name);
-
-            if (downloadedFiles.Contains(currentName))
-            {
-                return file.NoFormat + $"({position})" +
-                                new FindFileFormat().FindFormat(file.Name);
-            }
-            else
-            {
-                return file.Name;
-            }
-        }
-
-
         [Authorize]
-        public async Task<ActionResult> DownloadFiles()
+        public async Task<ActionResult> DownloadFilesHandler()
         {
 
             string path = Path.Combine(_tmpFilesPath, _userId);
@@ -276,95 +225,6 @@ namespace ExDrive.Controllers
                 await DownloadFilesToFolder(_searchResult, path);
             }
 
-            // Needs refactoring
-            //if (_searchResult == null)
-            //{
-            //    int i = -1;
-            //    foreach (var name in _userFiles)
-            //    {
-            //        i++;
-
-            //        if (name.IsSelected == false)
-            //            continue;
-
-            //        var downloadedFiles = Directory.GetFiles(Path.Combine(_tmpFilesPath, _userId)).ToList();
-
-            //        var fileName = String.Empty;
-
-            //        var currentName = Path.Combine(_tmpFilesPath + _userId, _userFiles.ElementAt(i).Name);
-
-            //        if (downloadedFiles.Contains(currentName))
-            //        {
-            //            var findFormat = new FindFileFormat();
-
-            //            fileName = _userFiles.ElementAt(i).NoFormat + $"({i})" +
-            //                findFormat.FindFormat(_userFiles.ElementAt(i).Name);
-            //        }
-            //        else
-            //        {
-            //            fileName = _userFiles.ElementAt(i).Name;
-            //        }
-
-            //        using (var fileStream = new FileStream(Path.Combine(_tmpFilesPath + _userId,
-            //                                                            fileName),
-            //                                                            FileMode.Create, FileAccess.Write))
-            //        {
-            //            var downloadFile = new DownloadAzureFile();
-
-            //            var memoryStream = await downloadFile.DownloadFileAsync(_userFiles.ElementAt(i).Id, _userId);
-
-            //            memoryStream.Position = 0;
-
-            //            await memoryStream.CopyToAsync(fileStream);
-
-            //            await memoryStream.FlushAsync();
-            //        }
-            //    }
-            //}
-            //else
-            //{
-            //    int i = -1;
-            //    foreach (var name in _searchResult)
-            //    {
-            //        i++;
-
-            //        if (name.IsSelected == false)
-            //            continue;
-
-            //        var downloadedFiles = Directory.GetFiles(Path.Combine(_tmpFilesPath, _userId)).ToList();
-
-            //        var fileName = String.Empty;
-
-            //        if (downloadedFiles.Contains(Path.Combine(_tmpFilesPath + _userId, _searchResult.ElementAt(i).Name)))
-            //        {
-            //            var findFormat = new FindFileFormat();
-
-            //            fileName = _searchResult.ElementAt(i).NoFormat + $"({i})" +
-            //                findFormat.FindFormat(_searchResult.ElementAt(i).Name);
-            //        }
-            //        else
-            //        {
-            //            fileName = _searchResult.ElementAt(i).Name;
-            //        }
-
-            //        using (var fileStream = new FileStream(Path.Combine(_tmpFilesPath + _userId,
-            //                                                            fileName),
-            //                                                            FileMode.Create, FileAccess.Write))
-            //        {
-            //            var downloadFile = new DownloadAzureFile();
-
-            //            var memoryStream = await downloadFile.DownloadFileAsync(_searchResult.ElementAt(i).Id, _userId);
-
-            //            memoryStream.Position = 0;
-
-            //            await memoryStream.CopyToAsync(fileStream);
-
-            //            await memoryStream.FlushAsync();
-            //        }
-            //    }
-            //}
-            //
-
             var files = Directory.GetFiles(path).ToList();
 
             if (files.Count < 1 && _searchResult == null)
@@ -377,26 +237,12 @@ namespace ExDrive.Controllers
                 return View("AccessStorage", _searchResult);
             }
 
-            var zipName = $"archive-{DateTime.Now.ToString("yyyy_MM_dd-HH_mm_ss")}.zip";
+            var result = CreateArchive(files, path);
 
-            // Needs refactoring
-            using (var memoryStream = new MemoryStream())
-            {
-                using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
-                {
-                    files.ForEach(file =>
-                    {
-                        archive.CreateEntryFromFile(file, file.Replace(Path.Combine(_tmpFilesPath + _userId)
-                                                                       + "\\", string.Empty));
-                    });
-                }
+            Directory.Delete(path, true);
 
-                Directory.Delete(Path.Combine(_tmpFilesPath, _userId), true);
-
-                return File(memoryStream.ToArray(), "application/zip", zipName);
-            }
-            //
-        }
+            return result;
+        } 
 
         [Authorize]
         public async Task<string?> GetLink()
@@ -855,6 +701,70 @@ namespace ExDrive.Controllers
             var file = new Files(newName, receivedFile.MyFile.FileName, _userId!, false);
 
             await uploadHandler.UploadFileAsync(receivedFile, file, _userId!, _applicationDbContext);
+        }
+
+        private async Task DownloadFileToFolder(string fileId, string fileName, string path)
+        {
+            using (var fileStream = new FileStream(Path.Combine(path, fileName),
+                                                          FileMode.Create, FileAccess.Write))
+            {
+                using (var memoryStream = await new DownloadAzureFile().DownloadFileAsync(fileId, _userId))
+                {
+                    memoryStream.Position = 0;
+
+                    await memoryStream.CopyToAsync(fileStream);
+                }
+            }
+        }
+
+        private async Task DownloadFilesToFolder(List<UserFile> files, string path)
+        {
+            Directory.CreateDirectory(path);
+
+            for (var position = 0; position < files.Count; position++)
+            {
+                var file = files[position];
+
+                if (file.IsSelected == false)
+                    continue;
+
+                await DownloadFileToFolder(file.Id, GetFileName(file, path, position), path);
+            }
+        }
+
+        private ActionResult CreateArchive(List<string> files, string path)
+        {
+            var zipName = $"archive-{DateTime.Now.ToString("yyyy_MM_dd-HH_mm_ss")}.zip";
+
+            using (var memoryStream = new MemoryStream())
+            {
+                using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+                {
+                    files.ForEach(file =>
+                    {
+                        archive.CreateEntryFromFile(file, file.Replace(path + "\\", string.Empty));
+                    });
+                }
+
+                return File(memoryStream.ToArray(), "application/zip", zipName);
+            }
+        }
+
+        private string GetFileName(UserFile file, string path, int position)
+        {
+            var downloadedFiles = Directory.GetFiles(path).ToList();
+
+            var currentName = Path.Combine(path, file.Name);
+
+            if (downloadedFiles.Contains(currentName))
+            {
+                return file.NoFormat + $"({position})" +
+                                new FindFileFormat().FindFormat(file.Name);
+            }
+            else
+            {
+                return file.Name;
+            }
         }
 
         private void FileClick(int position, List<UserFile> files)
