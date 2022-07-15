@@ -30,77 +30,31 @@ namespace ExDrive.Controllers
 
             return View(_userFiles);
         }
+
+        [Authorize]
         public IActionResult Trashcan()
         {
             return View();
         }
-        //enum SearchRedirect
-        //{
-        //    ShowSearchResult,
-        //    ShowUserFiles,
-        //    RedirectToStorage
-        //}
-
-        //public IActionResult SearchRedirectHandler
 
         [Authorize]
-        public IActionResult Search(string searchString)
+        public IActionResult SearchRedirectHandler(string searchString)
         {
-            ViewData["GetFiles"] = searchString;
+            var result = Search(searchString);
 
-            if (searchString == null && _searchResult != null)
+            switch (result)
             {
-                return View("AccessStorage", _searchResult);
-            }
-        
-            if (searchString == null)
-            {
-                if (_hasDeletionOccured == true)
-                {
-                    _hasDeletionOccured = false;
+                case SearchRedirect.ShowSearchResult:
+                    return View("AccessStorage", _searchResult);
 
+                case SearchRedirect.ShowUserFiles:
+                    return View("AccessStorage", _userFiles);
+
+                default:
                     return RedirectToAction("AccessStorage", "Storage");
-                }
-
-                return View("AccessStorage", _userFiles);
-            }
-
-            FilterSearch(searchString);
-
-            if (_searchResult!.Count > 0)
-            {
-                return View("AccessStorage", _searchResult);
-            }
-
-            if (_isUserViewingFavourite == true)
-            {
-                _searchResult = _userFiles.Where(file => file.IsFavourite == true).ToList();
-
-                return View("AccessStorage", _searchResult);
-            }
-
-            if (_hasDeletionOccured == true)
-            {
-                _hasDeletionOccured = false;
-
-                return RedirectToAction("AccessStorage", "Storage");
-            }
-
-            return View("AccessStorage", _userFiles);
-        }
-
-        private void FilterSearch(string searchString)
-        {
-            if (_isUserViewingFavourite == true)
-            {
-                _searchResult = _userFiles.Where(file => file.Name.Contains(searchString) && file.IsFavourite == true).ToList();
-            }
-            else
-            {
-                _searchResult = _userFiles.Where(file => file.Name.Contains(searchString)).ToList();
             }
         }
-
+        
         [Authorize]
         public IActionResult ViewFavourite()
         {
@@ -111,35 +65,26 @@ namespace ExDrive.Controllers
                 return View("AccessStorage", _userFiles);
             }
 
-            _searchResult = _userFiles.Where(file => file.IsFavourite == true).ToList();
+            FilterFavourite();
 
             return View("AccessStorage", _searchResult);
         }
+
         public IActionResult SingleFile()
         {
             return View(new UploadInstance());
         }
 
         [Authorize]
-        public async Task<ActionResult> Favourite()
+        public async Task<ActionResult> FavouriteHandler()
         {
-            foreach (var file in _userFiles)
+            if (_searchResult == null)
             {
-                if (file.IsSelected == false)
-                    continue;
-
-                var toModify = await _applicationDbContext.Files!.FindAsync(file.Id);
-
-                if (toModify == null)
-                    continue;
-
-                var modified = toModify;
-
-                modified.Favourite ^= true;
-
-                _applicationDbContext.Files.Update(toModify).OriginalValues.SetValues(modified);
-
-                await _applicationDbContext.SaveChangesAsync();
+                await Favourite(_userFiles);
+            }
+            else
+            {
+                await Favourite(_searchResult);
             }
 
             return RedirectToAction("AccessStorage", "Storage");
@@ -177,7 +122,6 @@ namespace ExDrive.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-
         [HttpPost]
         [Authorize]
         [Consumes("multipart/form-data")]
@@ -187,7 +131,9 @@ namespace ExDrive.Controllers
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (_userId == null || receivedFile.MyFile == null)
+            {
                 return RedirectToAction("AccessStorage", "Storage");
+            }
 
             var newName = GetUniqueName(receivedFile.MyFile.FileName);
 
@@ -753,9 +699,100 @@ namespace ExDrive.Controllers
             return Ok(response);
         }
 
+        private SearchRedirect Search(string searchString)
+        {
+            ViewData["GetFiles"] = searchString;
+
+            if (searchString == null && _searchResult != null)
+            {
+                return SearchRedirect.ShowSearchResult;
+            }
+
+            if (searchString == null)
+            {
+                if (_hasDeletionOccured == true)
+                {
+                    _hasDeletionOccured = false;
+
+                    return SearchRedirect.UpdateUserFiles;
+                }
+
+                return SearchRedirect.ShowUserFiles;
+            }
+
+            PerformSearch(searchString);
+
+            if (_searchResult!.Count > 0)
+            {
+                return SearchRedirect.ShowSearchResult;
+            }
+
+            if (_isUserViewingFavourite == true)
+            {
+                FilterFavourite();
+
+                return SearchRedirect.ShowSearchResult;
+            }
+
+            if (_hasDeletionOccured == true)
+            {
+                _hasDeletionOccured = false;
+
+                return SearchRedirect.UpdateUserFiles;
+            }
+
+            return SearchRedirect.ShowUserFiles;
+        }
+
+        private void PerformSearch(string searchString)
+        {
+            if (_isUserViewingFavourite == true)
+            {
+                _searchResult = _userFiles.Where(file => file.Name.Contains(searchString) && file.IsFavourite == true).ToList();
+            }
+            else
+            {
+                _searchResult = _userFiles.Where(file => file.Name.Contains(searchString)).ToList();
+            }
+        }
+
+        private async Task Favourite(List<UserFile> files)
+        {
+            foreach (var file in files)
+            {
+                if (file.IsSelected == false)
+                    continue;
+
+                var toModify = await _applicationDbContext.Files!.FindAsync(file.Id);
+
+                if (toModify == null)
+                    continue;
+
+                var modified = toModify;
+
+                modified.Favourite ^= true;
+
+                _applicationDbContext.Files.Update(toModify).OriginalValues.SetValues(modified);
+
+                await _applicationDbContext.SaveChangesAsync();
+            }
+        }
+
+        private void FilterFavourite()
+        {
+            _searchResult = _userFiles.Where(file => file.IsFavourite == true).ToList();
+        }
+
         private string GetUniqueName(string oldName)
         {
             return Guid.NewGuid().ToString() + new FindFileFormat().FindFormat(oldName);
+        }
+
+        private enum SearchRedirect
+        {
+            ShowSearchResult,
+            ShowUserFiles,
+            UpdateUserFiles
         }
 
         public StorageController(ApplicationDbContext applicationDbContext)

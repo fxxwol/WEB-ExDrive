@@ -65,7 +65,7 @@
 			</svg>
 		</button>
 	}
-	@using (Html.BeginForm("Search", "Storage"))
+	@using (Html.BeginForm("SearchRedirectHandler", "Storage"))
 	{
 		<input type="search" placeholder="Enter file name" value="@ViewData["GetFiles"]" name="searchString" style="width:400px; margin-left:460px; top: 93px; position:absolute;" />
 		<input type="submit" value="Search" class="search__button" title="Search" />
@@ -276,7 +276,7 @@
 
 			favbtn.addEventListener('click', function(event) {
 			   $.ajax({
-				url: '@Url.Action("Favourite","Storage")'
+				url: '@Url.Action("FavouriteHandler","Storage")'
 				}).done(function() {
 					window.location = window.location.href;
 				});
