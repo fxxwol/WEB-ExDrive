@@ -155,43 +155,6 @@ namespace ExDrive.Controllers
             }
         }
 
-        private async Task DeleteWithPreservation(List<UserFile> files)
-        {
-            _hasDeletionOccured = true;
-
-            var preservedResult = new List<UserFile>();
-
-            for (var position = 0; position < files.Count; position++)
-            {
-                var file = files[position];
-
-                if (file.IsSelected == true)
-                {
-                    await new Trashcan(_trashcanContainerName).DeleteFileAsync(file.Id, _userId, _applicationDbContext);
-                }
-                else
-                {
-                    preservedResult.Add(files.ElementAt(position));
-                }
-            }
-
-            _searchResult = preservedResult;
-        }
-
-        private async Task DeleteWithoutPreservation(List<UserFile> files)
-        {
-            _hasDeletionOccured = true;
-
-            for (var position = 0; position < files.Count; position++)
-            {
-                var file = files[position];
-
-                if (file.IsSelected == true)
-                {
-                    await new Trashcan(_trashcanContainerName).DeleteFileAsync(file.Id, _userId, _applicationDbContext);
-                }
-            }
-        }
 
         [Authorize]
         public async Task<IActionResult> DeleteHandler()
@@ -293,30 +256,20 @@ namespace ExDrive.Controllers
         [Authorize]
         public async void ReadFile()
         {
-            Stream stream;
-            _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
             // Needs refactoring
-            foreach (var name in _userFiles)
+            foreach (var file in _userFiles)
             {
-                if (name.IsSelected == false)
+                if (file.IsSelected == false)
                     continue;
 
-                var fileName = name.Id;
-
-                var findFormat = new FindFileFormat();
-
-                var type = findFormat.FindFormat(name.Name);
+                var type = new FindFileFormat().FindFormat(file.Name);
 
                 var memoryStream = new MemoryStream();
 
-                var downloadFile = new DownloadAzureFile();
-
-                stream = downloadFile.DownloadFileAsync(fileName, _userId).Result;
-
-                await stream.CopyToAsync(memoryStream);
-
-                await stream.FlushAsync();
+                using (var stream = new DownloadAzureFile().DownloadFileAsync(file.Id, _userId).Result)
+                {
+                    await stream.CopyToAsync(memoryStream);
+                }
 
                 switch (type)
                 {
@@ -327,11 +280,11 @@ namespace ExDrive.Controllers
                         break;
                     case ".pdf":
                         Response.ContentType = "Application/pdf";
-                        await Response.Body.WriteAsync(memoryStream.ToArray());
+                        await HttpContext.Response.Body.WriteAsync(memoryStream.ToArray());
 
                         break;
                     case ".doc":
-                        var docDocument = new WordDocument(memoryStream, FormatType.Docx);
+                        var docDocument = new WordDocument(memoryStream, FormatType.Doc);
                         var docRenderer = new DocIORenderer();
 
                         docRenderer.Settings.AutoTag = true;
@@ -624,6 +577,44 @@ namespace ExDrive.Controllers
             var file = new Files(newName, receivedFile.MyFile.FileName, _userId!, false);
 
             await uploadHandler.UploadFileAsync(receivedFile, file, _userId!, _applicationDbContext);
+        }
+
+        private async Task DeleteWithPreservation(List<UserFile> files)
+        {
+            _hasDeletionOccured = true;
+
+            var preservedResult = new List<UserFile>();
+
+            for (var position = 0; position < files.Count; position++)
+            {
+                var file = files[position];
+
+                if (file.IsSelected == true)
+                {
+                    await new Trashcan(_trashcanContainerName).DeleteFileAsync(file.Id, _userId, _applicationDbContext);
+                }
+                else
+                {
+                    preservedResult.Add(files.ElementAt(position));
+                }
+            }
+
+            _searchResult = preservedResult;
+        }
+
+        private async Task DeleteWithoutPreservation(List<UserFile> files)
+        {
+            _hasDeletionOccured = true;
+
+            for (var position = 0; position < files.Count; position++)
+            {
+                var file = files[position];
+
+                if (file.IsSelected == true)
+                {
+                    await new Trashcan(_trashcanContainerName).DeleteFileAsync(file.Id, _userId, _applicationDbContext);
+                }
+            }
         }
 
         private async Task DownloadFileToFolder(string fileId, string fileName, string path)
