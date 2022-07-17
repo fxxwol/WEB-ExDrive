@@ -19,7 +19,7 @@ namespace ExDrive.Services
             using (SqlConnection sqlConnection = new SqlConnection(ConnectionStrings.GetSqlConnectionString()))
             {
                 sqlConnection.Open();
-                using (SqlCommand sqlCommand = new SqlCommand($"SELECT Name, FilesId, Favourite FROM dbo.Files WHERE HasAccess='{_userId}' AND IsTemporary=1 ORDER BY FilesId ASC", sqlConnection))
+                using (SqlCommand sqlCommand = new SqlCommand($"SELECT Name, FilesId, Favourite FROM dbo.Files WHERE HasAccess='{_userId}' AND IsTemporary=1 ORDER BY Name DESC", sqlConnection))
                 {
                     using (SqlDataReader reader = sqlCommand.ExecuteReader())
                     {

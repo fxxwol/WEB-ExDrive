@@ -1,12 +1,7 @@
-﻿using System.IO.Compression;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
-using Syncfusion.DocIO;
-using Syncfusion.DocIO.DLS;
-using Syncfusion.DocIORenderer;
 
 using ExDrive.Helpers;
 using ExDrive.Models;
@@ -199,7 +194,7 @@ namespace ExDrive.Controllers
                 return View("AccessStorage", _searchResult);
             }
 
-            using (var result = CreateArchive(files, path))
+            using (var result = new CreateArchive().Create(files, path))
             {
                 Directory.Delete(path, true);
 
@@ -231,7 +226,7 @@ namespace ExDrive.Controllers
 
             var zipName = $"archive-{DateTime.Now.ToString("yyyy_MM_dd-HH_mm_ss")}.zip";
 
-            using (var result = CreateArchive(files, path))
+            using (var result = new CreateArchive().Create(files, path))
             {
                 Directory.Delete(path, true);
 
@@ -256,7 +251,7 @@ namespace ExDrive.Controllers
         [Authorize]
         public async void ReadFileHandler()
         {
-            UserFile? file = FindFirstSelectedFile();
+            var file = FindFirstSelectedFile();
 
             if (file == null)
             {
@@ -267,8 +262,13 @@ namespace ExDrive.Controllers
 
             switch (new FindFileFormat().FindFormat(file.Name))
             {
-                case ".txt":
-                    readFileContext.SetStrategy(new ReadFileTxtConcreteStrategy());
+                case ".jpg":
+                case ".jpeg":
+                    readFileContext.SetStrategy(new ReadFileJpegConcreteStrategy());
+                    break;
+
+                case ".png":
+                    readFileContext.SetStrategy(new ReadFilePngConcreteStrategy());
                     break;
 
                 case ".pdf":
@@ -280,13 +280,8 @@ namespace ExDrive.Controllers
                     readFileContext.SetStrategy(new ReadFileDocxConcreteStrategy());
                     break;
 
-                case ".png":
-                    readFileContext.SetStrategy(new ReadFilePngConcreteStrategy());
-                    break;
-
-                case ".jpg":
-                case ".jpeg":
-                    readFileContext.SetStrategy(new ReadFileJpegConcreteStrategy());
+                case ".txt":
+                    readFileContext.SetStrategy(new ReadFileTxtConcreteStrategy());
                     break;
 
                 default:
@@ -306,79 +301,58 @@ namespace ExDrive.Controllers
             readFileContext.Dispose();
         }
 
-
         [Authorize]
-        public ActionResult Rename(string newName)
+        public async Task<ActionResult> RenameHandler(string newName)
         {
-            ViewData["Rename"] = newName;
-            _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            // Needs refactoring
             if (_searchResult == null)
             {
-                foreach (var name in _userFiles)
+                if (!String.IsNullOrWhiteSpace(newName))
                 {
-                    if (name.IsSelected == true)
-                    {
-                        var toRename = _applicationDbContext.Files!.Find(name.Id);
+                    await Rename(_userFiles, newName);
 
-                        if (toRename == null)
-                            continue;
-
-                        var fileFormat = new FindFileFormat();
-                        var type = fileFormat.FindFormat(toRename.FilesId);
-
-                        Files? modified = toRename;
-
-                        newName = newName.Replace('.', '_');
-
-                        modified.Name = newName + type;
-
-                        _applicationDbContext.Files.Update(toRename).OriginalValues.SetValues(modified);
-
-                        _userFiles.Find(file => file.Id == toRename.FilesId)!.Name = modified.Name;
-
-                        _userFiles.Find(file => file.Id == toRename.FilesId)!.IsSelected = false;
-
-                        _applicationDbContext.SaveChanges();
-                    }
+                    DeselectAll();
                 }
 
                 return View("AccessStorage", _userFiles);
             }
             else
             {
-                foreach (var name in _searchResult)
+                if (String.IsNullOrWhiteSpace(newName))
                 {
-                    if (name.IsSelected == true)
-                    {
-                        var toRename = _applicationDbContext.Files!.Find(name.Id);
+                    await Rename(_searchResult, newName);
 
-                        if (toRename == null)
-                            continue;
-
-                        var fileFormat = new FindFileFormat();
-                        var type = fileFormat.FindFormat(toRename.FilesId);
-
-                        Files? modified = toRename;
-
-                        newName = newName.Replace('.', '_');
-
-                        modified.Name = newName + type;
-
-                        _applicationDbContext.Files.Update(toRename).OriginalValues.SetValues(modified);
-
-                        _searchResult.Find(file => file.Id == toRename.FilesId)!.Name = modified.Name;
-
-                        _searchResult.Find(file => file.Id == toRename.FilesId)!.IsSelected = false;
-
-                        _applicationDbContext.SaveChanges();
-                    }
+                    DeselectAll();
                 }
 
                 return View("AccessStorage", _searchResult);
             }
-            //
+        }
+
+        private async Task Rename(List<UserFile> files, string newName)
+        {
+            ViewData["Rename"] = newName;
+
+            var file = FindFirstSelectedFile();
+
+            if (file == null)
+            {
+                return;
+            }
+
+            var toRename = _applicationDbContext.Files!.Find(file.Id);
+
+            var modified = toRename;
+
+            newName = newName.Replace('.', '_');
+
+            modified!.Name = newName + new FindFileFormat().FindFormat(toRename!.FilesId);
+
+            _applicationDbContext.Files.Update(toRename).OriginalValues.SetValues(modified);
+
+            files.Find(entry => entry.Id == toRename.FilesId)!.Name = modified.Name;
+
+            await _applicationDbContext.SaveChangesAsync();
+
         }
 
         // Needs refactoring
@@ -510,7 +484,7 @@ namespace ExDrive.Controllers
 
         private async Task<string> SingleTempFile(UploadInstance receivedFile, UploadTempFile uploadHandler)
         {
-            var newName = GetUniqueName(receivedFile.MyFile!.FileName);
+            var newName = new GetUniqueName().GetName(receivedFile.MyFile!.FileName);
 
             var file = new Files(newName, receivedFile.MyFile.FileName);
 
@@ -521,7 +495,7 @@ namespace ExDrive.Controllers
 
         private async Task<string> SingleTempFile(MemoryStream memoryStream, string fileName, UploadTempFile uploadHandler)
         {
-            var newName = GetUniqueName(fileName);
+            var newName = new GetUniqueName().GetName(fileName);
 
             var file = new Files(newName, fileName);
 
@@ -532,7 +506,7 @@ namespace ExDrive.Controllers
 
         private async Task SinglePermFile(UploadInstance receivedFile, UploadPermFile uploadHandler)
         {
-            var newName = GetUniqueName(receivedFile.MyFile!.FileName);
+            var newName = new GetUniqueName().GetName(receivedFile.MyFile!.FileName);
 
             var file = new Files(newName, receivedFile.MyFile.FileName, _userId!, false);
 
@@ -602,39 +576,7 @@ namespace ExDrive.Controllers
                 if (file.IsSelected == false)
                     continue;
 
-                await DownloadFileToFolder(file.Id, GetFileName(file, path, position), path);
-            }
-        }
-
-        private MemoryStream CreateArchive(List<string> files, string path)
-        {
-            var memoryStream = new MemoryStream();
-
-            using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
-            {
-                files.ForEach(file =>
-                {
-                    archive.CreateEntryFromFile(file, file.Replace(path + "\\", string.Empty));
-                });
-            }
-
-            return memoryStream;
-        }
-
-        private string GetFileName(UserFile file, string path, int position)
-        {
-            var downloadedFiles = Directory.GetFiles(path).ToList();
-
-            var currentName = Path.Combine(path, file.Name);
-
-            if (downloadedFiles.Contains(currentName))
-            {
-                return file.NoFormat + $"({position})" +
-                                new FindFileFormat().FindFormat(file.Name);
-            }
-            else
-            {
-                return file.Name;
+                await DownloadFileToFolder(file.Id, new GetFileName().GetName(file, path, position), path);
             }
         }
 
@@ -650,6 +592,18 @@ namespace ExDrive.Controllers
             }
         }
 
+        private void DeselectAll()
+        {
+            if (_searchResult == null)
+            {
+                _userFiles.ForEach(file => file.IsSelected = false);
+            }
+            else
+            {
+                _searchResult.ForEach(file => file.IsSelected = false);
+            }
+        }
+
         private void FileClick(int position, List<UserFile> files)
         {
             files.ElementAt(position).IsSelected ^= true;
@@ -658,18 +612,6 @@ namespace ExDrive.Controllers
         private void FilterFavourite()
         {
             _searchResult = _userFiles.Where(file => file.IsFavourite == true).ToList();
-        }
-
-        private string GetUniqueName(string oldName)
-        {
-            return Guid.NewGuid().ToString() + new FindFileFormat().FindFormat(oldName);
-        }
-
-        private enum SearchRedirect
-        {
-            ShowSearchResult,
-            ShowUserFiles,
-            UpdateUserFiles
         }
 
         public StorageController(ApplicationDbContext applicationDbContext)
