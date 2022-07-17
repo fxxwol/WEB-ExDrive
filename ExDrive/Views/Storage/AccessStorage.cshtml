@@ -70,7 +70,7 @@
 		<input type="search" placeholder="Enter file name" value="@ViewData["GetFiles"]" name="searchString" style="width:400px; margin-left:460px; top: 93px; position:absolute;" />
 		<input type="submit" value="Search" class="search__button" title="Search" />
 	}
-	@using (Html.BeginForm("ReadFile", "Storage"))
+	@using (Html.BeginForm("ReadFileHandler", "Storage"))
 	{
 		<input type="submit" value="Open file" class="openfile__button" title="Open and read your file" />
 	}

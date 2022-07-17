@@ -1,12 +1,10 @@
 ﻿namespace ExDrive.Services
 {
-    public class ReadFilePngConcreteStrategy : IReadFileStrategy
+    public class ReadFileDefaultConcreteStrategy : IReadFileStrategy
     {
         public async Task Execute(HttpContext httpContext, MemoryStream memoryStream)
         {
-            httpContext.Response.ContentType = "image/png";
-
-            await httpContext.Response.Body.WriteAsync(memoryStream.ToArray());
+            await httpContext.Response.WriteAsync("Sorry but we can't open this file :(");
         }
 
         void IDisposable.Dispose()

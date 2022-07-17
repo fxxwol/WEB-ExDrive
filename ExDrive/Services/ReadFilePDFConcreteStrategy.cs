@@ -1,6 +1,6 @@
 ﻿namespace ExDrive.Services
 {
-    public class ReadFilePDFConcreteStrategy : IReadFileStrategy
+    public class ReadFilePdfConcreteStrategy : IReadFileStrategy
     {
         public async Task Execute(HttpContext httpContext, MemoryStream memoryStream)
         {

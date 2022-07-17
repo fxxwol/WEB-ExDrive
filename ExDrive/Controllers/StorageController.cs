@@ -254,85 +254,58 @@ namespace ExDrive.Controllers
 
         [HttpPost]
         [Authorize]
-        public async void ReadFile()
+        public async void ReadFileHandler()
         {
-            // Needs refactoring
-            foreach (var file in _userFiles)
+            UserFile? file = FindFirstSelectedFile();
+
+            if (file == null)
             {
-                if (file.IsSelected == false)
-                    continue;
-
-                var type = new FindFileFormat().FindFormat(file.Name);
-
-                var memoryStream = new MemoryStream();
-
-                using (var stream = new DownloadAzureFile().DownloadFileAsync(file.Id, _userId).Result)
-                {
-                    await stream.CopyToAsync(memoryStream);
-                }
-
-                var readFileContext = new ReadFileContext();
-
-                switch (type)
-                {
-                    case ".txt":
-                        readFileContext.SetStrategy(new ReadFileTXTConcreteStrategy());
-
-                        break;
-                    case ".pdf":
-                        readFileContext.SetStrategy(new ReadFilePDFConcreteStrategy());
-
-                        break;
-                    case ".doc":
-                        readFileContext.SetStrategy(new ReadFileDOCConcreteStrategy());
-
-                        break;
-                    case ".png":
-                        readFileContext.SetStrategy(new ReadFilePNGConcreteStrategy());
-
-                        break;
-                    case ".docx":
-                        var docxDocument = new WordDocument(memoryStream, FormatType.Docx);
-                        var docxRenderer = new DocIORenderer();
-
-                        docxRenderer.Settings.AutoTag = true;
-                        docxRenderer.Settings.PreserveFormFields = true;
-                        docxRenderer.Settings.ExportBookmarks = ExportBookmarkType.Headings;
-
-                        var pdfDocxDocument = docxRenderer.ConvertToPDF(docxDocument);
-                        var docxMemoryStream = new MemoryStream();
-
-                        pdfDocxDocument.Save(docxMemoryStream);
-
-                        Response.ContentType = "Application/pdf";
-
-                        docxMemoryStream.Position = 0;
-                        await HttpContext.Response.Body.WriteAsync(docxMemoryStream.ToArray());
-
-                        break;
-                    case ".jpg":
-                        Response.ContentType = "image/jpeg";
-                        await HttpContext.Response.Body.WriteAsync(memoryStream.ToArray());
-
-                        break;
-                    case ".jpeg":
-                        Response.ContentType = "image/jpeg";
-                        await HttpContext.Response.Body.WriteAsync(memoryStream.ToArray());
-
-                        break;
-                    default:
-                        await Response.WriteAsync("Sorry but we can't open this file :(");
-
-                        break;
-                }
-
-                await readFileContext.ExecuteStrategy(HttpContext, memoryStream);
-
-                readFileContext.Dispose();
-
-                break;
+                return;
             }
+
+            var readFileContext = new ReadFileContext();
+
+            switch (new FindFileFormat().FindFormat(file.Name))
+            {
+                case ".txt":
+                    readFileContext.SetStrategy(new ReadFileTxtConcreteStrategy());
+                    break;
+
+                case ".pdf":
+                    readFileContext.SetStrategy(new ReadFilePdfConcreteStrategy());
+                    break;
+
+                case ".docx":
+                case ".doc":
+                    readFileContext.SetStrategy(new ReadFileDocxConcreteStrategy());
+                    break;
+
+                case ".png":
+                    readFileContext.SetStrategy(new ReadFilePngConcreteStrategy());
+                    break;
+
+                case ".jpg":
+                case ".jpeg":
+                    readFileContext.SetStrategy(new ReadFileJpegConcreteStrategy());
+                    break;
+
+                default:
+                    readFileContext.SetStrategy(new ReadFileDefaultConcreteStrategy());
+                    break;
+            }
+
+            using var memoryStream = new MemoryStream();
+
+            using (var stream = new DownloadAzureFile().DownloadFileAsync(file.Id, _userId).Result)
+            {
+                await stream.CopyToAsync(memoryStream);
+            }
+
+            await readFileContext.ExecuteStrategy(HttpContext, memoryStream);
+
+            readFileContext.Dispose();
         }
+
 
         [Authorize]
         public ActionResult Rename(string newName)
@@ -662,6 +635,18 @@ namespace ExDrive.Controllers
             else
             {
                 return file.Name;
+            }
+        }
+
+        private UserFile? FindFirstSelectedFile()
+        {
+            if (_searchResult == null)
+            {
+                return _userFiles.Find(file => file.IsSelected == true);
+            }
+            else
+            {
+                return _searchResult.Find(file => file.IsSelected == true);
             }
         }
 
