@@ -271,40 +271,24 @@ namespace ExDrive.Controllers
                     await stream.CopyToAsync(memoryStream);
                 }
 
+                var readFileContext = new ReadFileContext();
+
                 switch (type)
                 {
                     case ".txt":
-                        Response.ContentType = "text/plain";
-                        await HttpContext.Response.Body.WriteAsync(memoryStream.ToArray());
+                        readFileContext.SetStrategy(new ReadFileTXTConcreteStrategy());
 
                         break;
                     case ".pdf":
-                        Response.ContentType = "Application/pdf";
-                        await HttpContext.Response.Body.WriteAsync(memoryStream.ToArray());
+                        readFileContext.SetStrategy(new ReadFilePDFConcreteStrategy());
 
                         break;
                     case ".doc":
-                        var docDocument = new WordDocument(memoryStream, FormatType.Doc);
-                        var docRenderer = new DocIORenderer();
-
-                        docRenderer.Settings.AutoTag = true;
-                        docRenderer.Settings.PreserveFormFields = true;
-                        docRenderer.Settings.ExportBookmarks = ExportBookmarkType.Headings;
-
-                        var pdfDocDocument = docRenderer.ConvertToPDF(docDocument);
-                        var docMemoryStream = new MemoryStream();
-
-                        pdfDocDocument.Save(docMemoryStream);
-
-                        Response.ContentType = "Application/pdf";
-
-                        docMemoryStream.Position = 0;
-                        await HttpContext.Response.Body.WriteAsync(docMemoryStream.ToArray());
+                        readFileContext.SetStrategy(new ReadFileDOCConcreteStrategy());
 
                         break;
                     case ".png":
-                        Response.ContentType = "image/png";
-                        await HttpContext.Response.Body.WriteAsync(memoryStream.ToArray());
+                        readFileContext.SetStrategy(new ReadFilePNGConcreteStrategy());
 
                         break;
                     case ".docx":
@@ -341,7 +325,10 @@ namespace ExDrive.Controllers
 
                         break;
                 }
-                //
+
+                await readFileContext.ExecuteStrategy(HttpContext, memoryStream);
+
+                readFileContext.Dispose();
 
                 break;
             }
