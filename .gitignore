@@ -4,6 +4,8 @@ project.lock.json
 .DS_Store
 *.pyc
 nupkg/
+ExDrive/appsettings.json
+ExDrive/appsettings.Development.json
 
 # Visual Studio Code
 .vscode
