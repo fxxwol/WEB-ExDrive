@@ -175,11 +175,11 @@ namespace ExDrive.Controllers
 
             if (_searchResult == null)
             {
-                await DownloadFilesToFolder(_userFiles, path);
+                await new DownloadFiles().DownloadFilesToFolderAsync(_userFiles, path, _userId);
             }
             else
             {
-                await DownloadFilesToFolder(_searchResult, path);
+                await new DownloadFiles().DownloadFilesToFolderAsync(_searchResult, path, _userId);
             }
 
             var files = Directory.GetFiles(path).ToList();
@@ -202,7 +202,7 @@ namespace ExDrive.Controllers
                             $"archive-{DateTime.Now.ToString("yyyy_MM_dd-HH_mm_ss")}.zip");
             }
         }
-
+        
         [Authorize]
         public async Task<string?> GetLinkHandler()
         {
@@ -210,11 +210,11 @@ namespace ExDrive.Controllers
 
             if (_searchResult == null)
             {
-                await DownloadFilesToFolder(_userFiles, path);
+                await new DownloadFiles().DownloadFilesToFolderAsync(_userFiles, path, _userId);
             }
             else
             {
-                await DownloadFilesToFolder(_searchResult, path);
+                await new DownloadFiles().DownloadFilesToFolderAsync(_searchResult, path, _userId);
             }
 
             var files = Directory.GetFiles(path).ToList();
@@ -226,24 +226,23 @@ namespace ExDrive.Controllers
 
             var zipName = $"archive-{DateTime.Now.ToString("yyyy_MM_dd-HH_mm_ss")}.zip";
 
-            using (var result = new CreateArchive().Create(files, path))
+            using var result = new CreateArchive().Create(files, path);
+
+            Directory.Delete(path, true);
+
+            var uploadHandler = new UploadTempFile();
+
+            try
             {
-                Directory.Delete(path, true);
-
-                var uploadHandler = new UploadTempFile();
-
-                try
-                {
-                    return await SingleTempFile(result, zipName, uploadHandler);
-                }
-                catch
-                {
-                    return "File may be malicious";
-                }
-                finally
-                {
-                    await uploadHandler.DisposeAsync();
-                }
+                return await SingleTempFile(result, zipName, uploadHandler);
+            }
+            catch
+            {
+                return "File may be malicious";
+            }
+            finally
+            {
+                await uploadHandler.DisposeAsync();
             }
         }
 
@@ -341,15 +340,13 @@ namespace ExDrive.Controllers
 
             var toRename = _applicationDbContext.Files!.Find(file.Id);
 
-            var modified = toRename;
+            var renamed = toRename;
 
-            newName = newName.Replace('.', '_');
+            renamed!.Name = new GetValidName().GetName(newName, toRename!.Name);
 
-            modified!.Name = newName + new FindFileFormat().FindFormat(toRename!.FilesId);
+            _applicationDbContext.Files.Update(toRename).OriginalValues.SetValues(renamed);
 
-            _applicationDbContext.Files.Update(toRename).OriginalValues.SetValues(modified);
-
-            files.Find(entry => entry.Id == toRename.FilesId)!.Name = modified.Name;
+            files.Find(entry => entry.Id == toRename.FilesId)!.Name = renamed.Name;
 
             await _applicationDbContext.SaveChangesAsync();
 
@@ -548,35 +545,6 @@ namespace ExDrive.Controllers
                 {
                     await new Trashcan(_trashcanContainerName).DeleteFileAsync(file.Id, _userId, _applicationDbContext);
                 }
-            }
-        }
-
-        private async Task DownloadFileToFolder(string fileId, string fileName, string path)
-        {
-            using (var fileStream = new FileStream(Path.Combine(path, fileName),
-                                                          FileMode.Create, FileAccess.Write))
-            {
-                using (var memoryStream = await new DownloadAzureFile().DownloadFileAsync(fileId, _userId))
-                {
-                    memoryStream.Position = 0;
-
-                    await memoryStream.CopyToAsync(fileStream);
-                }
-            }
-        }
-
-        private async Task DownloadFilesToFolder(List<UserFile> files, string path)
-        {
-            Directory.CreateDirectory(path);
-
-            for (var position = 0; position < files.Count; position++)
-            {
-                var file = files[position];
-
-                if (file.IsSelected == false)
-                    continue;
-
-                await DownloadFileToFolder(file.Id, new GetFileName().GetName(file, path, position), path);
             }
         }
 
