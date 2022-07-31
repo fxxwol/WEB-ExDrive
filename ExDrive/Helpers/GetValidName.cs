@@ -6,27 +6,27 @@ namespace ExDrive.Helpers
     {
         public string GetName(string newName, string oldNameWithFormat)
         {
-            var expression = new Regex("[^\\\\\\/:\\*\\?\"<>\\|]");
+            var pickValidName = new Regex("[^\\\\\\/:\\*\\?\"<>\\|]");
 
-            var result = expression.Matches(newName)
+            var validSymbols = pickValidName.Matches(newName)
                             .OfType<Match>()
                             .Select(m => m.Groups[0].Value)
                             .ToArray();
 
-            var name = String.Empty;
+            var cleanName = String.Empty;
 
-            foreach (var match in result)
+            foreach (var symbol in validSymbols)
             {
-                name += match;
+                cleanName += symbol;
             }
 
-            if (String.IsNullOrWhiteSpace(name))
+            if (String.IsNullOrWhiteSpace(cleanName))
             {
                 return oldNameWithFormat;
             }
             else
             {
-                return name + new FindFileFormat().FindFormat(oldNameWithFormat);
+                return cleanName + new FindFileFormat().FindFormat(oldNameWithFormat);
             }
         }
     }

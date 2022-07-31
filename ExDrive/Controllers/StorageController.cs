@@ -1,12 +1,11 @@
-﻿using System.Security.Claims;
-
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-
+﻿using ExDrive.Authentication;
 using ExDrive.Helpers;
 using ExDrive.Models;
-using ExDrive.Authentication;
 using ExDrive.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
+using System.Security.Claims;
 
 namespace ExDrive.Controllers
 {
@@ -194,13 +193,12 @@ namespace ExDrive.Controllers
                 return View("AccessStorage", _searchResult);
             }
 
-            using (var result = new CreateArchive().Create(files, path))
-            {
-                Directory.Delete(path, true);
+            using var result = new CreateArchive().Create(files, path);
 
-                return File(result.ToArray(), "application/zip",
-                            $"archive-{DateTime.Now.ToString("yyyy_MM_dd-HH_mm_ss")}.zip");
-            }
+            Directory.Delete(path, true);
+
+            return File(result.ToArray(), "application/zip",
+                        $"archive-{DateTime.Now.ToString("yyyy_MM_dd-HH_mm_ss")}.zip");
         }
         
         [Authorize]
@@ -327,77 +325,26 @@ namespace ExDrive.Controllers
             }
         }
 
-        private async Task Rename(List<UserFile> files, string newName)
-        {
-            ViewData["Rename"] = newName;
-
-            var file = FindFirstSelectedFile();
-
-            if (file == null)
-            {
-                return;
-            }
-
-            var toRename = _applicationDbContext.Files!.Find(file.Id);
-
-            var renamed = toRename;
-
-            renamed!.Name = new GetValidName().GetName(newName, toRename!.Name);
-
-            _applicationDbContext.Files.Update(toRename).OriginalValues.SetValues(renamed);
-
-            files.Find(entry => entry.Id == toRename.FilesId)!.Name = renamed.Name;
-
-            await _applicationDbContext.SaveChangesAsync();
-
-        }
-
         // Needs refactoring
         [HttpPost, DisableRequestSizeLimit]
-        public async Task<ActionResult> UploadTempFileBot()
+        public async Task<ActionResult> SingleTempBotFileHandler()
         {
             if (Request.ContentLength == 0 || Request.ContentLength == null)
             {
-                HttpResponse badresponse = Response;
-                badresponse.Clear();
-                badresponse.StatusCode = 500;
-
-                return BadRequest(badresponse);
+                return BadRequest();
             }
-
-            Microsoft.Extensions.Primitives.StringValues vs;
-            Request.Headers.TryGetValue("file-name", out vs);
-            string name = vs.First();
-
-            var fileFormat = new FindFileFormat();
-            var file = new Files(Guid.NewGuid().ToString() + fileFormat.FindFormat(name),
-                name, "*", true);
-
-            Stream stream = Request.Body;
 
             try
             {
-                var uploadTempBotFile = new UploadTempBotFile();
+                var uploadedFile = await SingleTempBotFile(Request);
 
-                await uploadTempBotFile.UploadFileAsync(stream, (long)Request.ContentLength, Guid.NewGuid().ToString(),
-                                            file, _applicationDbContext);
+                return Ok(new BotSuccessResponse().Write(Response,
+                        _tempFilesContainerLink + uploadedFile.FilesId));
             }
-            catch (Exception)
+            catch
             {
-                HttpResponse badresponse = Response;
-                badresponse.Clear();
-                badresponse.StatusCode = 500;
-
-                return BadRequest(badresponse);
+                return BadRequest();
             }
-
-            HttpResponse response = Response;
-            response.Clear();
-            response.StatusCode = 200;
-            response.ContentType = "text/xml";
-            await response.WriteAsync(_tempFilesContainerLink + file.FilesId);
-
-            return Ok(response);
         }
 
         private SearchRedirect Search(string searchString)
@@ -510,6 +457,22 @@ namespace ExDrive.Controllers
             await uploadHandler.UploadFileAsync(receivedFile, file, _userId!, _applicationDbContext);
         }
 
+        private async Task<Files> SingleTempBotFile(HttpRequest httpRequest)
+        {
+            httpRequest.Headers.TryGetValue("file-name", out StringValues fileName);
+
+            string oldName = fileName.First();
+
+            var file = new Files(new GetUniqueName().GetName(oldName), oldName);
+
+            Stream fileStream = httpRequest.Body;
+
+            await new UploadTempBotFile().UploadFileAsync(fileStream, (long)httpRequest.ContentLength!,
+                                                                file, _applicationDbContext);
+
+            return file;
+        }
+
         private async Task DeleteWithPreservation(List<UserFile> files)
         {
             _hasDeletionOccured = true;
@@ -546,6 +509,31 @@ namespace ExDrive.Controllers
                     await new Trashcan(_trashcanContainerName).DeleteFileAsync(file.Id, _userId, _applicationDbContext);
                 }
             }
+        }
+
+        private async Task Rename(List<UserFile> files, string newName)
+        {
+            ViewData["Rename"] = newName;
+
+            var file = FindFirstSelectedFile();
+
+            if (file == null)
+            {
+                return;
+            }
+
+            var fileToRename = _applicationDbContext.Files!.Find(file.Id);
+
+            var renamedFile = fileToRename;
+
+            renamedFile!.Name = new GetValidName().GetName(newName, fileToRename!.Name);
+
+            _applicationDbContext.Files.Update(fileToRename).OriginalValues.SetValues(renamedFile);
+
+            files.Find(entry => entry.Id == fileToRename.FilesId)!.Name = renamedFile.Name;
+
+            await _applicationDbContext.SaveChangesAsync();
+
         }
 
         private UserFile? FindFirstSelectedFile()

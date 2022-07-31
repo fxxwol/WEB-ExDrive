@@ -11,12 +11,12 @@ namespace ExDrive.Models
 {
     public class UploadTempBotFile : UploadFile
     {
-        public async Task UploadFileAsync(Stream stream, long bytesRemain, string tempName,
-                                                Files newFile, ApplicationDbContext applicationDbContext)
+        public async Task UploadFileAsync(Stream stream, long bytesRemain,
+                                          Files newFile, ApplicationDbContext applicationDbContext)
         {
             await stream.CopyToAsync(MemoryStream);
 
-            FullPath = Path.Combine(_scanningPath, tempName);
+            FullPath = Path.Combine(_scanningPath, Guid.NewGuid().ToString());
 
             await CreateFileAsync(newFile.FilesId);
 
