@@ -30,7 +30,7 @@ namespace ExDrive.Services
                         database.Files.Remove(toDelete);
                     }
 
-                    database.SaveChanges();
+                    await database.SaveChangesAsync();
                 }
             }
         }

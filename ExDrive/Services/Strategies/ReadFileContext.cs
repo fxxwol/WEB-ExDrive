@@ -1,6 +1,6 @@
 ﻿namespace ExDrive.Services
 {
-    public class ReadFileContext
+    public class ReadFileContext: IDisposable
     {
         private IReadFileStrategy? _readFileStrategy;
 

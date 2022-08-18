@@ -7,7 +7,7 @@ using System.Text;
 
 namespace ExDrive.Services
 {
-    public abstract class UploadFile : IAsyncDisposable
+    public abstract class UploadFile : IAsyncDisposable, IDisposable
     {
         abstract protected Task<CloudBlockBlob> CreateNewBlobAsync(Files newFile, string containerName);
 
@@ -82,8 +82,21 @@ namespace ExDrive.Services
 
         public async ValueTask DisposeAsync()
         {
+            GC.SuppressFinalize(this);
+
             if (MemoryStream != null)
                 await MemoryStream.DisposeAsync();
+
+            if (!String.IsNullOrEmpty(FullPath))
+                Directory.Delete(FullPath, true);
+        }
+
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+
+            if (MemoryStream != null)
+                MemoryStream.Dispose();
 
             if (!String.IsNullOrEmpty(FullPath))
                 Directory.Delete(FullPath, true);

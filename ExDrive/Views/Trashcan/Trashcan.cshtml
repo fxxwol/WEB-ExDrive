@@ -21,16 +21,16 @@
         <div class="ccontext-menu__item4">Delete</div>
     </div>
 
-    @using (Html.BeginForm("DeletePerm", "Trashcan"))
+    @using (Html.BeginForm("DeletePermanentlyHandler", "Trashcan"))
     {
              <input type="submit" value="Delete" class="delete__button" title="Delete your file"/>
        
     }
-    @using (Html.BeginForm("Recovery", "Trashcan"))
+    @using (Html.BeginForm("RecoverHandler", "Trashcan"))
     {
         <input type="submit" value="Recover" class="recovery__button" title="Recover your file"/>
     }
-    @using (Html.BeginForm("Search", "Trashcan"))
+    @using (Html.BeginForm("SearchRedirectHandler", "Trashcan"))
     {
         <input type="search" placeholder="Enter file name" value="@ViewData["GetFiles"]" name="searchString" style="width:400px; margin-left:270px; top: 93px; position:absolute;" />
         <input type="submit" value="Search" class="search__button1" title="Search your file"/>
@@ -39,7 +39,7 @@
  
   <div class="trashcan__window">
         @model List<UserFile>
-        @using (Html.BeginForm("FileClick", "Trashcan"))
+        @using (Html.BeginForm("FileClickHandler", "Trashcan"))
         {
             int count = 0;
             @foreach (var row in @Model)
@@ -52,58 +52,58 @@
                         type += row.Name.ElementAt(i);
                     }
 
-                    string imagetoview = "";
+                    string imageToView = "";
                     switch (type)
                     {
                         case "png":
-                                imagetoview = "~/css/images/png.png";
+                                imageToView = "~/css/images/png.png";
                             break;
                         case "jpg":
-                                imagetoview = "~/css/images/jpg.png";
+                                imageToView = "~/css/images/jpg.png";
                             break;
                         case "pdf":
-                                imagetoview = "~/css/images/pdf.png";
+                                imageToView = "~/css/images/pdf.png";
                             break;
                         case "mp4":
-                                imagetoview = "~/css/images/mp4.png";
+                                imageToView = "~/css/images/mp4.png";
                             break;
                         case "txt":
-                                imagetoview = "~/css/images/txt.png";
+                                imageToView = "~/css/images/txt.png";
                             break;
                         case "mp3":
-                                imagetoview = "~/css/images/mp3.png";
+                                imageToView = "~/css/images/mp3.png";
                             break;
                         case "doc":
-                                imagetoview = "~/css/images/doc.png";
+                                imageToView = "~/css/images/doc.png";
                             break;
                         case "docx":
-                                imagetoview = "~/css/images/docx.png";
+                                imageToView = "~/css/images/docx.png";
                             break;
                         case "xls":
-                                imagetoview = "~/css/images/xls.png";
+                                imageToView = "~/css/images/xls.png";
                             break;
                         case "xlsx":
-                                imagetoview = "~/css/images/xlsx.png";
+                                imageToView = "~/css/images/xlsx.png";
                             break;
                         case "mov":
-                                imagetoview = "~/css/images/mov.png";
+                                imageToView = "~/css/images/mov.png";
                             break;
                         case "webm":
-                                imagetoview = "~/css/images/webm.png";
+                                imageToView = "~/css/images/webm.png";
                             break;
                         case "zip":
-                                imagetoview = "~/css/images/zip.png";
+                                imageToView = "~/css/images/zip.png";
                             break;
                         case "gif":
-                                imagetoview = "~/css/images/gif.png";
+                                imageToView = "~/css/images/gif.png";
                             break;
                         default:
-                                imagetoview = "~/css/images/file.png";
+                                imageToView = "~/css/images/file.png";
                             break;
                     }
 
-                    <div class="item" title="@row.Name" value=@count style="border: medium none">
-                        <img src="@Url.Content(imagetoview)" value=@count runat="server" style="border: medium none; width: 100px; height: 100px; border-radius: 15px;" />
+                    <div class="item" title="@row.Name" style="border: medium none">
+                        <img src="@Url.Content(imageToView)" value=@count runat="server" style="border: medium none; width: 100px; height: 100px; border-radius: 15px;" />
                         <span class="caption">@row.Name</span>
                     </div>
 
@@ -126,17 +126,15 @@
 
         recoverbtn.addEventListener('click', function(event) {
            $.ajax({
-            url: '@Url.Action("Recovery","Trashcan")'
+            url: '@Url.Action("RecoverHandler","Trashcan")'
             }).done(function() {
                 window.location = window.location.href;
-                console.log('1');
             }); 
         });
 
         deletebtn.addEventListener('click', function(event) {
-            console.log(event);
            $.ajax({
-            url: '@Url.Action("DeletePerm","Trashcan")'
+            url: '@Url.Action("DeletePermanentlyHandler","Trashcan")'
             }).done(function() {
             window.location = window.location.href;
             }); 
@@ -145,11 +143,10 @@
         window.addEventListener('click', (e) => {
             
             let pos = e.target.getAttribute("value");
-            if (pos != null)
+            if (pos != null && pos != 'Search' && pos < @Model.Count)
             {
-                console.log(pos);
                 $.ajax({
-            url: '@Url.Action("FileClick","Trashcan")',
+            url: '@Url.Action("FileClickHandler","Trashcan")',
             data: { afile: pos }
             }).done(function() {
                 if (e.target.style.border == "medium none")
@@ -171,8 +168,6 @@
 
             cm.style.left = e.x + cm.offsetWidth > window.innerWidth ?
             window.innerWidth - cm.offsetWidth + "px" : e.x + "px";
-
-            console.log(e.returnValue);
         });
 
         window.addEventListener('click', () => {

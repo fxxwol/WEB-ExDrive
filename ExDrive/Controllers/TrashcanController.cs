@@ -1,6 +1,7 @@
 ﻿using ExDrive.Models;
 using ExDrive.Services;
 using ExDrive.Authentication;
+using ExDrive.Helpers.Constants;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,211 +13,229 @@ namespace ExDrive.Controllers
     [Authorize]
     public class TrashcanController : Controller
     {
-        private string? _userId;
-        private static bool _isDeleted = false;
-
-        private static List<UserFile>? _deleted = new();
-        private static List<UserFile>? _searchResult = new();
-
-        private static ApplicationDbContext _applicationDbContext = new();
-
-        private static readonly string _trashcanContainerName = "trashcan";
-
-        public TrashcanController(ApplicationDbContext applicationDbContext)
-        {
-            _applicationDbContext = applicationDbContext;
-        }
         public IActionResult Trashcan()
         {
             _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var deletedFiles = new DeletedFiles();
-            _deleted = new List<UserFile>(deletedFiles.GetDeletedFiles(_userId));
+            _deletedFiles = new List<UserFile>(new DeletedFiles().GetDeletedFiles(_userId));
 
             _searchResult = null;
-            return View(_deleted);
-        }
-        public ActionResult FileClick(string afile)
-        {
-            try
-            {
-                int position = Int32.Parse(afile);
 
-                if (_searchResult == null)
-                {
-                    _deleted!.ElementAt(position).IsSelected ^= true;
-                    return View("Trashcan", _deleted);
-                }
-
-                _searchResult.ElementAt(position).IsSelected ^= true;
-                return View("Trashcan", _searchResult);
-            }
-            catch (Exception)
-            {
-                if (_searchResult == null)
-                {
-                    return View("Trashcan", _deleted);
-                }
-
-                return View("Trashcan", _searchResult);
-            }
+            return View(_deletedFiles);
         }
 
-        public ActionResult DeletePerm()
+        public ActionResult FileClickHandler(string afile)
         {
-            _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            _isDeleted = true;
+            var position = Int32.Parse(afile);
 
-            if (_deleted == null)
-            {
-                return View("Trashcan", _deleted);
-            }
-
-            // Needs refactoring
             if (_searchResult == null)
             {
-                foreach (var name in _deleted)
-                {
-                    if (name.IsSelected == true)
-                    {
-                        var todelete = _applicationDbContext.Files!.Find(name.Id);
-                        
-                        if (todelete != null)
-                        {
-                            _applicationDbContext.Remove(todelete);
+                FileClick(position, _deletedFiles);
 
-                            try
-                            {
-                                var deleteBlob = new DeleteAzureFile();
+                return View("Trashcan", _deletedFiles);
+            }
+            else
+            {
+                FileClick(position, _searchResult);
 
-                                deleteBlob.DeleteBlobAsync(todelete, _trashcanContainerName);
-                            }
-                            catch
-                            {
+                return View("Trashcan", _searchResult);
+            }
+        }
 
-                            }
-                        }
-                    }
-                }
-                _applicationDbContext.SaveChanges();
+        public async Task<ActionResult> DeletePermanentlyHandler()
+        {
+            if (_searchResult == null)
+            {
+                await DeletePermanentlyWithoutPreservation(_deletedFiles);
 
                 return RedirectToAction("Trashcan", "Trashcan");
             }
-            //
-
-            // Needs refactoring
-            int i = 0;
-            List<UserFile> newsearch = new List<UserFile>();
-
-            foreach (var name in _searchResult)
+            else
             {
-                if (name.IsSelected == true)
-                {
-                    Files? todelete = _applicationDbContext.Files!.Find(name.Id);
-                    if (todelete != null)
-                    {
-                        _deleted.Remove(name);
+                await DeletePermanentlyWithPreservation(_searchResult);
 
-                        _applicationDbContext.Remove(todelete);
-
-                    }
-                }
-                else
-                {
-                    newsearch.Add(_searchResult.ElementAt(i));
-                }
-
-                i++;
+                return View("Trashcan", _searchResult);
             }
-            //
-
-            _applicationDbContext.SaveChanges();
-
-            _searchResult = newsearch;
-            return View("Trashcan", _searchResult);
         }
 
-        // Needs refactoring
-        [Authorize]
-        public IActionResult Search(string searchString)
+        public IActionResult SearchRedirectHandler(string searchString)
+        {
+            var result = Search(searchString);
+
+            switch (result)
+            {
+                case SearchRedirect.ShowSearchResult:
+                    return View("Trashcan", _searchResult);
+
+                case SearchRedirect.ShowUserFiles:
+                    return View("Trashcan", _deletedFiles);
+
+                default:
+                    return RedirectToAction("Trashcan", "Trashcan");
+            }
+        }
+
+        public async Task<ActionResult> RecoverHandler()
+        {
+            if (_searchResult == null)
+            {
+                await RecoverWithoutPreservation(_deletedFiles);
+
+                return RedirectToAction("Trashcan", "Trashcan");
+            }
+            else
+            {
+                await RecoverWithPreservation(_searchResult);
+
+                return View("Trashcan", _searchResult);
+            }
+        }
+
+        private SearchRedirect Search(string searchString)
         {
             ViewData["GetFiles"] = searchString;
 
             if (searchString == null && _searchResult != null)
             {
-                return View("Trashcan", _searchResult);
+                return SearchRedirect.ShowSearchResult;
             }
 
             if (searchString == null)
             {
-                _searchResult = null;
-
-                if (_isDeleted == false)
+                if (_hasDeletionOccured == true)
                 {
-                    return View("Trashcan", _deleted);
+                    _hasDeletionOccured = false;
+
+                    return SearchRedirect.UpdateUserFiles;
                 }
 
-                _isDeleted = false;
-
-                return RedirectToAction("Trashcan", "Trashcan");
+                return SearchRedirect.ShowUserFiles;
             }
 
-            _searchResult = _deleted!.Where(x => x.Name.Contains(searchString)).ToList();
+            PerformSearch(searchString);
 
-            if (_searchResult.Count > 0)
+            if (_searchResult!.Count > 0)
             {
-                return View("Trashcan", _searchResult);
+                return SearchRedirect.ShowSearchResult;
             }
 
-            if (_isDeleted == false)
+            if (_hasDeletionOccured == true)
             {
-                return View("Trashcan", _deleted);
+                _hasDeletionOccured = false;
+
+                return SearchRedirect.UpdateUserFiles;
             }
 
-            _isDeleted = false;
-
-            return RedirectToAction("Trashcan", "Trashcan");
+            return SearchRedirect.ShowUserFiles;
         }
 
-        // Needs refactoring
-        public async Task<ActionResult> Recovery()
+        private void PerformSearch(string searchString)
         {
-            _userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            _searchResult = _deletedFiles.Where(file => file.Name.Contains(searchString)).ToList();
+        }
 
-            if (_searchResult == null && _deleted != null)
+        private async Task RecoverWithPreservation(List<UserFile> files)
+        {
+            var preservedResult = new List<UserFile>();
+
+            for (var position = 0; position < files.Count; position++)
             {
-                foreach (var name in _deleted)
+                var file = files[position];
+
+                if (file.IsSelected == true)
                 {
-                    if (name.IsSelected == true)
-                    {
-                        var trashcan = new Trashcan(_trashcanContainerName);
-                        await trashcan.RecoverFileAsync(name.Id, _userId, _applicationDbContext);
-                    }
-                }
-
-                return RedirectToAction("Trashcan", "Trashcan");
-            }
-
-             var newSearch = new List<UserFile>();
-
-            for (var elementPosition = 0; elementPosition < _searchResult!.Count; elementPosition++)
-            {
-                var name = _searchResult[elementPosition];
-
-                if (name.IsSelected == true)
-                {
-                    var trashcan = new Trashcan(_trashcanContainerName);
-                    await trashcan.RecoverFileAsync(name.Id, _userId, _applicationDbContext);
+                    await new Trashcan(ConstantValues._trashcanContainerName)
+                        .RecoverFileAsync(file.Id, _userId, _applicationDbContext);
                 }
                 else
                 {
-                    newSearch.Add(_searchResult.ElementAt(elementPosition));
+                    preservedResult.Add(files.ElementAt(position));
                 }
             }
 
-            _searchResult = newSearch;
-
-            return View("Trashcan", _searchResult);
+            _searchResult = preservedResult;
         }
+
+        private async Task RecoverWithoutPreservation(List<UserFile> files)
+        {
+            for (var position = 0; position < files.Count; position++)
+            {
+                var file = files[position];
+
+                if (file.IsSelected == true)
+                {
+                    await new Trashcan(ConstantValues._trashcanContainerName)
+                        .RecoverFileAsync(file.Id, _userId, _applicationDbContext);
+                }
+            }
+        }
+
+        private async Task DeletePermanentlyWithPreservation(List<UserFile> files)
+        {
+            _hasDeletionOccured = true;
+
+            var preservedResult = new List<UserFile>();
+
+            for (var position = 0; position < files.Count; position++)
+            {
+                var file = files[position];
+
+                if (file.IsSelected == true)
+                {
+                    var fileToDelete = _applicationDbContext.Files!.Find(file.Id);
+
+                    _deletedFiles.Remove(file);
+
+                    _applicationDbContext.Remove(fileToDelete!);
+                }
+                else
+                {
+                    preservedResult.Add(files.ElementAt(position));
+                }
+            }
+
+            _searchResult = preservedResult;
+
+            await _applicationDbContext.SaveChangesAsync();
+        }
+
+        private async Task DeletePermanentlyWithoutPreservation(List<UserFile> files)
+        {
+            _hasDeletionOccured = true;
+
+            for (var position = 0; position < files.Count; position++)
+            {
+                var file = files[position];
+
+                if (file.IsSelected == true)
+                {
+                    var fileToDelete = _applicationDbContext.Files!.Find(file.Id);
+
+                    _applicationDbContext.Remove(fileToDelete!);
+
+                    await new DeleteAzureFile().DeleteBlobAsync(fileToDelete, ConstantValues._trashcanContainerName);
+                }
+            }
+
+            await _applicationDbContext.SaveChangesAsync();
+        }
+
+        private void FileClick(int position, List<UserFile> files)
+        {
+            files.ElementAt(position).IsSelected ^= true;
+        }
+
+        public TrashcanController(ApplicationDbContext applicationDbContext)
+        {
+            _applicationDbContext = applicationDbContext;
+        }
+
+        private static bool _hasDeletionOccured = false;
+
+        private static List<UserFile> _deletedFiles = new();
+        private static List<UserFile>? _searchResult = new();
+
+        private static string _userId = String.Empty;
+        private static ApplicationDbContext _applicationDbContext = new();
     }
 }

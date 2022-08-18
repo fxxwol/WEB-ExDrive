@@ -1,10 +1,13 @@
 ﻿using ExDrive.Authentication;
 using ExDrive.Helpers;
+using ExDrive.Helpers.Constants;
 using ExDrive.Models;
 using ExDrive.Services;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
+
 using System.Security.Claims;
 
 namespace ExDrive.Controllers
@@ -44,6 +47,9 @@ namespace ExDrive.Controllers
                 case SearchRedirect.ShowUserFiles:
                     return View("AccessStorage", _userFiles);
 
+                case SearchRedirect.UpdateUserFiles:
+                    return RedirectToAction("AccessStorage", "Storage");
+
                 default:
                     return RedirectToAction("AccessStorage", "Storage");
             }
@@ -54,14 +60,14 @@ namespace ExDrive.Controllers
         {
             _isUserViewingFavourite = true;
 
-            if (_searchResult != null)
+            if (_searchResult == null)
             {
-                return View("AccessStorage", _userFiles);
+                FilterFavourite();
+
+                return View("AccessStorage", _searchResult);
             }
 
-            FilterFavourite();
-
-            return View("AccessStorage", _searchResult);
+            return View("AccessStorage", _userFiles);
         }
 
         public IActionResult SingleFile()
@@ -86,7 +92,6 @@ namespace ExDrive.Controllers
 
         [HttpPost]
         [Consumes("multipart/form-data")]
-        [RequestFormLimits(MultipartBodyLengthLimit = 629145600)]
         public async Task<IActionResult> SingleTempFileHandler(UploadInstance receivedFile)
         {
             if (receivedFile.MyFile == null)
@@ -94,38 +99,27 @@ namespace ExDrive.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            var uploadHandler = new UploadTempFile();
-
             try
             {
-                TempData["AlertMessage"] = await SingleTempFile(receivedFile, uploadHandler);
+                TempData["AlertMessage"] = await SingleTempFile(receivedFile);
             }
             catch
             {
                 TempData["AlertMessage"] = "Failed to upload: file may contain viruses";
             }
 
-            await uploadHandler.DisposeAsync();
-
             return RedirectToAction("Index", "Home");
         }
 
-        [HttpPost]
         [Authorize]
+        [HttpPost]
         [Consumes("multipart/form-data")]
-        [RequestFormLimits(MultipartBodyLengthLimit = 629145600)]
         public async Task<IActionResult> SinglePermFileHandler(UploadInstance receivedFile)
         {
-            if (String.IsNullOrEmpty(_userId) || receivedFile.MyFile == null)
+            if (receivedFile.MyFile != null)
             {
-                return RedirectToAction("AccessStorage", "Storage");
+                await SinglePermFile(receivedFile);
             }
-
-            var uploadHandler = new UploadPermFile();
-
-            await SinglePermFile(receivedFile, uploadHandler);
-
-            await uploadHandler.DisposeAsync();
 
             return RedirectToAction("AccessStorage", "Storage");
         }
@@ -170,7 +164,7 @@ namespace ExDrive.Controllers
         [Authorize]
         public async Task<ActionResult> DownloadFilesHandler()
         {
-            string path = Path.Combine(_tmpFilesPath, _userId);
+            string path = Path.Combine(ConstantValues._temporaryFilesFolderPath, _userId);
 
             if (_searchResult == null)
             {
@@ -183,28 +177,31 @@ namespace ExDrive.Controllers
 
             var files = Directory.GetFiles(path).ToList();
 
-            if (files.Count < 1 && _searchResult == null)
-            {
-                return View("AccessStorage", _userFiles);
-            }
-
             if (files.Count < 1)
             {
-                return View("AccessStorage", _searchResult);
+                if (_searchResult == null)
+                {
+                    return View("AccessStorage", _userFiles);
+                }
+                else
+                {
+                    return View("AccessStorage", _searchResult);
+                }
             }
 
             using var result = new CreateArchive().Create(files, path);
 
+            var archiveName = $"archive-{DateTime.Now:yyyy_MM_dd-HH_mm_ss}.zip";
+
             Directory.Delete(path, true);
 
-            return File(result.ToArray(), "application/zip",
-                        $"archive-{DateTime.Now.ToString("yyyy_MM_dd-HH_mm_ss")}.zip");
+            return File(result.ToArray(), "application/zip", archiveName);
         }
-        
+
         [Authorize]
         public async Task<string?> GetLinkHandler()
         {
-            string path = Path.Combine(_getLinkArchive, _userId);
+            string path = Path.Combine(ConstantValues._temporaryArchiveFolderPath, _userId);
 
             if (_searchResult == null)
             {
@@ -222,25 +219,19 @@ namespace ExDrive.Controllers
                 return null;
             }
 
-            var zipName = $"archive-{DateTime.Now.ToString("yyyy_MM_dd-HH_mm_ss")}.zip";
+            var archiveName = $"archive-{DateTime.Now:yyyy_MM_dd-HH_mm_ss}.zip";
 
             using var result = new CreateArchive().Create(files, path);
 
             Directory.Delete(path, true);
 
-            var uploadHandler = new UploadTempFile();
-
             try
             {
-                return await SingleTempFile(result, zipName, uploadHandler);
+                return await SingleTempFile(result, archiveName);
             }
             catch
             {
                 return "File may be malicious";
-            }
-            finally
-            {
-                await uploadHandler.DisposeAsync();
             }
         }
 
@@ -255,7 +246,7 @@ namespace ExDrive.Controllers
                 return;
             }
 
-            var readFileContext = new ReadFileContext();
+            using var readFileContext = new ReadFileContext();
 
             switch (new FindFileFormat().FindFormat(file.Name))
             {
@@ -288,14 +279,11 @@ namespace ExDrive.Controllers
 
             using var memoryStream = new MemoryStream();
 
-            using (var stream = new DownloadAzureFile().DownloadFileAsync(file.Id, _userId).Result)
-            {
-                await stream.CopyToAsync(memoryStream);
-            }
+            using var downloadedFileStream = new DownloadAzureFile().DownloadFileAsync(file.Id, _userId).Result;
+                
+            await downloadedFileStream.CopyToAsync(memoryStream);
 
             await readFileContext.ExecuteStrategy(HttpContext, memoryStream);
-
-            readFileContext.Dispose();
         }
 
         [Authorize]
@@ -314,7 +302,7 @@ namespace ExDrive.Controllers
             }
             else
             {
-                if (String.IsNullOrWhiteSpace(newName))
+                if (!String.IsNullOrWhiteSpace(newName))
                 {
                     await Rename(_searchResult, newName);
 
@@ -325,8 +313,8 @@ namespace ExDrive.Controllers
             }
         }
 
-        // Needs refactoring
-        [HttpPost, DisableRequestSizeLimit]
+        [HttpPost]
+        [DisableRequestSizeLimit]
         public async Task<ActionResult> SingleTempBotFileHandler()
         {
             if (Request.ContentLength == 0 || Request.ContentLength == null)
@@ -339,7 +327,7 @@ namespace ExDrive.Controllers
                 var uploadedFile = await SingleTempBotFile(Request);
 
                 return Ok(new BotSuccessResponse().Write(Response,
-                        _tempFilesContainerLink + uploadedFile.FilesId));
+                        ConstantValues._temporaryFilesContainerLink + uploadedFile.FilesId));
             }
             catch
             {
@@ -418,7 +406,7 @@ namespace ExDrive.Controllers
 
                 var modified = toModify;
 
-                modified.Favourite ^= true;
+                modified.Favourite = !modified.Favourite;
 
                 _applicationDbContext.Files.Update(toModify).OriginalValues.SetValues(modified);
 
@@ -426,33 +414,39 @@ namespace ExDrive.Controllers
             }
         }
 
-        private async Task<string> SingleTempFile(UploadInstance receivedFile, UploadTempFile uploadHandler)
+        private async Task<string> SingleTempFile(UploadInstance receivedFile)
         {
             var newName = new GetUniqueName().GetName(receivedFile.MyFile!.FileName);
 
             var file = new Files(newName, receivedFile.MyFile.FileName);
 
+            using var uploadHandler = new UploadTempFile();
+
             await uploadHandler.UploadFileAsync(receivedFile, file, Guid.NewGuid().ToString(), _applicationDbContext);
 
-            return _tempFilesContainerLink + file.FilesId;
+            return ConstantValues._temporaryFilesContainerLink + file.FilesId;
         }
 
-        private async Task<string> SingleTempFile(MemoryStream memoryStream, string fileName, UploadTempFile uploadHandler)
+        private async Task<string> SingleTempFile(MemoryStream memoryStream, string fileName)
         {
             var newName = new GetUniqueName().GetName(fileName);
 
             var file = new Files(newName, fileName);
 
+            using var uploadHandler = new UploadTempFile();
+
             await uploadHandler.UploadFileAsync(memoryStream, file, _applicationDbContext);
 
-            return _tempFilesContainerLink + file.FilesId;
+            return ConstantValues._temporaryFilesContainerLink + file.FilesId;
         }
 
-        private async Task SinglePermFile(UploadInstance receivedFile, UploadPermFile uploadHandler)
+        private async Task SinglePermFile(UploadInstance receivedFile)
         {
             var newName = new GetUniqueName().GetName(receivedFile.MyFile!.FileName);
 
             var file = new Files(newName, receivedFile.MyFile.FileName, _userId!, false);
+
+            using var uploadHandler = new UploadPermFile();
 
             await uploadHandler.UploadFileAsync(receivedFile, file, _userId!, _applicationDbContext);
         }
@@ -465,7 +459,7 @@ namespace ExDrive.Controllers
 
             var file = new Files(new GetUniqueName().GetName(oldName), oldName);
 
-            Stream fileStream = httpRequest.Body;
+            var fileStream = httpRequest.Body;
 
             await new UploadTempBotFile().UploadFileAsync(fileStream, (long)httpRequest.ContentLength!,
                                                                 file, _applicationDbContext);
@@ -485,7 +479,8 @@ namespace ExDrive.Controllers
 
                 if (file.IsSelected == true)
                 {
-                    await new Trashcan(_trashcanContainerName).DeleteFileAsync(file.Id, _userId, _applicationDbContext);
+                    await new Trashcan(ConstantValues._trashcanContainerName)
+                        .DeleteFileAsync(file.Id, _userId, _applicationDbContext);
                 }
                 else
                 {
@@ -506,7 +501,8 @@ namespace ExDrive.Controllers
 
                 if (file.IsSelected == true)
                 {
-                    await new Trashcan(_trashcanContainerName).DeleteFileAsync(file.Id, _userId, _applicationDbContext);
+                    await new Trashcan(ConstantValues._trashcanContainerName)
+                        .DeleteFileAsync(file.Id, _userId, _applicationDbContext);
                 }
             }
         }
@@ -529,11 +525,15 @@ namespace ExDrive.Controllers
             renamedFile!.Name = new GetValidName().GetName(newName, fileToRename!.Name);
 
             _applicationDbContext.Files.Update(fileToRename).OriginalValues.SetValues(renamedFile);
-
-            files.Find(entry => entry.Id == fileToRename.FilesId)!.Name = renamedFile.Name;
+            
+            RenameElementsWithId(files, fileToRename.FilesId, renamedFile.Name);
 
             await _applicationDbContext.SaveChangesAsync();
+        }
 
+        private void RenameElementsWithId(List<UserFile> files, string fileIdToMatch, string newName)
+        {
+            files.Find(entry => entry.Id == fileIdToMatch)!.Name = newName;
         }
 
         private UserFile? FindFirstSelectedFile()
@@ -562,7 +562,7 @@ namespace ExDrive.Controllers
 
         private void FileClick(int position, List<UserFile> files)
         {
-            files.ElementAt(position).IsSelected ^= true;
+            files.ElementAt(position).IsSelected = !files.ElementAt(position).IsSelected;
         }
 
         private void FilterFavourite()
@@ -583,10 +583,5 @@ namespace ExDrive.Controllers
         private static string _userId = String.Empty;
         private static bool _hasDeletionOccured = false;
         private static bool _isUserViewingFavourite = false;
-
-        private static readonly string _tmpFilesPath = "C:\\Users\\Public\\tmpfiles\\";
-        private static readonly string _getLinkArchive = "C:\\Users\\Public\\getlink\\";
-        private static readonly string _tempFilesContainerLink = "https://exdrivefile.blob.core.windows.net/botfiles/";
-        private static readonly string _trashcanContainerName = "trashcan";
     }
 }

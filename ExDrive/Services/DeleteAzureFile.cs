@@ -8,7 +8,7 @@ namespace ExDrive.Services
 {
     public class DeleteAzureFile
     {
-        public async void DeleteBlobAsync(Files? file, string containerName)
+        public async Task DeleteBlobAsync(Files? file, string containerName)
         {
             if (file == null)
             {
