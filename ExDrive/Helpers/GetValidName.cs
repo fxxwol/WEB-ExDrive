@@ -6,6 +6,9 @@ namespace ExDrive.Helpers
     {
         public string GetName(string newName, string oldNameWithFormat)
         {
+            // This expression selects all the symbols from a string
+            // which are valid for a file name
+
             var pickValidName = new Regex("[^\\\\\\/:\\*\\?\"<>\\|]");
 
             var validSymbols = pickValidName.Matches(newName)
