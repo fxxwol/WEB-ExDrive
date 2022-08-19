@@ -1,5 +1,4 @@
-﻿using ExDrive.Models;
-using ExDrive.Helpers.Constants;
+﻿using ExDrive.Helpers.Constants;
 
 namespace ExDrive.Helpers
 {
@@ -7,16 +6,32 @@ namespace ExDrive.Helpers
     {
         public string Select(string fileId)
         {
-            var type = new FindFileFormat().FindFormat(fileId);
+            var format = new FindFileFormat().FindFormatWithoutDot(fileId);
 
-            return ConstantValues._iconsImagesPath + type + ".png";
+            if (ConstantValues._formatsWithIcons.Contains(format))
+            {
+                return ConstantValues._iconsImagesPath + format + ".png";
+            }
+            else
+            {
+                return ConstantValues._defaultIconPath;
+            }
+
+            
         }
 
         public string SelectFavourite(string fileId)
         {
-            var type = new FindFileFormat().FindFormat(fileId);
+            var format = new FindFileFormat().FindFormatWithoutDot(fileId);
 
-            return ConstantValues._iconsImagesPath + type + "fav.png";
+            if (ConstantValues._formatsWithIcons.Contains(format))
+            {
+                return ConstantValues._iconsImagesPath + format + "fav.png";
+            }
+            else
+            {
+                return ConstantValues._defaultFavouriteIconPath;
+            }
         }
     }
 }

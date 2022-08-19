@@ -1,4 +1,7 @@
-﻿@using ExDrive.Models
+﻿@using ExDrive.Helpers
+@using ExDrive.Helpers.Constants
+@using ExDrive.Models
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -41,74 +44,28 @@
         @model List<UserFile>
         @using (Html.BeginForm("FileClickHandler", "Trashcan"))
         {
-            int count = 0;
-            @foreach (var row in @Model)
+            string iconPath = String.Empty;
+            string defaultIconPath = String.Empty;
+
+            @for (var index = 0; index < @Model.Count; ++index)
             {
-                if (row.Name != null)
+                var file = @Model.ElementAt(index);
+
+                if (file.IsFavourite == false)
                 {
-                    string type = "";
-                    @for (int i = row.Name.LastIndexOf('.') + 1; i < row.Name.Length; i++)
-                    {
-                        type += row.Name.ElementAt(i);
-                    }
-
-                    string imageToView = "";
-                    switch (type)
-                    {
-                        case "png":
-                                imageToView = "~/css/images/png.png";
-                            break;
-                        case "jpg":
-                                imageToView = "~/css/images/jpg.png";
-                            break;
-                        case "pdf":
-                                imageToView = "~/css/images/pdf.png";
-                            break;
-                        case "mp4":
-                                imageToView = "~/css/images/mp4.png";
-                            break;
-                        case "txt":
-                                imageToView = "~/css/images/txt.png";
-                            break;
-                        case "mp3":
-                                imageToView = "~/css/images/mp3.png";
-                            break;
-                        case "doc":
-                                imageToView = "~/css/images/doc.png";
-                            break;
-                        case "docx":
-                                imageToView = "~/css/images/docx.png";
-                            break;
-                        case "xls":
-                                imageToView = "~/css/images/xls.png";
-                            break;
-                        case "xlsx":
-                                imageToView = "~/css/images/xlsx.png";
-                            break;
-                        case "mov":
-                                imageToView = "~/css/images/mov.png";
-                            break;
-                        case "webm":
-                                imageToView = "~/css/images/webm.png";
-                            break;
-                        case "zip":
-                                imageToView = "~/css/images/zip.png";
-                            break;
-                        case "gif":
-                                imageToView = "~/css/images/gif.png";
-                            break;
-                        default:
-                                imageToView = "~/css/images/file.png";
-                            break;
-                    }
-
-                    <div class="item" title="@row.Name" style="border: medium none">
-                        <img src="@Url.Content(imageToView)" value=@count runat="server" style="border: medium none; width: 100px; height: 100px; border-radius: 15px;" />
-                        <span class="caption">@row.Name</span>
-                    </div>
-
-                    count++;
+                    iconPath = new SelectFileIcon().Select(file.Id);
                 }
+                else
+                {
+                   iconPath = new SelectFileIcon().SelectFavourite(file.Id);
+                }
+                
+                <div class="item" title="@file.Name" style="border: medium none">
+                    <img src="@Url.Content(iconPath)"
+                    value=@index runat="server" 
+                    style="border: medium none; width: 100px; height: 100px; border-radius: 15px;"/>
+                    <span class="caption">@file.Name</span>
+                </div>
             }
         }
     </div>

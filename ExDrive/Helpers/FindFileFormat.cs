@@ -21,5 +21,25 @@
 
             return format;
         }
+
+        public string FindFormatWithoutDot(string fileName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName) ||
+                fileName.LastIndexOf('.') < 0 ||
+                fileName.LastIndexOf('.') == fileName.Length - 1)
+            {
+                return String.Empty;
+            }
+
+            var format = String.Empty;
+
+            for (var characterPosition = fileName.LastIndexOf('.') + 1;
+                characterPosition < fileName.Length; characterPosition++)
+            {
+                format += fileName.ElementAt(characterPosition);
+            }
+
+            return format;
+        }
     }
 }

@@ -98,141 +98,30 @@
         @model List<UserFile>
         @using (Html.BeginForm("FileClickHandler", "Storage"))
         {
-            int count = 0;
-            @foreach (var row in @Model)
-            {
-                if (row.IsFavourite == false)
-                {
-                    string type = "";
-                    @for (int i = row.Name!.LastIndexOf('.') + 1; i < row.Name.Length; i++)
-                    {
-                        type += row.Name.ElementAt(i);
-                    }
+            string iconPath = String.Empty;
+            string defaultIconPath = String.Empty;
 
-                    string imagetoview = ""; 
-                    switch (type)
-                    {
-                        case "png":
-                            imagetoview = "~/css/images/png.png";
-                            break;
-                        case "jpg":
-                            imagetoview = "~/css/images/jpg.png";
-                            break;
-                        case "pdf":
-                            imagetoview = "~/css/images/pdf.png";
-                            break;
-                        case "mp4":
-                            imagetoview = "~/css/images/mp4.png";
-                            break;
-                        case "txt":
-                            imagetoview = "~/css/images/txt.png";
-                            break;
-                        case "mp3":
-                            imagetoview = "~/css/images/mp3.png";
-                            break;
-                        case "doc":
-                            imagetoview = "~/css/images/doc.png";
-                            break;
-                        case "docx":
-                            imagetoview = "~/css/images/docx.png";
-                            break;
-                        case "xls":
-                            imagetoview = "~/css/images/xls.png";
-                            break;
-                        case "xlsx":
-                            imagetoview = "~/css/images/xlsx.png";
-                            break;
-                        case "mov":
-                            imagetoview = "~/css/images/mov.png";
-                            break;
-                        case "webm":
-                            imagetoview = "~/css/images/webm.png";
-                            break;
-                        case "zip":
-                            imagetoview = "~/css/images/zip.png";
-                            break;
-                        case "gif":
-                            imagetoview = "~/css/images/gif.png";
-                            break;
-                        default:
-                            imagetoview = "~/css/images/file.png";
-                            break;
-                    }
-                    <div class="item" title="@row.Name" style="border: medium none">
-                        <img src="@Url.Content(new SelectFileIcon().Select(row.Id))"
-                        value=@count runat="server" 
-                        style="border: medium none; width: 100px; height: 100px; border-radius: 15px;"
-                        onerror="this.onerror=null; this.src=@Url.Content(ConstantValues._defaultIconPath)"/>
-                        <span class="caption">@row.Name</span>
-                    </div>
-                    count++;
+            @for (var index = 0; index < @Model.Count; ++index)
+            {
+                var file = @Model.ElementAt(index);
+
+                if (file.IsFavourite == false)
+                {
+                    iconPath = new SelectFileIcon().Select(file.Id);
                 }
                 else
                 {
-                    string type = "";
-                    @for (int i = row.Name.LastIndexOf('.') + 1; i < row.Name.Length; i++)
-                    {
-                        type += row.Name.ElementAt(i);
-                    }
-
-                    string imagetoview = "";
-                    switch (type)
-                    {
-                        case "png":
-                            imagetoview = "~/css/images/pngfav.png";
-                            break;
-                        case "jpg":
-                            imagetoview = "~/css/images/jpgfav.png";
-                            break;
-                        case "pdf":
-                            imagetoview = "~/css/images/pdffavourite.png";
-                            break;
-                        case "mp4":
-                            imagetoview = "~/css/images/mp4fav.png";
-                            break;
-                        case "txt":
-                            imagetoview = "~/css/images/txtfav.png";
-                            break;
-                        case "mp3":
-                            imagetoview = "~/css/images/mp3fav.png";
-                            break;
-                        case "doc":
-                            imagetoview = "~/css/images/docfav.png";
-                            break;
-                        case "docx":
-                            imagetoview = "~/css/images/docxfav.png";
-                            break;
-                        case "xls":
-                            imagetoview = "~/css/images/xlsfav.png";
-                            break;
-                        case "xlsx":
-                            imagetoview = "~/css/images/xlsxfav.png";
-                            break;
-                        case "mov":
-                            imagetoview = "~/css/images/movfav.png";
-                            break;
-                        case "webm":
-                            imagetoview = "~/css/images/webmfavourite.png";
-                            break;
-                        case "zip":
-                            imagetoview = "~/css/images/zipfav.png";
-                            break;
-                        case "gif":
-                            imagetoview = "~/css/images/giffavourite.png";
-                            break;
-                        default:
-                            imagetoview = "~/css/images/filefavourite.png";
-                            break;
-                    }
-                    <div class="item" title="@row.Name" style="border: medium none">
-                        <img src="@Url.Content(imagetoview)" value=@count runat="server" style="border: medium none; width: 100px; height: 100px; border-radius: 15px;" />
-                        <span class="caption">@row.Name</span>
-                    </div>
-                    count++;
+                   iconPath = new SelectFileIcon().SelectFavourite(file.Id);
                 }
+                
+                <div class="item" title="@file.Name" style="border: medium none">
+                    <img src="@Url.Content(iconPath)"
+                    value=@index runat="server" 
+                    style="border: medium none; width: 100px; height: 100px; border-radius: 15px;"/>
+                    <span class="caption">@file.Name</span>
+                </div>
             }
         }
-
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -357,8 +246,6 @@
 
             document.body.removeChild(el);
         }
-
-
     </script>
 
 </body>
